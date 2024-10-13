@@ -87,4 +87,5 @@ web/.dart_tool/
 
 # Linux specific
 linux/flutter/ephemeral/
+.idx
 
