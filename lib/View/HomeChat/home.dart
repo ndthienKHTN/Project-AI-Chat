@@ -1,46 +1,73 @@
+import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
+import 'package:flutter/widgets.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
+import '../../Model/message-model.dart';
+import '../EmailTab/email.dart';
 import '../Menu/menu.dart';
 import '../ToolWidget/tool.dart';
 
 class HomeChat extends StatefulWidget {
+  const HomeChat({super.key});
+
   @override
   State<HomeChat> createState() => _HomeChatState();
 }
 
 class _HomeChatState extends State<HomeChat> {
-  final List<Map<String, String>> _messages = [];
+  //final List<Map<String, String>> _messages = [];
+  String? _selectedImagePath;
   final TextEditingController _controller = TextEditingController();
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   int _countToken = 50; //Token
   List<String> listAIItems = ['Bin AI', 'Monica', 'Chat GPT', 'Jarvis'];
   String selectedAIItem = 'Jarvis';
   bool _isOpenToolWidget = false;
+  Map<String, int> aiTokenCounts = {
+    'Bin AI': 50,
+    'Monica': 60,
+    'Chat GPT': 70,
+    'Jarvis': 80,
+  };
   void _toggleToolVisibility() {
     setState(() {
       _isOpenToolWidget = !_isOpenToolWidget;
     });
   }
   void _sendMessage() {
-    if (_controller.text.isEmpty) return;
+    if (_controller.text.isEmpty && _selectedImagePath == null) return;
     setState(() {
-      _messages.add({'sender': 'user', 'text': _controller.text});
-      _messages.add({'sender': 'bot', 'text': 'This is a bot response.'});
+      if (_selectedImagePath != null) {
+        Provider.of<MessageModel>(context, listen: false).addMessage({
+          'sender': 'user',
+          'image': _selectedImagePath!,
+        });
+        _selectedImagePath = null;
+      } else {
+        Provider.of<MessageModel>(context, listen: false).addMessage({
+          'sender': 'user',
+          'text': _controller.text,
+        });
+      }
+      Provider.of<MessageModel>(context, listen: false).addMessage({
+        'sender': 'bot',
+        'text': 'This is a bot response.',
+      });
       _controller.clear();
       _countToken--;
     });
   }
-
   void updateSelectedAIItem(String newValue) {
     setState(() {
-      listAIItems.remove(newValue); // Xóa item khỏi vị trí hiện tại
-      listAIItems.add(newValue); // Thêm item vào cuối mảng
-      selectedAIItem = newValue; // Cập nhật giá trị được chọn
+      listAIItems.remove(newValue);
+      listAIItems.add(newValue);
+      selectedAIItem = newValue;
     });
   }
 
-  Widget _buildMessage(String sender, String message) {
+  Widget _buildMessage(String sender, Map<String, String> message) {
     bool isUser = sender == 'user';
     return Align(
       alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
@@ -51,14 +78,38 @@ class _HomeChatState extends State<HomeChat> {
           color: isUser ? Colors.blue[100] : Colors.grey[300],
           borderRadius: BorderRadius.circular(12),
         ),
-        child: Text(
-          message,
+        child: message.containsKey('image') && message['image'] != null
+            ? Image.file(File(message['image']!))
+            : message.containsKey('text') && message['text'] != null
+            ? Text(
+          message['text']!,
           style: TextStyle(color: isUser ? Colors.black : Colors.black),
-        ),
+        )
+            : SizedBox.shrink(),
       ),
     );
   }
-
+  void _saveConversation() {
+    Provider.of<MessageModel>(context, listen: false).saveConversation();
+  }
+  Future<void> _openGallery() async {
+    final ImagePicker _picker = ImagePicker();
+    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+    if (image != null) {
+      setState(() {
+        _selectedImagePath = image.path;
+      });
+    }
+  }
+  Future<void> _openCamera() async {
+    final ImagePicker _picker = ImagePicker();
+    final XFile? image = await _picker.pickImage(source: ImageSource.camera);
+    if (image != null) {
+      setState(() {
+        _selectedImagePath = image.path;
+      });
+    }
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -107,12 +158,17 @@ class _HomeChatState extends State<HomeChat> {
                     child: Column(
                       children: [
                         Expanded(
-                          child: ListView.builder(
-                            itemCount: _messages.length,
-                            itemBuilder: (context, index) {
-                              return _buildMessage(
-                                _messages[index]['sender']!,
-                                _messages[index]['text']!,
+                          child: Consumer<MessageModel>(
+                            builder: (context, messageModel, child) {
+                              return ListView.builder(
+                                itemCount: messageModel.messages.length,
+                                itemBuilder: (context, index) {
+                                  final message = messageModel.messages[index];
+                                  return _buildMessage(
+                                    message['sender'] ?? 'unknown',
+                                    message,
+                                  );
+                                },
                               );
                             },
                           ),
@@ -141,9 +197,6 @@ class _HomeChatState extends State<HomeChat> {
                                               value: value,
                                               child: Text(
                                                 value,
-                                                // style: TextStyle(
-                                                //   fontSize: 15,
-                                                // ),
                                               ),
                                             );
                                           }).toList(),
@@ -165,15 +218,11 @@ class _HomeChatState extends State<HomeChat> {
                                       ),
                                     ),
                                   ),
+                                  IconButton(onPressed: (){}, icon: Icon(Icons.light_mode_sharp)),
                                   Spacer(),
                                   IconButton(
-                                    icon: const Icon(
-                                        Icons.add_circle_outline),
-                                    onPressed: () {
-                                      setState(() {
-                                        _messages.clear();
-                                      });
-                                    },
+                                    icon: const Icon(Icons.add_circle_outline),
+                                    onPressed: Provider.of<MessageModel>(context).messages.isEmpty ? null : _saveConversation,
                                   ),
                                 ],
                               ),
@@ -182,7 +231,7 @@ class _HomeChatState extends State<HomeChat> {
                               ),
                               Container(
                                 constraints: const BoxConstraints(
-                                  minHeight: 100,
+                                  minHeight: 50,
                                   maxHeight: 140,
                                 ),
                                 padding: const EdgeInsets.all(10),
@@ -191,37 +240,72 @@ class _HomeChatState extends State<HomeChat> {
                                   borderRadius: BorderRadius.circular(10),
                                 ),
                                 child: Column(
-                                  mainAxisAlignment:
-                                  MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Expanded(
-                                      child: TextField(
-                                        controller: _controller,
-                                        maxLines: null,
-                                        decoration: const InputDecoration(
-                                          hintText: 'Nhập tin nhắn...',
-                                          border: InputBorder.none,
+                                    Row(
+                                      children: [
+                                        if (_selectedImagePath != null)
+                                          Stack(
+                                            children: [
+                                              Container(
+                                                decoration: BoxDecoration(
+                                                  border: Border.all(color: Colors.grey, width: 4), // Add border here
+                                                  borderRadius: BorderRadius.circular(12),
+                                                ),
+                                                child: Image.file(
+                                                  File(_selectedImagePath!),
+                                                  width: 60,
+                                                  height: 60,
+                                                  fit: BoxFit.cover,
+                                                ),
+                                              ),
+                                              Positioned(
+                                                right: -12,
+                                                top: -12,
+                                                child: IconButton(
+                                                  icon: Icon(Icons.close,size: 20,),
+                                                  onPressed: () {
+                                                    setState(() {
+                                                      _selectedImagePath = null;
+                                                    });
+                                                  },
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        Expanded(
+                                          child: TextField(
+                                            controller: _controller,
+                                            maxLines: null,
+                                            decoration: InputDecoration(
+                                              hintText: (_selectedImagePath == null) ? 'Nhập tin nhắn...' : null,
+                                              border: InputBorder.none,
+                                            ),
+                                          ),
                                         ),
-                                      ),
+                                      ],
                                     ),
+
                                     // Dòng 3: Icon và nút send
                                     Row(
-                                      mainAxisAlignment:
-                                      MainAxisAlignment.start,
+                                      mainAxisAlignment: MainAxisAlignment.start,
                                       children: [
                                         IconButton(
-                                          icon: const Icon(
-                                              Icons.image_rounded),
-                                          onPressed: () {},
+                                          icon: const Icon(Icons.image_rounded),
+                                          onPressed: _openGallery,
                                         ),
                                         IconButton(
-                                          icon:
-                                          const Icon(Icons.camera_alt),
-                                          onPressed: () {},
+                                          icon: const Icon(Icons.camera_alt),
+                                          onPressed: _openCamera,
                                         ),
                                         IconButton(
                                           icon: const Icon(Icons.email),
-                                          onPressed: () {},
+                                          onPressed: () {
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(builder: (context) => EmailComposer()),
+                                            );
+                                          },
                                         ),
                                         Spacer(),
                                         IconButton(
@@ -252,7 +336,7 @@ class _HomeChatState extends State<HomeChat> {
                                     color: Colors.greenAccent,
                                   ),
                                   Text(
-                                    '$_countToken',
+                                    '${aiTokenCounts[selectedAIItem]}',
                                     style: TextStyle(
                                         color: Color.fromRGBO(
                                             161, 156, 156, 1.0)),
@@ -291,7 +375,7 @@ class _HomeChatState extends State<HomeChat> {
                             ),
                             Icon(
                               Icons.dangerous,
-                            )
+                            ),
                           ],
                         )
                       ],
