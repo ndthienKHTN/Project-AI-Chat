@@ -1,22 +1,26 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:project_ai_chat/View/Bot/data/bots_data.dart';
-import 'package:project_ai_chat/View/Bot/page/new_bot.dart';
-import 'package:project_ai_chat/View/Bot/widgets/bot_card.dart';
-import 'package:project_ai_chat/View/Bot/widgets/filter_button.dart';
+import 'package:project_ai_chat/View/Knowledge/data/knowledges_data.dart';
+import 'package:project_ai_chat/View/Knowledge/page/new_knowledge.dart';
+import 'package:project_ai_chat/View/Knowledge/widgets/knowledge_card.dart';
 
-class BotScreen extends StatelessWidget {
-  const BotScreen({super.key});
+class KnowledgeScreen extends StatelessWidget {
+  const KnowledgeScreen({super.key});
 
   void _openAddBotDialog(BuildContext context) {
-    showDialog(context: context, builder: (context) => const NewBot());
+    showDialog(context: context, builder: (context) => const NewKnowledge());
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Bots"),
+        title: const Text(
+          "My Knowledges",
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+          ),
+        ),
         actions: [
           IconButton(
             onPressed: () {
@@ -44,25 +48,11 @@ class BotScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 8),
-            const Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                FilterButton(label: "Celebrity", isSelected: true),
-                FilterButton(label: "My bots", isSelected: false),
-                FilterButton(label: "Top", isSelected: false),
-                FilterButton(label: "Models", isSelected: false),
-              ],
-            ),
-            // const SizedBox(
-            //   height: 36,
-            //   child: FilterButtonList(),
-            // ),
-            const SizedBox(height: 10),
             Expanded(
               child: ListView.builder(
-                itemCount: bots.length,
+                itemCount: knowledges.length,
                 itemBuilder: (context, index) {
-                  return BotCard(bot: bots[index]);
+                  return KnowledgeCard(knowledge: knowledges[index]);
                 },
               ),
             ),
