@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
+import '../BottomSheet/custom_bottom_sheet.dart';
 import '../Menu/menu.dart';
 import '../ToolWidget/tool.dart';
 
@@ -166,6 +167,16 @@ class _HomeChatState extends State<HomeChat> {
                                     ),
                                   ),
                                   Spacer(),
+                                  GestureDetector(
+                                    onTap: () {
+                                    // Gọi hàm show bottom sheet từ file custom_bottom_sheet.dart
+                                    CustomBottomSheet.show(context);
+                                    },
+                                    child: Text(
+                                    'View all',
+                                    style: TextStyle(fontSize: 20, color: Colors.blue),
+                                    ),
+                                  ),
                                   IconButton(
                                     icon: const Icon(
                                         Icons.add_circle_outline),
