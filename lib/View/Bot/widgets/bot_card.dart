@@ -31,7 +31,7 @@ class BotCard extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    bot.description,
+                    bot.prompt,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -46,7 +46,16 @@ class BotCard extends StatelessWidget {
                         "By ${bot.team}",
                         style: const TextStyle(color: Colors.grey),
                       ),
-                      const SizedBox(width: 8),
+                      const Spacer(),
+                      bot.isPublish
+                          ? const Icon(
+                              Icons.public,
+                              size: 16,
+                            )
+                          : const Icon(
+                              Icons.lock_open,
+                              size: 16,
+                            ),
                     ],
                   ),
                 ],

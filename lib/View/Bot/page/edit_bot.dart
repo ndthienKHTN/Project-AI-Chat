@@ -2,15 +2,16 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:project_ai_chat/View/Bot/model/bot.dart';
 
-class NewBot extends StatefulWidget {
-  const NewBot({super.key, required this.addBot});
-  final void Function(Bot newBot) addBot;
+class EditBot extends StatefulWidget {
+  const EditBot({super.key, required this.editBot, required this.bot});
+  final void Function(Bot newBot) editBot;
+  final Bot bot;
 
   @override
-  State<NewBot> createState() => _NewBotState();
+  State<EditBot> createState() => _NewBotState();
 }
 
-class _NewBotState extends State<NewBot> {
+class _NewBotState extends State<EditBot> {
   final _formKey = GlobalKey<FormState>();
   final _arrKnowledge = ["knowledge1", "knowledge2"];
   int _accessOption = 1;
@@ -19,28 +20,25 @@ class _NewBotState extends State<NewBot> {
   String _enteredName = "";
   String _enteredPrompt = "";
 
+  @override
+  void initState() {
+    super.initState();
+    _enteredName = widget.bot.name;
+    _enteredPrompt = widget.bot.prompt;
+    _accessOption = widget.bot.isPublish ? 1 : 2;
+  }
+
   void _saveBot() {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
-
-      // Navigator.of(context).pop(
-      //   Bot(
-      //     name: _enteredName,
-      //     prompt: _enteredPrompt,
-      //     team: "Monica",
-      //     imageUrl:
-      //         "https://play-lh.googleusercontent.com/imw4zSeaSUa-duDEAGXPjIrpj1boTkZJ3Xc9cr9y0ENJCXInGjWJMN4uFXSdJFxz4Lc",
-      //     isPublish: _accessOption == 1 ? true : false,
-      //   ),
-      // );
-
-      widget.addBot(
+      
+      // information edit bot
+      widget.editBot(
         Bot(
           name: _enteredName,
           prompt: _enteredPrompt,
-          team: "Monica",
-          imageUrl:
-              "https://play-lh.googleusercontent.com/imw4zSeaSUa-duDEAGXPjIrpj1boTkZJ3Xc9cr9y0ENJCXInGjWJMN4uFXSdJFxz4Lc",
+          team: widget.bot.team,
+          imageUrl: widget.bot.imageUrl,
           isPublish: _accessOption == 1 ? true : false,
         ),
       );
@@ -66,7 +64,7 @@ class _NewBotState extends State<NewBot> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   const Text(
-                    'Tạo Bot',
+                    'Chỉnh sửa Bot',
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
                   ),
                   IconButton(
@@ -88,6 +86,7 @@ class _NewBotState extends State<NewBot> {
               const SizedBox(height: 10),
               TextFormField(
                 // controller: nameController,
+                initialValue: _enteredName,
                 decoration: const InputDecoration(
                   labelText: 'Tên',
                   hintText: 'Nhập tên',
@@ -110,6 +109,7 @@ class _NewBotState extends State<NewBot> {
               ),
               const SizedBox(height: 15),
               TextFormField(
+                initialValue: _enteredPrompt,
                 maxLines: 4,
                 decoration: const InputDecoration(
                   // labelText: 'Prompt',
@@ -232,7 +232,7 @@ class _NewBotState extends State<NewBot> {
             ),
             ElevatedButton(
               onPressed: _saveBot,
-              child: const Text("Tạo Ngay"),
+              child: const Text("Chỉnh sửa"),
             ),
           ],
         ),
