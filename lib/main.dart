@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
+import 'package:project_ai_chat/View/EmailTab/email.dart';
+import 'package:project_ai_chat/View/SplashScreen/splash_screen.dart';
+
+import 'Model/message-model.dart';
 import 'View/UpgradeVersion/upgrade-version.dart';
 import 'ViewModel/message-home-chat.dart';
 import 'View/HomeChat/home.dart';
@@ -22,7 +27,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: HomeChat(),
+      home: SplashScreen(),
     );
   }
 }
