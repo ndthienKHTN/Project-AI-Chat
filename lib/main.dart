@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:project_ai_chat/View/EmailTab/email.dart';
@@ -6,14 +5,17 @@ import 'package:project_ai_chat/View/SplashScreen/splash_screen.dart';
 import 'package:project_ai_chat/utils/theme/theme.dart';
 
 import 'Model/message-model.dart';
+import 'View/UpgradeVersion/upgrade-version.dart';
+import 'ViewModel/message-home-chat.dart';
 import 'View/HomeChat/home.dart';
 import 'package:provider/provider.dart';
-void main()  {
+
+void main() {
   runApp(
     ChangeNotifierProvider(
       create: (context) => MessageModel(),
       child: MyApp(),
-     ),
+    ),
   );
 }
 
@@ -30,5 +32,3 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-
-
