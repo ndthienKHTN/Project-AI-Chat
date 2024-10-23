@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:project_ai_chat/View/EmailTab/email.dart';
 import 'package:project_ai_chat/View/SplashScreen/splash_screen.dart';
+import 'package:project_ai_chat/utils/theme/theme.dart';
 
 import 'Model/message-model.dart';
 import 'View/HomeChat/home.dart';
@@ -22,9 +23,9 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Bin AI',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
+      theme: TAppTheme.lightTheme,
+      darkTheme: TAppTheme.darkTheme,
+      themeMode: ThemeMode.system,
       home: SplashScreen(),
     );
   }
