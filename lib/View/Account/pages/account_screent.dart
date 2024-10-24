@@ -12,7 +12,9 @@ class AccountScreent extends StatelessWidget {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () {},
+          onPressed: () {
+            Navigator.pop(context);
+          },
         ),
       ),
       body: Padding(
@@ -61,7 +63,7 @@ class AccountScreent extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.grey[200],
+                  color: Colors.cyan,
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Row(
@@ -83,6 +85,7 @@ class AccountScreent extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
+                            color: Colors.white,
                           ),
                         ),
                         const SizedBox(height: 4),
@@ -101,48 +104,11 @@ class AccountScreent extends StatelessWidget {
                   ],
                 ),
               ),
-              // const SizedBox(height: 24),
-              // ListTile(
-              //   leading: Icon(Icons.chat_bubble_outline),
-              //   title: Text('Cài đặt trò chuyện'),
-              //   onTap: () {},
-              // ),
-              // ListTile(
-              //   leading: Icon(Icons.brightness_2_outlined),
-              //   title: Text('Chế độ màu sắc'),
-              //   subtitle: Text('Theo Hệ thống'),
-              //   onTap: () {},
-              // ),
-              // ListTile(
-              //   leading: Icon(Icons.language),
-              //   title: Text('Ngôn ngữ'),
-              //   subtitle: Text('Tiếng Việt'),
-              //   onTap: () {},
-              // ),
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // // Token Usage Section
-                    // Card(
-                    //   color: Colors.grey[200], // Màu nền sáng
-                    //   child: const ListTile(
-                    //     title: Text(
-                    //       'Token Usage',
-                    //       style: TextStyle(fontWeight: FontWeight.bold),
-                    //     ),
-                    //     subtitle: Row(
-                    //       children: [
-                    //         Text('Today'),
-                    //         SizedBox(
-                    //           width: 10,
-                    //         ),
-                    //         Text('1/40'),
-                    //       ],
-                    //     ),
-                    //   ),
-                    // ),
                     const SizedBox(height: 20),
                     // Account Section
                     const Text(
@@ -152,14 +118,14 @@ class AccountScreent extends StatelessWidget {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    Card(
-                      color: Colors.grey[200], // Màu nền sáng
-                      child: const ListTile(
+                    const Card(
+                      color: Colors.white, // Màu nền sáng
+                      child: ListTile(
                         leading: Icon(Icons.account_circle),
                         title: Text('ducthinh12tn137'),
                       ),
                     ),
-                    SizedBox(height: 10),
+                    const SizedBox(height: 10),
                     Card(
                       color: Colors.red[100], // Màu nền nút đăng xuất
                       child: ListTile(
@@ -170,9 +136,9 @@ class AccountScreent extends StatelessWidget {
                         },
                       ),
                     ),
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
                     // Support Section
-                    Text(
+                    const Text(
                       'Support',
                       style: TextStyle(
                         fontSize: 18,
@@ -180,7 +146,7 @@ class AccountScreent extends StatelessWidget {
                       ),
                     ),
                     Card(
-                      color: Colors.grey[200], // Màu nền sáng
+                      color: Colors.white, // Màu nền sáng
                       child: ListTile(
                         leading: Icon(Icons.settings),
                         title: Text('Settings'),
@@ -190,7 +156,7 @@ class AccountScreent extends StatelessWidget {
                       ),
                     ),
                     Card(
-                      color: Colors.grey[200], // Màu nền sáng
+                      color: Colors.white, // Màu nền sáng
                       child: ListTile(
                         leading: Icon(Icons.chat_bubble_outline),
                         title: Text('Cài đặt trò chuyện'),
@@ -200,7 +166,7 @@ class AccountScreent extends StatelessWidget {
                       ),
                     ),
                     Card(
-                      color: Colors.grey[200], // Màu nền sáng
+                      color: Colors.white, // Màu nền sáng
                       child: ListTile(
                         leading: Icon(Icons.brightness_2_outlined),
                         title: Text('Chế độ màu sắc'),
@@ -209,7 +175,7 @@ class AccountScreent extends StatelessWidget {
                       ),
                     ),
                     Card(
-                      color: Colors.grey[200], // Màu nền sáng
+                      color: Colors.white, // Màu nền sáng
                       child: ListTile(
                         leading: Icon(Icons.language),
                         title: Text('Ngôn ngữ'),
@@ -219,7 +185,7 @@ class AccountScreent extends StatelessWidget {
                         },
                       ),
                     ),
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
                     // About Section
                     const Text(
                       'About',
@@ -229,7 +195,7 @@ class AccountScreent extends StatelessWidget {
                       ),
                     ),
                     Card(
-                      color: Colors.grey[200], // Màu nền sáng
+                      color: Colors.white, // Màu nền sáng
                       child: ListTile(
                         leading: Icon(Icons.privacy_tip),
                         title: Text('Privacy Policy'),
@@ -238,9 +204,9 @@ class AccountScreent extends StatelessWidget {
                         },
                       ),
                     ),
-                    Card(
-                      color: Colors.grey[200], // Màu nền sáng
-                      child: const ListTile(
+                    const Card(
+                      color: Colors.white, // Màu nền sáng
+                      child: ListTile(
                         leading: Icon(Icons.info),
                         title: Text('Version'),
                         trailing: Text('3.1.0'),

@@ -24,16 +24,15 @@ class _NewKnowledgeState extends State<NewKnowledge> {
 
       widget.addNewKnowledge(
         Knowledge(
-          name: _enteredName,
-          description: _enteredPrompt,
-          imageUrl:
-              "https://img.freepik.com/premium-photo/green-white-graphic-stack-barrels-with-green-top_1103290-132885.jpg",
-          listFiles: [],
-          listGGDrives: [],
-          listUrlWebsite: [],
-          listConfluenceFiles: [],
-          listSlackFiles: []
-        ),
+            name: _enteredName,
+            description: _enteredPrompt,
+            imageUrl:
+                "https://img.freepik.com/premium-photo/green-white-graphic-stack-barrels-with-green-top_1103290-132885.jpg",
+            listFiles: [],
+            listGGDrives: [],
+            listUrlWebsite: [],
+            listConfluenceFiles: [],
+            listSlackFiles: []),
       );
 
       Provider.of<KnowledgeBaseProvider>(context, listen: false)
@@ -146,15 +145,36 @@ class _NewKnowledgeState extends State<NewKnowledge> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            TextButton(
+            OutlinedButton(
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: const Text("Hủy"),
+              style: OutlinedButton.styleFrom(
+                  shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(10)),
+                  ),
+                  side: const BorderSide(width: 1, color: Colors.orange)),
+              child: const Text(
+                "Huỷ",
+                style: TextStyle(
+                  color: Colors.orange,
+                ),
+              ),
             ),
             ElevatedButton(
               onPressed: _saveKnowledgeBase,
-              child: const Text("Tạo Ngay"),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue,
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                ),
+              ),
+              child: const Text(
+                "Tạo ngay",
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
             ),
           ],
         ),

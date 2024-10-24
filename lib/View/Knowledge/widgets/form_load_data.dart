@@ -57,7 +57,7 @@ class _FormLoadDataState extends State<FormLoadData> {
               child: Container(
                 decoration: BoxDecoration(
                   border: Border.all(
-                    color: Colors.grey,
+                    color: Colors.blue,
                     width: 1,
                   ),
                   borderRadius: BorderRadius.circular(10),

@@ -26,7 +26,7 @@ class NewBotKnowledge extends StatelessWidget {
           Row(
             children: [
               const Text(
-                'Publish to',
+                'Thêm bộ dữ liệu tri thức',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               const Spacer(),
@@ -38,16 +38,11 @@ class NewBotKnowledge extends StatelessWidget {
           ),
           const SizedBox(height: 10),
           const Icon(
-            Icons.warning,
-            color: Colors.red,
+            Icons.addchart,
+            color: Colors.blue,
             size: 30,
           ),
-          const Text(
-            'By publishing your bot on the following platforms, you fully understand and agree to abide by Terms of service for each publishing channel.',
-            style: TextStyle(fontSize: 14),
-          ),
           const SizedBox(height: 20),
-          const Text("Bộ dữ liệu tri thức"),
           Column(children: [
             Column(
               children: arrKnowledge

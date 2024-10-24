@@ -1,15 +1,21 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:project_ai_chat/View/Knowledge/widgets/form_load_data.dart';
+import 'package:project_ai_chat/View/Knowledge/widgets/form_load_data_confluence.dart';
+import 'package:project_ai_chat/View/Knowledge/widgets/form_load_data_ggdrive.dart';
+import 'package:project_ai_chat/View/Knowledge/widgets/form_load_data_slack.dart';
+import 'package:project_ai_chat/View/Knowledge/widgets/form_load_data_web.dart';
 
 class LoadDataKnowledge extends StatefulWidget {
   const LoadDataKnowledge(
       {super.key,
+      required this.type,
       required this.arrFile,
       required this.nameTypeData,
       required this.imageAddress,
       required this.addNewData,
       required this.removeData});
+  final int type;
   final List<String> arrFile;
   final String nameTypeData;
   final String imageAddress;
@@ -22,11 +28,37 @@ class LoadDataKnowledge extends StatefulWidget {
 
 class _LoadDataKnowledgeState extends State<LoadDataKnowledge> {
   void _openDialogAddFile(BuildContext context) {
-    showDialog(
-        context: context,
-        builder: (context) => FormLoadData(
-              addNewData: _addNewFile,
-            ));
+    if (widget.type == 1) {
+      showDialog(
+          context: context,
+          builder: (context) => FormLoadData(
+                addNewData: _addNewFile,
+              ));
+    } else if (widget.type == 2) {
+      showDialog(
+          context: context,
+          builder: (context) => FormLoadDataGGDrive(
+                addNewData: _addNewFile,
+              ));
+    } else if (widget.type == 3) {
+      showDialog(
+          context: context,
+          builder: (context) => FormLoadDataWeb(
+                addNewData: _addNewFile,
+              ));
+    } else if (widget.type == 4) {
+      showDialog(
+          context: context,
+          builder: (context) => FormLoadDataSlack(
+                addNewData: _addNewFile,
+              ));
+    } else if (widget.type == 5) {
+      showDialog(
+          context: context,
+          builder: (context) => FormLoadDataConfluence(
+                addNewData: _addNewFile,
+              ));
+    }
   }
 
   void _addNewFile(String name) {
@@ -85,12 +117,34 @@ class _LoadDataKnowledgeState extends State<LoadDataKnowledge> {
               )
               .toList(),
         ),
-        ElevatedButton.icon(
+        const SizedBox(
+          height: 6,
+        ),
+        OutlinedButton(
           onPressed: () {
             _openDialogAddFile(context);
           },
-          icon: const Icon(Icons.add),
-          label: const Text('Upload'),
+          style: OutlinedButton.styleFrom(
+            side: const BorderSide(width: 1, color: Colors.blue),
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(10)),
+            ),
+          ),
+          child: const Row(
+            mainAxisSize:
+                MainAxisSize.min, // Đảm bảo nút không chiếm toàn bộ chiều ngang
+            children: [
+              Icon(
+                Icons.add,
+                color: Colors.blue,
+              ),
+              SizedBox(width: 8), // Khoảng cách giữa icon và text
+              Text(
+                'Upload',
+                style: TextStyle(color: Colors.blue),
+              ),
+            ],
+          ),
         ),
       ],
     );

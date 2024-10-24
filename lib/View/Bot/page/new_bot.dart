@@ -149,15 +149,36 @@ class _NewBotState extends State<NewBot> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            TextButton(
+            OutlinedButton(
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: const Text("Hủy"),
+              style: OutlinedButton.styleFrom(
+                  shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(10)),
+                  ),
+                  side: const BorderSide(width: 1, color: Colors.orange)),
+              child: const Text(
+                "Huỷ",
+                style: TextStyle(
+                  color: Colors.orange,
+                ),
+              ),
             ),
             ElevatedButton(
               onPressed: _saveBot,
-              child: const Text("Tạo Ngay"),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue,
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                ),
+              ),
+              child: const Text(
+                "Tạo ngay",
+                style: TextStyle(
+                  color: Colors.white,
+                ),
+              ),
             ),
           ],
         ),

@@ -216,6 +216,7 @@ class _NewKnowledgeState extends State<EditKnowledge> {
 
                     // Load data for knowledge from file
                     LoadDataKnowledge(
+                      type: 1,
                       arrFile: _listFiles,
                       nameTypeData: "Nạp dữ liệu từ File",
                       imageAddress:
@@ -227,6 +228,7 @@ class _NewKnowledgeState extends State<EditKnowledge> {
 
                     // Load data for knowledge from google Drive
                     LoadDataKnowledge(
+                      type: 2,
                       arrFile: _listGGDrives,
                       nameTypeData: "Nạp dữ liệu từ Google Drive",
                       imageAddress:
@@ -238,6 +240,7 @@ class _NewKnowledgeState extends State<EditKnowledge> {
 
                     // Load data for knowledge from url website
                     LoadDataKnowledge(
+                      type: 3,
                       arrFile: _listUrlWebsite,
                       nameTypeData: "Nạp dữ liệu từ Website",
                       imageAddress:
@@ -249,6 +252,7 @@ class _NewKnowledgeState extends State<EditKnowledge> {
 
                     // Load data for knowledge from slack files
                     LoadDataKnowledge(
+                      type: 4,
                       arrFile: _listSlackFiles,
                       nameTypeData: "Nạp dữ liệu từ Slack",
                       imageAddress:
@@ -260,6 +264,7 @@ class _NewKnowledgeState extends State<EditKnowledge> {
 
                     // Load data for knowledge from Confluence file
                     LoadDataKnowledge(
+                      type: 5,
                       arrFile: _listConfluenceFiles,
                       nameTypeData: "Nạp dữ liệu từ Confluence",
                       imageAddress:
@@ -276,9 +281,23 @@ class _NewKnowledgeState extends State<EditKnowledge> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  ElevatedButton(
-                    onPressed: _saveKnowledgeBase,
-                    child: const Text("Chỉnh sửa"),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: _saveKnowledgeBase,
+                      style: ElevatedButton.styleFrom(
+                        padding: EdgeInsets.symmetric(vertical: 16),
+                        backgroundColor: Colors.blue,
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                        ),
+                      ),
+                      child: const Text(
+                        "Chỉnh sửa",
+                        style: TextStyle(
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
                   ),
                 ],
               ),
