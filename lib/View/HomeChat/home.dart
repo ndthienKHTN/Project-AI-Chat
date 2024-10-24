@@ -1,6 +1,8 @@
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:project_ai_chat/View/Account/pages/account_screent.dart';
+import 'package:project_ai_chat/View/Bot/page/bot_screen.dart';
 import 'package:project_ai_chat/View/HomeChat/Widgets/info-un-use.dart';
 import '../BottomSheet/custom_bottom_sheet.dart';
 import 'package:flutter/widgets.dart';
@@ -57,6 +59,16 @@ class _HomeChatState extends State<HomeChat> {
     });
     if (index == 1) {
       CustomBottomSheet.show(context);
+    } else if (index == 2) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const BotScreen()),
+      );
+    } else if (index == 3) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const AccountScreent()),
+      );
     }
   }
   void _toggleToolVisibility() {
