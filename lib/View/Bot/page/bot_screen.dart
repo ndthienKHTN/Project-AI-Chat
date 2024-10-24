@@ -1,22 +1,109 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:project_ai_chat/View/Bot/data/bots_data.dart';
+import 'package:project_ai_chat/View/Bot/page/edit_bot.dart';
 import 'package:project_ai_chat/View/Bot/page/new_bot.dart';
+import 'package:project_ai_chat/View/Bot/page/public_bot.dart';
 import 'package:project_ai_chat/View/Bot/widgets/bot_card.dart';
 import 'package:project_ai_chat/View/Bot/widgets/filter_button.dart';
+import 'package:project_ai_chat/View/Bot/model/bot.dart';
 
-class BotScreen extends StatelessWidget {
+class BotScreen extends StatefulWidget {
   const BotScreen({super.key});
 
+  @override
+  State<BotScreen> createState() => _BotScreenState();
+}
+
+class _BotScreenState extends State<BotScreen> {
+  final List<Bot> _listBots = bots;
+  void _addBot(Bot newBot) {
+    setState(() {
+      _listBots.add(newBot);
+    });
+  }
+
+  void _editBot(Bot newEditBot, indexEditBox) {
+    setState(() {
+      _listBots[indexEditBox] = newEditBot;
+    });
+  }
+
+  void _removeBot(Bot bot) {
+    final botDeleteIndex = _listBots.indexOf(bot);
+
+    setState(() {
+      _listBots.remove(bot);
+    });
+    ScaffoldMessenger.of(context).clearSnackBars();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        duration: const Duration(seconds: 3),
+        content: const Text("Bot has been Deleted!"),
+        action: SnackBarAction(
+          label: 'Undo',
+          onPressed: () {
+            setState(() {
+              _listBots.insert(botDeleteIndex, bot);
+            });
+          },
+        ),
+      ),
+    );
+  }
+
   void _openAddBotDialog(BuildContext context) {
-    showDialog(context: context, builder: (context) => const NewBot());
+    showDialog(
+        context: context,
+        builder: (context) => NewBot(
+              addBot: (newBot) {
+                _addBot(newBot);
+              },
+            ));
+  }
+
+  void _openEditBotDialog(BuildContext context, Bot bot, int index) {
+    // showDialog(
+    //     context: context,
+    //     builder: (context) => EditBot(
+    //           editBot: (bot) {
+    //             _editBot(bot, index);
+    //           },
+    //           bot: bot,
+    //         ));
+
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => EditBot(
+              editBot: (bot) {
+                _editBot(bot, index);
+              },
+              bot: bot,
+            ),
+      ),
+    );
+  }
+
+  void _openPublishBotDialog(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (context) => const PublicBot(),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Bots"),
+        title: const Text(
+          "Bots",
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
         actions: [
           IconButton(
             onPressed: () {
@@ -60,9 +147,40 @@ class BotScreen extends StatelessWidget {
             const SizedBox(height: 10),
             Expanded(
               child: ListView.builder(
-                itemCount: bots.length,
+                itemCount: _listBots.length,
                 itemBuilder: (context, index) {
-                  return BotCard(bot: bots[index]);
+                  return Slidable(
+                    endActionPane: ActionPane(
+                      motion: const StretchMotion(),
+                      children: [
+                        SlidableAction(
+                          onPressed: (context) {
+                            _openEditBotDialog(
+                                context, _listBots[index], index);
+                          },
+                          icon: Icons.edit,
+                          backgroundColor: Colors.green,
+                        ),
+                        SlidableAction(
+                          onPressed: (context) {
+                            _removeBot(_listBots[index]);
+                          },
+                          icon: Icons.delete,
+                          backgroundColor: Colors.red,
+                        ),
+                        SlidableAction(
+                          onPressed: (context) {
+                            _openPublishBotDialog(context);
+                          },
+                          icon: Icons.publish,
+                          backgroundColor: Colors.blue,
+                        ),
+                      ],
+                    ),
+                    child: BotCard(
+                      bot: bots[index],
+                    ),
+                  );
                 },
               ),
             ),
