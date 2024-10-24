@@ -12,7 +12,7 @@ class TAppTheme {
       brightness: Brightness.light,
       textTheme: TTextTheme.lightTextTheme,
       outlinedButtonTheme: TOutlinedButtonTheme.lightOutlinedButtonTheme,
-      elevatedButtonTheme: TElevatedButtonTheme.lightElevatedButtonTheme,
+      //elevatedButtonTheme: TElevatedButtonTheme.lightElevatedButtonTheme,
       inputDecorationTheme: TTextFormFieldTheme.lightInputDecorationTheme,
   );
 
@@ -20,7 +20,7 @@ class TAppTheme {
       brightness: Brightness.dark,
       textTheme: TTextTheme.darkTextTheme,
       outlinedButtonTheme: TOutlinedButtonTheme.darkOutlinedButtonTheme,
-      elevatedButtonTheme: TElevatedButtonTheme.darkElevatedButtonTheme,
+      //elevatedButtonTheme: TElevatedButtonTheme.darkElevatedButtonTheme,
       inputDecorationTheme: TTextFormFieldTheme.darkInputDecorationTheme,
   );
 

@@ -4,6 +4,7 @@ import 'package:project_ai_chat/constants/colors.dart';
 import 'package:project_ai_chat/constants/image_strings.dart';
 import 'package:project_ai_chat/constants/sizes.dart';
 import 'package:project_ai_chat/constants/text_strings.dart';
+import 'package:project_ai_chat/core/Widget/elevated_button.dart';
 
 class WelcomeScreen extends StatelessWidget{
   const WelcomeScreen({super.key});
@@ -48,10 +49,7 @@ class WelcomeScreen extends StatelessWidget{
                   width: 10,
                 ),
                 Expanded(
-                    child: ElevatedButton(
-                      onPressed: (){},
-
-                      child: Text(tRegister.toUpperCase()),
+                    child: ElevatedButtonCustom(text: tRegister.toUpperCase(),onPressed: () {}
                     )
                 ),
               ],
