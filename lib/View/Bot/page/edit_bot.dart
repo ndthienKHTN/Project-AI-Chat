@@ -256,12 +256,33 @@ class _NewBotState extends State<EditBot> {
                           const SizedBox(
                             height: 6,
                           ),
-                          ElevatedButton.icon(
+                          OutlinedButton(
                             onPressed: () {
                               _openAddKnowledgeDialog(context);
                             },
-                            icon: const Icon(Icons.add),
-                            label: const Text('Add Knowledge'),
+                            style: OutlinedButton.styleFrom(
+                              side: const BorderSide(
+                                  width: 1, color: Colors.blue),
+                              shape: const RoundedRectangleBorder(
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(10)),
+                              ),
+                            ),
+                            child: const Row(
+                              mainAxisSize: MainAxisSize
+                                  .min, // Đảm bảo nút không chiếm toàn bộ chiều ngang
+                              children: [
+                                Icon(
+                                  Icons.add,
+                                  color: Colors.blue,
+                                ),
+                                SizedBox(width: 8), // Khoảng cách giữa icon và text
+                                Text(
+                                  'Add Knowledge',
+                                  style: TextStyle(color: Colors.blue),
+                                ),
+                              ],
+                            ),
                           ),
                         ],
                       ),
@@ -272,14 +293,27 @@ class _NewBotState extends State<EditBot> {
                   height: 10,
                 ),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    ElevatedButton(
-                      onPressed: _saveBot,
-                      child: const Text("Chỉnh sửa"),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: _saveBot,
+                        style: ElevatedButton.styleFrom(
+                          padding: EdgeInsets.symmetric(vertical: 16),
+                          backgroundColor: Colors.blue,
+                          shape: const RoundedRectangleBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(10)),
+                          ),
+                        ),
+                        child: const Text(
+                          "Chỉnh sửa",
+                          style: TextStyle(
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
                     ),
                   ],
-                )
+                ),
               ],
             ),
           ),
