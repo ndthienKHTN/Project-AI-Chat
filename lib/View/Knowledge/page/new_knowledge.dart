@@ -1,9 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:project_ai_chat/Provider/KnowledgeBaseProvider.dart';
+import 'package:project_ai_chat/View/Knowledge/model/knowledge.dart';
 import 'package:project_ai_chat/View/Knowledge/widgets/load_data_knowledge.dart';
+import 'package:provider/provider.dart';
 
 class NewKnowledge extends StatefulWidget {
-  const NewKnowledge({super.key});
+  const NewKnowledge({super.key, required this.addNewKnowledge});
+  final void Function(Knowledge newKnowledge) addNewKnowledge;
 
   @override
   State<NewKnowledge> createState() => _NewKnowledgeState();
@@ -11,7 +15,32 @@ class NewKnowledge extends StatefulWidget {
 
 class _NewKnowledgeState extends State<NewKnowledge> {
   final _formKey = GlobalKey<FormState>();
-  int accessOption = 1;
+  String _enteredName = ""; // name of knowledgbase
+  String _enteredPrompt = ""; // description for knowledbase
+
+  void _saveKnowledgeBase() {
+    if (_formKey.currentState!.validate()) {
+      _formKey.currentState!.save();
+
+      widget.addNewKnowledge(
+        Knowledge(
+          name: _enteredName,
+          description: _enteredPrompt,
+          imageUrl:
+              "https://img.freepik.com/premium-photo/green-white-graphic-stack-barrels-with-green-top_1103290-132885.jpg",
+          listFiles: [],
+          listGGDrives: [],
+          listUrlWebsite: [],
+          listConfluenceFiles: [],
+          listSlackFiles: []
+        ),
+      );
+
+      Provider.of<KnowledgeBaseProvider>(context, listen: false)
+          .addKnowledgeBase(_enteredName);
+      Navigator.pop(context);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -43,6 +72,8 @@ class _NewKnowledgeState extends State<NewKnowledge> {
                 ],
               ),
               const SizedBox(height: 10),
+
+              // Text input for name of knowledgebase
               TextFormField(
                 // controller: nameController,
                 decoration: const InputDecoration(
@@ -56,6 +87,9 @@ class _NewKnowledgeState extends State<NewKnowledge> {
                   }
                   return null;
                 },
+                onSaved: (value) {
+                  _enteredName = value!;
+                },
               ),
               const SizedBox(height: 10),
               const Text(
@@ -63,6 +97,8 @@ class _NewKnowledgeState extends State<NewKnowledge> {
                 style: TextStyle(color: Colors.grey, fontSize: 12),
               ),
               const SizedBox(height: 15),
+
+              // Text input for description of knowledgebase
               TextFormField(
                 // controller: promptController,
                 maxLines: 4,
@@ -77,26 +113,31 @@ class _NewKnowledgeState extends State<NewKnowledge> {
                   }
                   return null;
                 },
+                onSaved: (value) {
+                  _enteredPrompt = value!;
+                },
               ),
               const SizedBox(height: 10),
               const Text(
                 'Ví dụ: Bạn là một dịch giả có kinh nghiệm với kỹ năng trong nhiều ngôn ngữ trên thế giới.',
                 style: TextStyle(color: Colors.grey, fontSize: 12),
               ),
-              const SizedBox(height: 16),
-              const LoadDataKnowledge(
-                arrFile: ["file1.pdf", "file2.pdf"],
-                nameTypeData: "Nạp dữ liệu từ File",
-                imageAddress:
-                    'https://i0.wp.com/static.vecteezy.com/system/resources/previews/022/086/609/non_2x/file-type-icons-format-and-extension-of-documents-pdf-icon-free-vector.jpg?ssl=1',
-              ),
-              const SizedBox(height: 16),
-              const LoadDataKnowledge(
-                arrFile: ["drive1.com", "drive2.com"],
-                nameTypeData: "Nạp dữ liệu từ Google Drive",
-                imageAddress:
-                    "https://static-00.iconduck.com/assets.00/google-drive-icon-1024x1024-h7igbgsr.png",
-              ),
+              // const SizedBox(height: 16),
+
+              // // Load data for knowledge from file
+              // const LoadDataKnowledge(
+              //   arrFile: ["file1.pdf", "file2.pdf"],
+              //   nameTypeData: "Nạp dữ liệu từ File",
+              //   imageAddress:
+              //       'https://i0.wp.com/static.vecteezy.com/system/resources/previews/022/086/609/non_2x/file-type-icons-format-and-extension-of-documents-pdf-icon-free-vector.jpg?ssl=1',
+              // ),
+              // const SizedBox(height: 16),
+              // const LoadDataKnowledge(
+              //   arrFile: ["drive1.com", "drive2.com"],
+              //   nameTypeData: "Nạp dữ liệu từ Google Drive",
+              //   imageAddress:
+              //       "https://static-00.iconduck.com/assets.00/google-drive-icon-1024x1024-h7igbgsr.png",
+              // ),
             ],
           ),
         ),
@@ -112,12 +153,7 @@ class _NewKnowledgeState extends State<NewKnowledge> {
               child: const Text("Hủy"),
             ),
             ElevatedButton(
-              onPressed: () {
-                if (_formKey.currentState!.validate()) {
-                  // Xử lý tạo bot nếu tất cả các trường hợp hợp lệ
-                  Navigator.of(context).pop();
-                }
-              },
+              onPressed: _saveKnowledgeBase,
               child: const Text("Tạo Ngay"),
             ),
           ],

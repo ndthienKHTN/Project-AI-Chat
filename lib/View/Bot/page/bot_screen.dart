@@ -4,6 +4,7 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:project_ai_chat/View/Bot/data/bots_data.dart';
 import 'package:project_ai_chat/View/Bot/page/edit_bot.dart';
 import 'package:project_ai_chat/View/Bot/page/new_bot.dart';
+import 'package:project_ai_chat/View/Bot/page/public_bot.dart';
 import 'package:project_ai_chat/View/Bot/widgets/bot_card.dart';
 import 'package:project_ai_chat/View/Bot/widgets/filter_button.dart';
 import 'package:project_ai_chat/View/Bot/model/bot.dart';
@@ -63,21 +64,46 @@ class _BotScreenState extends State<BotScreen> {
   }
 
   void _openEditBotDialog(BuildContext context, Bot bot, int index) {
-    showDialog(
-        context: context,
+    // showDialog(
+    //     context: context,
+    //     builder: (context) => EditBot(
+    //           editBot: (bot) {
+    //             _editBot(bot, index);
+    //           },
+    //           bot: bot,
+    //         ));
+
+    Navigator.of(context).push(
+      MaterialPageRoute(
         builder: (context) => EditBot(
               editBot: (bot) {
                 _editBot(bot, index);
               },
               bot: bot,
-            ));
+            ),
+      ),
+    );
+  }
+
+  void _openPublishBotDialog(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (context) => const PublicBot(),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Bots"),
+        title: const Text(
+          "Bots",
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
         actions: [
           IconButton(
             onPressed: () {
@@ -129,7 +155,8 @@ class _BotScreenState extends State<BotScreen> {
                       children: [
                         SlidableAction(
                           onPressed: (context) {
-                            _openEditBotDialog(context, _listBots[index], index);
+                            _openEditBotDialog(
+                                context, _listBots[index], index);
                           },
                           icon: Icons.edit,
                           backgroundColor: Colors.green,
@@ -140,6 +167,13 @@ class _BotScreenState extends State<BotScreen> {
                           },
                           icon: Icons.delete,
                           backgroundColor: Colors.red,
+                        ),
+                        SlidableAction(
+                          onPressed: (context) {
+                            _openPublishBotDialog(context);
+                          },
+                          icon: Icons.publish,
+                          backgroundColor: Colors.blue,
                         ),
                       ],
                     ),

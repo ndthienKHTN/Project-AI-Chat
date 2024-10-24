@@ -12,7 +12,6 @@ class NewBot extends StatefulWidget {
 
 class _NewBotState extends State<NewBot> {
   final _formKey = GlobalKey<FormState>();
-  final _arrKnowledge = ["knowledge1", "knowledge2"];
   int _accessOption = 1;
 
   //TextFormField
@@ -23,26 +22,15 @@ class _NewBotState extends State<NewBot> {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
 
-      // Navigator.of(context).pop(
-      //   Bot(
-      //     name: _enteredName,
-      //     prompt: _enteredPrompt,
-      //     team: "Monica",
-      //     imageUrl:
-      //         "https://play-lh.googleusercontent.com/imw4zSeaSUa-duDEAGXPjIrpj1boTkZJ3Xc9cr9y0ENJCXInGjWJMN4uFXSdJFxz4Lc",
-      //     isPublish: _accessOption == 1 ? true : false,
-      //   ),
-      // );
-
       widget.addBot(
         Bot(
-          name: _enteredName,
-          prompt: _enteredPrompt,
-          team: "Monica",
-          imageUrl:
-              "https://play-lh.googleusercontent.com/imw4zSeaSUa-duDEAGXPjIrpj1boTkZJ3Xc9cr9y0ENJCXInGjWJMN4uFXSdJFxz4Lc",
-          isPublish: _accessOption == 1 ? true : false,
-        ),
+            name: _enteredName,
+            prompt: _enteredPrompt,
+            team: "Ami Team",
+            imageUrl:
+                "https://cdn-icons-png.flaticon.com/512/13330/13330989.png",
+            isPublish: _accessOption == 1 ? true : false,
+            listKnowledge: []),
       );
       Navigator.pop(context);
     }
@@ -152,69 +140,6 @@ class _NewBotState extends State<NewBot> {
                 decoration: const InputDecoration(
                   labelText: 'Quyền truy cập',
                 ),
-              ),
-              const SizedBox(height: 16),
-              const Text("Bộ dữ liệu tri thức"),
-              Column(
-                children: [
-                  Column(
-                    children: _arrKnowledge
-                        .map(
-                          (knowledge) => Card(
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Row(
-                                children: [
-                                  const Icon(Icons.storage,
-                                      color: Colors.green, size: 30),
-                                  // Image.network(
-                                  //   'https://img.freepik.com/premium-vector/isometric-cloud-database-cloud-computing-file-cloud-storage-modern-technologies-vector-illustration_561158-2678.jpg',
-                                  //   width: 30,
-                                  //   errorBuilder: (context, error, stackTrace) {
-                                  //     return const Icon(Icons
-                                  //         .storage); // Hiển thị icon lỗi nếu không load được hình
-                                  //   },
-                                  // ),
-                                  const SizedBox(width: 10),
-                                  Expanded(
-                                    child: Text(
-                                      knowledge,
-                                      style: const TextStyle(fontSize: 16),
-                                    ),
-                                  ),
-                                  Row(
-                                    children: [
-                                      IconButton(
-                                        icon: const Icon(Icons.edit),
-                                        iconSize: 20,
-                                        onPressed: () {
-                                          // Handle copy action
-                                        },
-                                      ),
-                                      IconButton(
-                                        icon: const Icon(Icons.delete),
-                                        iconSize: 20,
-                                        onPressed: () {
-                                          // Handle delete action
-                                        },
-                                      ),
-                                    ],
-                                  )
-                                ],
-                              ),
-                            ),
-                          ),
-                        )
-                        .toList(),
-                  ),
-                  ElevatedButton.icon(
-                    onPressed: () {
-                      // Handle Add Knowledge action
-                    },
-                    icon: const Icon(Icons.add),
-                    label: const Text('Add Knowledge'),
-                  ),
-                ],
               ),
             ],
           ),
