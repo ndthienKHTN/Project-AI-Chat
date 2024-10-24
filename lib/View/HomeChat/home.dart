@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:project_ai_chat/View/HomeChat/Widgets/info-un-use.dart';
+import 'package:project_ai_chat/View/HomeChat/Widgets/dropdownbutton-custom.dart';
 import '../BottomSheet/custom_bottom_sheet.dart';
 import 'package:flutter/widgets.dart';
 import 'package:image_picker/image_picker.dart';
@@ -154,7 +154,7 @@ class _HomeChatState extends State<HomeChat> {
       children: [
         SafeArea(
             child: Padding(
-              padding: EdgeInsets.all(10),
+              padding: EdgeInsets.all(10.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
@@ -164,67 +164,14 @@ class _HomeChatState extends State<HomeChat> {
                         _scaffoldKey.currentState?.openDrawer();
                       },
                       icon: const Icon(Icons.menu)),
-                  Expanded(
-                    child: DropdownButtonFormField<String>(
-                      value: listAIItems.contains(selectedAIItem) ? selectedAIItem : listAIItems.first,
+                  AIDropdown(
+                      selectedAIItem: selectedAIItem,
+                      listAIItems: listAIItems,
+                      aiTokenCounts: aiTokenCounts,
                       onChanged: (String? newValue) {
-                        if (newValue != null) {
-                          updateSelectedAIItem(newValue);
-                        }
-                      },
-                      items: listAIItems
-                          .map<DropdownMenuItem<String>>(
-                              (String value) {
-                            return DropdownMenuItem<String>(
-                                value: value,
-                                child: Row(
-                                  children: [
-                                    Text(
-                                      value,
-                                      style: const TextStyle(
-                                        fontSize: 12,
-                                      ),
-                                    ),
-                                    Spacer(),
-                                    const Icon(
-                                      Icons.flash_on,
-                                      color: Colors.greenAccent,
-                                      size: 12,
-                                    ),
-                                    Text('${aiTokenCounts[value]}',style: TextStyle(fontSize: 12,),
-                                    ),
-                                  ],
-                                )
-                            );
-                          }).toList(),
-                      selectedItemBuilder: (BuildContext context) {
-                        return listAIItems.map<Widget>((String value) {
-                          return Text(
-                            value,
-                            style: const TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          );
-                        }).toList();
-                      },
-                      decoration: InputDecoration(
-                        contentPadding: EdgeInsets.only(
-                            left: 10, right: 10),
-                        enabledBorder: OutlineInputBorder(
-                          borderSide: BorderSide(
-                              color: Colors.grey, width: 1),
-                          borderRadius:
-                          BorderRadius.circular(20),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(
-                              color: Colors.grey, width: 1),
-                          borderRadius:
-                          BorderRadius.circular(20),
-                        ),
-                      ),
-                    ),
+                          if (newValue != null) {
+                          updateSelectedAIItem(newValue);}
+                          },
                   ),
                   Spacer(),
                   Row(
@@ -314,7 +261,8 @@ class _HomeChatState extends State<HomeChat> {
                               child: Container(
                                 decoration: BoxDecoration(
                                   border: Border.all(color: Colors.grey, width: 1),
-                                  borderRadius: BorderRadius.circular(8),
+                                  borderRadius: BorderRadius.circular(12),
+                                  color: Colors.grey[200],
                                 ),
                                 child: Column(
                                   children: [
@@ -329,10 +277,6 @@ class _HomeChatState extends State<HomeChat> {
                                             contentPadding: EdgeInsets.only(left: 10, right: 10),
                                             hintText: (_selectedImagePath == null) ? 'Nhập tin nhắn...' : null,
                                             border: InputBorder.none,
-                                            enabledBorder: InputBorder.none,
-                                            focusedBorder: InputBorder.none,
-                                            fillColor: const Color.fromRGBO(246, 247, 250, 1.0), // Set the background color here
-                                            filled: true,
                                           ),
                                         ),
                                         if (_selectedImagePath != null)
@@ -382,7 +326,6 @@ class _HomeChatState extends State<HomeChat> {
                         const SizedBox(
                           height: 5,
                         ),
-                        //Info(), -- Info UN-USE
                       ],
                     ),
                   ),
