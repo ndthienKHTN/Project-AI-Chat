@@ -26,7 +26,8 @@ class _CustomDialogContentState extends State<_CustomDialogContent> {
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       child: FractionallySizedBox(
-        heightFactor: selectedRadio == 1 ? 0.9 : 0.7, // Điều chỉnh chiều cao dialog
+        heightFactor: selectedRadio == 1 ? 0.9 : 0.7,
+        // Điều chỉnh chiều cao dialog
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -42,7 +43,9 @@ class _CustomDialogContentState extends State<_CustomDialogContent> {
                     _buildRadioOptions(),
                     SizedBox(height: 10),
                     // Hiển thị nội dung dựa trên sự lựa chọn (Private / Public)
-                    selectedRadio == 0 ? _buildPrivateForm() : _buildPublicForm(),
+                    selectedRadio == 0
+                        ? _buildPrivateForm()
+                        : _buildPublicForm(),
                   ],
                 ),
               ),
@@ -128,7 +131,8 @@ class _CustomDialogContentState extends State<_CustomDialogContent> {
         _buildLabeledFieldWithInfo(
           label: 'Prompt',
           isRequired: true,
-          hint: 'e.g: Write an article about [TOPIC], make sure to include these keywords: [KEYWORDS]',
+          hint:
+              'e.g: Write an article about [TOPIC], make sure to include these keywords: [KEYWORDS]',
           infoText: 'Use square brackets [ ] to specify user input',
         ),
       ],
@@ -150,7 +154,13 @@ class _CustomDialogContentState extends State<_CustomDialogContent> {
               selectedLanguage = newValue!;
             });
           },
-          items: ['Auto', 'English', 'Spanish', 'French', 'German'], // Các giá trị mẫu
+          items: [
+            'Auto',
+            'English',
+            'Spanish',
+            'French',
+            'German'
+          ], // Các giá trị mẫu
         ),
         SizedBox(height: 10),
         // Row 4: Name
@@ -170,20 +180,28 @@ class _CustomDialogContentState extends State<_CustomDialogContent> {
               selectedCategory = newValue!;
             });
           },
-          items: ['Other', 'Business', 'Education', 'Health', 'Entertainment'], // Các giá trị mẫu
+          items: [
+            'Other',
+            'Business',
+            'Education',
+            'Health',
+            'Entertainment'
+          ], // Các giá trị mẫu
         ),
         SizedBox(height: 10),
         // Row 6: Description
         _buildLabeledField(
           label: 'Description',
-          hint: 'Describe your prompt so others can have a better understanding',
+          hint:
+              'Describe your prompt so others can have a better understanding',
         ),
         SizedBox(height: 10),
         // Row 7: Prompt
         _buildLabeledFieldWithInfo(
           label: 'Prompt',
           isRequired: true,
-          hint: 'e.g: Write an article about [TOPIC], make sure to include these keywords: [KEYWORDS]',
+          hint:
+              'e.g: Write an article about [TOPIC], make sure to include these keywords: [KEYWORDS]',
           infoText: 'Use square brackets [ ] to specify user input',
         ),
       ],
@@ -319,29 +337,67 @@ class _CustomDialogContentState extends State<_CustomDialogContent> {
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        mainAxisAlignment: MainAxisAlignment.end, // Căn trái cho các nút
         children: [
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            child: Text('Cancel'),
-            style: TextButton.styleFrom(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-                side: BorderSide(color: Colors.grey),
+          // Nút Cancel với viền gradient
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 4, vertical: 0),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Colors.blue, Colors.purple], // Gradient cho viền
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: OutlinedButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              style: OutlinedButton.styleFrom(
+                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                backgroundColor: Colors.white, // Nền trong suốt
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                side: BorderSide(
+                    color: Colors.transparent), // Để gradient từ container
+              ),
+              child: Text(
+                'Cancel',
+                style:
+                    TextStyle(color: Colors.blue.shade900), // Chữ màu xanh đậm
               ),
             ),
           ),
-          ElevatedButton(
-            onPressed: () {
-              // Handle create action here
-            },
-            child: Text('Create'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.blue,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
+          SizedBox(width: 10), // Khoảng cách giữa các nút
+
+          // Nút Create với nền gradient
+          Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Colors.blue, Colors.purple], // Gradient nền
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: ElevatedButton(
+              onPressed: () {
+                // Xử lý khi bấm nút Create
+              },
+              style: ElevatedButton.styleFrom(
+                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
+                backgroundColor: Colors.transparent,
+                // Để nền từ Container hiển thị
+                shadowColor: Colors.transparent,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: Text(
+                'Create',
+                style: TextStyle(color: Colors.white), // Chữ trắng
               ),
             ),
           ),

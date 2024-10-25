@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'Dialog/custom_dialog.dart';
 
 class CustomBottomSheet {
+
   static void show(BuildContext context) {
     showModalBottomSheet(
       context: context,
@@ -29,20 +30,40 @@ class CustomBottomSheet {
                     ),
                     Row(
                       children: [
-                        IconButton(
-                          icon: Icon(Icons.add),
-                          onPressed: () {
-                            CustomDialog.show(context);  // Hiển thị dialog khi nhấn vào dấu cộng
-                          },
+                        Container(
+                          width: 35, // Đảm bảo kích thước bằng với IconButton khác
+                          height: 35,
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [Colors.blue, Colors.purple], // Màu gradient
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            border: Border.all(width: 0),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: GestureDetector(
+                            onTap: () {
+                              CustomDialog.show(context);
+                            },
+                            child: Icon(
+                              Icons.add,
+                              color: Colors.white,
+                              size: 24, // Kích thước icon
+                            ),
+                          ),
                         ),
+                        SizedBox(width: 10), // Khoảng cách giữa các nút
                         IconButton(
                           icon: Icon(Icons.close),
+                          iconSize: 24, // Đảm bảo icon close có kích thước tương tự
                           onPressed: () {
-                            Navigator.pop(context);  // Đóng Bottom Sheet
+                            Navigator.pop(context); // Đóng Bottom Sheet
                           },
                         ),
                       ],
-                    ),
+                    )
+
                   ],
                 ),
 
@@ -54,93 +75,18 @@ class CustomBottomSheet {
                 SizedBox(height: 10),
 
                 // Row 3: Search bar with Icon + Star Icon
-                Row(
-                  children: [
-                    Expanded(
-                      child: TextField(
-                        decoration: InputDecoration(
-                          prefixIcon: Icon(Icons.search),
-                          hintText: 'Search...',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                        ),
-                      ),
-                    ),
-                    SizedBox(width: 10),
-                    Icon(Icons.star),
-                  ],
-                ),
+                _buildSearchBar(),
 
                 SizedBox(height: 10),
 
-                // Row 4: Chips Row with Expand Icon
-                Row(
-                  children: [
-                    Expanded(
-                      child: Wrap(
-                        spacing: 8.0,
-                        runSpacing: 4.0,
-                        children: [
-                          Chip(label: Text('Chip 1')),
-                          Chip(label: Text('Chip 2')),
-                          Chip(label: Text('Chip 3')),
-                          // Add more chips as needed
-                        ],
-                      ),
-                    ),
-                    Icon(Icons.expand_more),
-                  ],
-                ),
+                // Row 4: Prompt Types
+
+                _buildPromptType(),
 
                 SizedBox(height: 10),
 
                 // Row 5: Scrollable List
-                Expanded(
-                  child: ListView.builder(
-                    itemCount: 10, // Số lượng item trong list
-                    itemBuilder: (context, index) {
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: <Widget>[
-                              GestureDetector(
-                                onTap: () {
-                                  Navigator.pop(context); // Đóng BottomSheet hiện tại
-                                  _showPromptDetailsBottomSheet(context, 'Title $index'); // Mở BottomSheet mới
-                                },
-                                child: Text(
-                                  'Title $index',
-                                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                                ),
-                              ),
-                              Row(
-                                children: [
-                                  Icon(Icons.star),
-                                  SizedBox(width: 10),
-                                  Icon(Icons.info_outline),
-                                  SizedBox(width: 10),
-                                  GestureDetector(
-                                    onTap: () {
-                                      Navigator.pop(context); // Đóng BottomSheet hiện tại
-                                      _showPromptDetailsBottomSheet(context, 'Title $index'); // Mở BottomSheet mới
-                                    },
-                                    child: Icon(Icons.arrow_right),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 5),
-                          Text('This is a description for title $index.'),
-                          const Divider(),
-                        ],
-                      );
-                    },
-                  ),
-                ),
+                _buildPromptsList(),
 
               ],
             ),
@@ -152,9 +98,10 @@ class CustomBottomSheet {
 
   // Segment Control with Radio button-like selection
   static Widget _buildSegmentedControl() {
+    int selectedIndex = 0;
     return StatefulBuilder(
       builder: (context, setState) {
-        int selectedIndex = 0;
+
 
         return Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -201,6 +148,175 @@ class CustomBottomSheet {
       ),
     );
   }
+
+  static Widget _buildSearchBar() {
+    bool isStarred = false;
+    return StatefulBuilder(
+      builder: (context, setState) {
+        return Row(
+          children: [
+            Expanded(
+              child: TextField(
+                decoration: InputDecoration(
+                  filled: true,
+                  fillColor: Colors.grey.shade200, // Màu nền của TextField
+                  prefixIcon: Icon(Icons.search, color: Colors.grey.shade600), // Màu icon nhạt
+                  hintText: 'Search...',
+                  hintStyle: TextStyle(color: Colors.grey.shade600), // Màu chữ gợi ý
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: BorderSide.none, // Không có viền mặc định
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: BorderSide(color: Colors.blue, width: 1), // Viền mỏng khi chọn
+                  ),
+                ),
+              ),
+            ),
+            SizedBox(width: 10),
+            GestureDetector(
+              onTap: () {
+                setState(() {
+                  isStarred = !isStarred; // Thay đổi trạng thái ngôi sao khi nhấn
+                });
+              },
+              child: Container(
+                padding: EdgeInsets.all(6), // Khoảng cách giữa ngôi sao và viền
+                decoration: BoxDecoration(
+                  color: Colors.transparent,
+                  border: Border.all(color: Colors.grey.shade400, width: 1), // Viền ngoài bo góc
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(
+                  isStarred ? Icons.star : Icons.star_border, // Ngôi sao rỗng hoặc đầy
+                  color: isStarred ? Colors.yellow : Colors.grey.shade600, // Màu vàng khi được chọn
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  static Widget _buildPromptType() {
+    bool isExpanded = false;
+    final chips = List.generate(
+      10, // Số lượng chip bạn muốn
+          (index) => Chip(
+        label: Text(
+          'Type ${index + 1}',
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: Colors.blue.shade900,
+          ),
+        ),
+        backgroundColor: Colors.blue.shade100,
+        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+          side: BorderSide(
+            color: Colors.grey.shade300, // Viền màu xám nhạt
+            width: 0,
+          ),
+        ),
+      ),
+    );
+    return StatefulBuilder(
+      builder: (context, setState) {
+        return Row(
+          children: [
+            Expanded(
+              child: Wrap(
+                spacing: 8.0,
+                runSpacing: 4.0,
+                children: isExpanded
+                    ? chips
+                    : chips.take(3).toList(), // Chỉ hiển thị 3 chip khi chưa mở rộng
+              ),
+            ),
+            IconButton(
+              icon: Icon(isExpanded ? Icons.expand_less : Icons.expand_more),
+              onPressed: () {
+                setState(() {
+                  isExpanded = !isExpanded;
+                });
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  static Widget _buildPromptsList() {
+    List<bool> isStarred = List.generate(10, (index) => false); // Trạng thái ngôi sao cho từng item
+    return StatefulBuilder(
+      builder: (context, setState) {
+        return Expanded(
+          child: ListView.builder(
+            itemCount: 10, // Số lượng item trong list
+            itemBuilder: (context, index) {
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 10.0), // Tăng khoảng cách giữa các row
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.pop(context); // Đóng BottomSheet hiện tại
+                            _showPromptDetailsBottomSheet(context, 'Title $index'); // Mở BottomSheet mới
+                          },
+                          child: Text(
+                            'Title $index',
+                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                        Row(
+                          children: [
+                            GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  isStarred[index] = !isStarred[index]; // Đổi trạng thái ngôi sao
+                                });
+                              },
+                              child: Icon(
+                                isStarred[index] ? Icons.star : Icons.star_border,
+                                color: isStarred[index] ? Colors.yellow : Colors.grey,
+                              ),
+                            ),
+                            SizedBox(width: 15), // Tăng khoảng cách giữa các icon
+                            Icon(Icons.info_outline, color: Colors.grey),
+                            SizedBox(width: 15),
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.pop(context); // Đóng BottomSheet hiện tại
+                                _showPromptDetailsBottomSheet(context, 'Title $index'); // Mở BottomSheet mới
+                              },
+                              child: Icon(Icons.arrow_right, color: Colors.grey),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8), // Tăng khoảng cách giữa các dòng
+                    Text('This is a description for title $index.'),
+                    const Divider(thickness: 1.2), // Tăng độ dày của Divider
+                  ],
+                ),
+              );
+            },
+          ),
+        );
+      },
+    );
+  }
+
   static void _showPromptDetailsBottomSheet(BuildContext context, String itemTitle) {
     showModalBottomSheet(
       context: context,
