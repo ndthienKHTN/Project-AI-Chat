@@ -1,17 +1,28 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:project_ai_chat/View/SplashScreen/splash_screen.dart';
 import 'package:flutter/widgets.dart';
-import 'package:project_ai_chat/View/EmailTab/email.dart';
-
-import 'Model/message-model.dart';
+import 'package:project_ai_chat/View/SplashScreen/splash_screen.dart';
+import 'package:project_ai_chat/View/Welcome/welcome_screen.dart';
+import 'package:project_ai_chat/utils/theme/theme.dart';
+import 'package:project_ai_chat/ViewModel/KnowledgeBaseProvider.dart';
+import 'View/ForgetPassword/forget-password.dart';
+import 'View/UpgradeVersion/upgrade-version.dart';
+import 'ViewModel/ai-chat-list.dart';
+import 'ViewModel/message-home-chat.dart';
 import 'View/HomeChat/home.dart';
 import 'package:provider/provider.dart';
-void main()  {
+
+
+void main() {
   runApp(
-    ChangeNotifierProvider(
-      create: (context) => MessageModel(),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => MessageModel()),
+        ChangeNotifierProvider(create: (context) => KnowledgeBaseProvider()),
+        ChangeNotifierProvider(create: (context) => AIChatList()),
+      ],
       child: MyApp(),
-     ),
+    ),
   );
 }
 
@@ -20,13 +31,11 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Bin AI',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: HomeChat(),
+      title: 'Ami Assistant',
+      theme: TAppTheme.lightTheme,
+      darkTheme: TAppTheme.darkTheme,
+      themeMode: ThemeMode.system,
+      home: SplashScreen(),
     );
   }
 }
-
-

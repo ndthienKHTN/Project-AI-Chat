@@ -1,13 +1,22 @@
 import 'dart:io';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:project_ai_chat/View/Account/pages/account_screent.dart';
+import 'package:project_ai_chat/View/Bot/page/bot_screen.dart';
+import '../../core/Widget/dropdown-button.dart';
+import '../BottomSheet/custom_bottom_sheet.dart';
 import 'package:flutter/widgets.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
-import '../../Model/message-model.dart';
-import '../EmailTab/email.dart';
-import '../Menu/menu.dart';
-import '../ToolWidget/tool.dart';
+import '../../ViewModel/message-home-chat.dart';
+import '../EmailChat/email.dart';
+import 'Widgets/BottomNavigatorBarCustom/custom-bottom-navigator-bar.dart';
+import 'Widgets/Menu/menu.dart';
+import 'Widgets/tool.dart';
+import 'package:project_ai_chat/ViewModel/ai-chat-list.dart';
+
+import 'model/ai-logo-list.dart';
+
+
 
 class HomeChat extends StatefulWidget {
   const HomeChat({super.key});
@@ -15,25 +24,61 @@ class HomeChat extends StatefulWidget {
   @override
   State<HomeChat> createState() => _HomeChatState();
 }
-
 class _HomeChatState extends State<HomeChat> {
-  //final List<Map<String, String>> _messages = [];
   String? _selectedImagePath;
   final TextEditingController _controller = TextEditingController();
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  int _countToken = 50; //Token
-  List<String> listAIItems = ['Bin AI', 'Monica', 'Chat GPT', 'Jarvis'];
-  String selectedAIItem = 'Jarvis';
+  late String selectedAIItem;
   bool _isOpenToolWidget = false;
-  Map<String, int> aiTokenCounts = {
-    'Bin AI': 50,
-    'Monica': 60,
-    'Chat GPT': 70,
-    'Jarvis': 80,
-  };
+  bool _isOpenDeviceWidget = false;
+  int _selectedBottomItemIndex = 0;
+  final FocusNode _focusNode = FocusNode();
+  late List<AIItem> _listAIItem;
+  @override
+  void initState() {
+    super.initState();
+    _focusNode.addListener(() {
+      if (_focusNode.hasFocus ) {
+        setState(() {
+          _isOpenDeviceWidget = false;
+        });
+      }
+    });
+    _listAIItem = Provider.of<AIChatList>(context,listen: false).aiItems;
+    selectedAIItem = _listAIItem.first.name;
+  }
+  @override
+  void dispose() {
+    _focusNode.dispose();
+    super.dispose();
+  }
+
+  void _onTappedBottomItem(int index) {
+    setState(() {
+      _selectedBottomItemIndex = index;
+    });
+    if (index == 1) {
+      CustomBottomSheet.show(context);
+    } else if (index == 2) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const BotScreen()),
+      );
+    } else if (index == 3) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const AccountScreent()),
+      );
+    }
+  }
   void _toggleToolVisibility() {
     setState(() {
       _isOpenToolWidget = !_isOpenToolWidget;
+    });
+  }
+  void _toggleDeviceVisibility() {
+    setState(() {
+      _isOpenDeviceWidget = !_isOpenDeviceWidget;
     });
   }
   void _sendMessage() {
@@ -56,14 +101,16 @@ class _HomeChatState extends State<HomeChat> {
         'text': 'This is a bot response.',
       });
       _controller.clear();
-      _countToken--;
+      _listAIItem.firstWhere((aiItem) => aiItem.name == selectedAIItem).tokenCount -= 1;
+
     });
   }
   void updateSelectedAIItem(String newValue) {
     setState(() {
-      listAIItems.remove(newValue);
-      listAIItems.add(newValue);
       selectedAIItem = newValue;
+      AIItem aiItem = _listAIItem.firstWhere((aiItem) => aiItem.name == newValue);
+      _listAIItem.removeWhere((aiItem) => aiItem.name == newValue);
+      _listAIItem.insert(0, aiItem);
     });
   }
 
@@ -98,6 +145,7 @@ class _HomeChatState extends State<HomeChat> {
     if (image != null) {
       setState(() {
         _selectedImagePath = image.path;
+        _isOpenDeviceWidget = false;
       });
     }
   }
@@ -107,6 +155,7 @@ class _HomeChatState extends State<HomeChat> {
     if (image != null) {
       setState(() {
         _selectedImagePath = image.path;
+        _isOpenDeviceWidget = false;
       });
     }
   }
@@ -119,9 +168,9 @@ class _HomeChatState extends State<HomeChat> {
       children: [
         SafeArea(
             child: Padding(
-              padding: EdgeInsets.all(10),
+              padding: EdgeInsets.all(10.0),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   IconButton(
                       onPressed: () {
@@ -129,28 +178,56 @@ class _HomeChatState extends State<HomeChat> {
                         _scaffoldKey.currentState?.openDrawer();
                       },
                       icon: const Icon(Icons.menu)),
-                  const Text(
-                    'Bin AI',
-                    style: TextStyle(
-                      fontSize: 30,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.blue,
+                  AIDropdown(
+                      listAIItems: _listAIItem,
+                      onChanged: (String? newValue) {
+                          if (newValue != null) {
+                          updateSelectedAIItem(newValue);}
+                          },
+                  ),
+                  Spacer(),
+                  Container(
+                    padding: EdgeInsets.all(5),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[200],
+                      borderRadius: BorderRadius.circular(12.0),
                     ),
+                    child: Row(
+                      children: [
+                        const Icon(
+                          Icons.flash_on,
+                          color: Colors.greenAccent,
+                        ),
+                        Text(
+                          _listAIItem.firstWhere((aiItem) => aiItem.name == selectedAIItem).tokenCount.toString(),
+                          style: const TextStyle(
+                              color: Color.fromRGBO(
+                                  119, 117, 117, 1.0)),
+                        )
+                      ],
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.add_circle_outline),
+                    onPressed: Provider.of<MessageModel>(context).messages.isEmpty ? null : _saveConversation,
                   ),
                   IconButton(
                       onPressed: () { _toggleToolVisibility(); }, icon: const Icon(Icons.more_horiz)),
                 ],
               ),
-            )),
+            )
+        ),
         Expanded(
           child: GestureDetector(
             onTap: () {
               FocusScope.of(context)
                   .unfocus(); // Ẩn bàn phím khi nhấn vào màn hình
+              if (_isOpenDeviceWidget) {
+                _toggleDeviceVisibility(); // Ẩn các nút chức năng
+              }
             },
             child: Row(
               children: [
-                // Phần bên trái: Giao diện chat chính
                 Expanded(
                   child: Padding(
                     padding:
@@ -173,211 +250,101 @@ class _HomeChatState extends State<HomeChat> {
                             },
                           ),
                         ),
-                        Column(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              Row(
-                                children: [
-                                  Container(
-                                    color:
-                                    Color.fromRGBO(246, 247, 250, 1.0),
-                                    width: 120,
-                                    height: 45,
-                                    child: DropdownButtonFormField<String>(
-                                      value: selectedAIItem,
-                                      onChanged: (String? newValue) {
-                                        if (newValue != null) {
-                                          updateSelectedAIItem(newValue);
-                                        }
-                                      },
-                                      items: listAIItems
-                                          .map<DropdownMenuItem<String>>(
-                                              (String value) {
-                                            return DropdownMenuItem<String>(
-                                              value: value,
-                                              child: Text(
-                                                value,
-                                              ),
-                                            );
-                                          }).toList(),
-                                      decoration: InputDecoration(
-                                        contentPadding: EdgeInsets.only(
-                                            left: 10, right: 10),
-                                        enabledBorder: OutlineInputBorder(
-                                          borderSide: BorderSide(
-                                              color: Colors.grey, width: 1),
-                                          borderRadius:
-                                          BorderRadius.circular(20),
-                                        ),
-                                        focusedBorder: OutlineInputBorder(
-                                          borderSide: BorderSide(
-                                              color: Colors.grey, width: 1),
-                                          borderRadius:
-                                          BorderRadius.circular(20),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  IconButton(onPressed: (){}, icon: Icon(Icons.light_mode_sharp)),
-                                  Spacer(),
-                                  IconButton(
-                                    icon: const Icon(Icons.add_circle_outline),
-                                    onPressed: Provider.of<MessageModel>(context).messages.isEmpty ? null : _saveConversation,
-                                  ),
-                                ],
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            IconButton(
+                              icon: _isOpenDeviceWidget ? const Icon(Icons.arrow_back_ios_new) : const Icon(Icons.arrow_forward_ios),
+                              onPressed: _toggleDeviceVisibility,
+                            ),
+                            if (_isOpenDeviceWidget) ...[
+                              IconButton(
+                                icon: const Icon(Icons.image_rounded),
+                                onPressed: _openGallery,
                               ),
-                              const SizedBox(
-                                height: 5,
+                              IconButton(
+                                icon: const Icon(Icons.camera_alt),
+                                onPressed: _openCamera,
                               ),
-                              Container(
-                                constraints: const BoxConstraints(
-                                  minHeight: 50,
-                                  maxHeight: 140,
-                                ),
-                                padding: const EdgeInsets.all(10),
+                              IconButton(
+                                icon: const Icon(Icons.email),
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(builder: (context) => EmailComposer()),
+                                  );
+                                },
+                              ),
+                            ],
+                            Expanded(
+                              child: Container(
                                 decoration: BoxDecoration(
-                                  color: Color.fromRGBO(246, 247, 250, 1.0),
-                                  borderRadius: BorderRadius.circular(10),
+                                  border: Border.all(color: Colors.grey, width: 1),
+                                  borderRadius: BorderRadius.circular(12),
+                                  color: Colors.grey[200],
                                 ),
                                 child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Row(
+                                    Stack(
+                                      alignment: Alignment.centerLeft,
                                       children: [
-                                        if (_selectedImagePath != null)
-                                          Stack(
-                                            children: [
-                                              Container(
-                                                decoration: BoxDecoration(
-                                                  border: Border.all(color: Colors.grey, width: 4), // Add border here
-                                                  borderRadius: BorderRadius.circular(12),
-                                                ),
-                                                child: Image.file(
-                                                  File(_selectedImagePath!),
-                                                  width: 60,
-                                                  height: 60,
-                                                  fit: BoxFit.cover,
-                                                ),
-                                              ),
-                                              Positioned(
-                                                right: -12,
-                                                top: -12,
-                                                child: IconButton(
-                                                  icon: Icon(Icons.close,size: 20,),
-                                                  onPressed: () {
-                                                    setState(() {
-                                                      _selectedImagePath = null;
-                                                    });
-                                                  },
-                                                ),
-                                              ),
-                                            ],
+                                        TextField(
+                                          focusNode: _focusNode,
+                                          controller: _controller,
+                                          maxLines: null,
+                                          decoration: InputDecoration(
+                                            contentPadding: EdgeInsets.only(left: 10, right: 10),
+                                            hintText: (_selectedImagePath == null) ? 'Nhập tin nhắn...' : null,
+                                            border: InputBorder.none,
                                           ),
-                                        Expanded(
-                                          child: TextField(
-                                            controller: _controller,
-                                            maxLines: null,
-                                            decoration: InputDecoration(
-                                              hintText: (_selectedImagePath == null) ? 'Nhập tin nhắn...' : null,
-                                              border: InputBorder.none,
+                                        ),
+                                        if (_selectedImagePath != null)
+                                          Padding(
+                                            padding: const EdgeInsets.all(4),
+                                            child: Container(
+                                              decoration: BoxDecoration(
+                                                border: Border.all(color: Colors.grey, width: 3),
+                                                borderRadius: BorderRadius.circular(12),
+                                              ),
+                                              child: Stack(
+                                                children: [
+                                                  Image.file(
+                                                    File(_selectedImagePath!),
+                                                    width: 60,
+                                                    height: 60,
+                                                    fit: BoxFit.cover,
+                                                  ),
+                                                  Positioned(
+                                                    top: -15,
+                                                    right: -15,
+                                                    child: IconButton(
+                                                      icon: Icon(Icons.close,size: 20,color: Colors.black,),
+                                                      onPressed: () {
+                                                        setState(() {
+                                                          _selectedImagePath = null;
+                                                        });
+                                                      },
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
                                             ),
                                           ),
-                                        ),
-                                      ],
-                                    ),
-
-                                    // Dòng 3: Icon và nút send
-                                    Row(
-                                      mainAxisAlignment: MainAxisAlignment.start,
-                                      children: [
-                                        IconButton(
-                                          icon: const Icon(Icons.image_rounded),
-                                          onPressed: _openGallery,
-                                        ),
-                                        IconButton(
-                                          icon: const Icon(Icons.camera_alt),
-                                          onPressed: _openCamera,
-                                        ),
-                                        IconButton(
-                                          icon: const Icon(Icons.email),
-                                          onPressed: () {
-                                            Navigator.push(
-                                              context,
-                                              MaterialPageRoute(builder: (context) => EmailComposer()),
-                                            );
-                                          },
-                                        ),
-                                        Spacer(),
-                                        IconButton(
-                                          icon: Icon(Icons.send),
-                                          onPressed: _sendMessage,
-                                        ),
                                       ],
                                     ),
                                   ],
                                 ),
                               ),
-                            ]),
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.send),
+                              onPressed: _sendMessage,
+                            ),
+                            ],
+                            ),
                         const SizedBox(
-                          height: 10,
+                          height: 5,
                         ),
-                        Row(
-                          children: [
-                            Container(
-                              padding: EdgeInsets.all(2),
-                              decoration: BoxDecoration(
-                                color: Color.fromRGBO(246, 247, 250, 1.0),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Row(
-                                children: [
-                                  Icon(
-                                    Icons.flash_on,
-                                    color: Colors.greenAccent,
-                                  ),
-                                  Text(
-                                    '${aiTokenCounts[selectedAIItem]}',
-                                    style: TextStyle(
-                                        color: Color.fromRGBO(
-                                            161, 156, 156, 1.0)),
-                                  )
-                                ],
-                              ),
-                            ),
-                            SizedBox(
-                              width: 10,
-                            ),
-                            Text(
-                              'Upgrade',
-                              style: TextStyle(
-                                color: Color.fromRGBO(160, 125, 220, 1.0),
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            Spacer(),
-                            Icon(
-                              Icons.wallet_giftcard,
-                            ),
-                            SizedBox(
-                              width: 5,
-                            ),
-                            Icon(
-                              Icons.heart_broken,
-                            ),
-                            SizedBox(
-                              width: 5,
-                            ),
-                            Icon(
-                              Icons.breakfast_dining,
-                            ),
-                            SizedBox(
-                              width: 5,
-                            ),
-                            Icon(
-                              Icons.dangerous,
-                            ),
-                          ],
-                        )
                       ],
                     ),
                   ),
@@ -389,6 +356,10 @@ class _HomeChatState extends State<HomeChat> {
           ),
         ),
       ],
+    ),
+    bottomNavigationBar: CustomBottomNavigationBar(
+      currentIndex: _selectedBottomItemIndex,
+      onTap: _onTappedBottomItem,
     )
           );
   }

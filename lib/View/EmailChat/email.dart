@@ -1,5 +1,10 @@
-import 'package:flutter/cupertino.dart';
+
 import 'package:flutter/material.dart';
+import 'package:project_ai_chat/core/Widget/dropdown-button.dart';
+import 'package:provider/provider.dart';
+
+import '../../ViewModel/ai-chat-list.dart';
+import '../HomeChat/model/ai-logo-list.dart';
 
 class EmailComposer extends StatefulWidget {
   @override
@@ -9,8 +14,14 @@ class EmailComposer extends StatefulWidget {
 class _EmailComposerState extends State<EmailComposer> {
   final TextEditingController _emailReceivedController = TextEditingController();
   final TextEditingController _emailReplyController = TextEditingController();
-  int _countToken = 100;
-
+  late int _countToken ;
+  late List<AIItem> _listAIItems;
+  @override
+  void initState() {
+    _listAIItems = Provider.of<AIChatList>(context,listen: false).aiItems;
+    _countToken = _listAIItems.first.tokenCount;
+    super.initState();
+  }
   void _createDraft(String action) {
     String draft;
     switch (action) {
@@ -46,19 +57,19 @@ class _EmailComposerState extends State<EmailComposer> {
         decoration: InputDecoration(
           labelText: label,
           filled: true,
-          fillColor: Colors.grey[200],
+          fillColor: Colors.grey[50],
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12.0),
             borderSide: BorderSide(
               color: Colors.blue,
-              width: 2.0,
+              width: 1.0,
             ),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12.0),
             borderSide: BorderSide(
               color: Colors.blue,
-              width: 2.0,
+              width: 1.0,
             ),
           ),
         ),
@@ -66,15 +77,28 @@ class _EmailComposerState extends State<EmailComposer> {
       ),
     );
   }
-  Widget _buildButton(IconData icon, String label, VoidCallback onPressed) {
+  Widget _buildButton(IconData icon, String label,Color color, VoidCallback onPressed) {
     return ElevatedButton(
       onPressed: onPressed,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.grey[200],
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+      ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon),
+          Icon(icon,color: color),
           const SizedBox(width: 5),
-          Text(label),
+          Text(
+              label,
+            style: TextStyle(
+              color: Colors.black,
+              fontWeight: FontWeight.bold,
+              fontSize: 14,
+            ),
+          ),
         ],
       ),
     );
@@ -83,16 +107,6 @@ class _EmailComposerState extends State<EmailComposer> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title:  const Center(
-          child: Text(
-              'Email reply',
-          style: TextStyle(
-            color: Colors.blue,
-            fontWeight: FontWeight.bold,
-            fontSize: 30,
-            ),
-          ),
-        ),
         leading: IconButton(
           icon: Icon(Icons.arrow_back,size: 30),
           onPressed: () {
@@ -100,25 +114,41 @@ class _EmailComposerState extends State<EmailComposer> {
           },
         ),
         actions: [
-          Row(
-            children: [
-              Icon(
-                Icons.flash_on,
-                color: Colors.greenAccent,
-              ),
-              Padding(
-                padding: EdgeInsets.only(right: 20),
-                child: Text(
+          Spacer(),
+          AIDropdown(
+            listAIItems: _listAIItems,
+            onChanged: (value) {
+              setState(() {
+                _countToken = _listAIItems.firstWhere((element) => element.name == value).tokenCount;
+              });
+            },
+          ),
+          SizedBox(width: 10,),
+          Container(
+            padding: EdgeInsets.only(left: 10, right: 10, top: 5, bottom: 5),
+            decoration: BoxDecoration(
+              color: Colors.grey[200],
+              borderRadius: BorderRadius.circular(12.0),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  size: 20,
+                  Icons.flash_on,
+                  color: Colors.greenAccent,
+                ),
+                Text(
                   '$_countToken',
                   style: TextStyle(
                     color: Colors.grey[700],
                     fontWeight: FontWeight.bold,
-                    fontSize: 18,
+                    fontSize: 16,
+                  ),
                 ),
-              ),
-              ),
-            ],
+              ],
+            ),
           ),
+          SizedBox(width: 10,)
         ],
       ),
       body: Padding(
@@ -132,12 +162,12 @@ class _EmailComposerState extends State<EmailComposer> {
             Wrap(
               spacing: 10,
               children: [
-                _buildButton(Icons.handshake, 'Thanks', () => _createDraft('Thanks')),
-                _buildButton(Icons.emoji_emotions_rounded, 'Sorry', () => _createDraft('Sorry')),
-                _buildButton(Icons.thumb_up, 'Yes', () => _createDraft('Yes')),
-                _buildButton(Icons.thumb_down, 'No', () => _createDraft('No')),
-                _buildButton(Icons.follow_the_signs, 'Follow Up', () => _createDraft('Follow Up')),
-                _buildButton(Icons.question_answer, 'Request for more information', () => _createDraft('Request for more information')),
+                _buildButton(Icons.tag_faces, 'Thanks',Colors.redAccent ,() => _createDraft('Thanks')),
+                _buildButton(Icons.tag_faces_rounded, 'Sorry',Colors.orange , () => _createDraft('Sorry')),
+                _buildButton(Icons.thumb_up, 'Yes',Colors.yellow , () => _createDraft('Yes')),
+                _buildButton(Icons.thumb_down, 'No',Colors.yellow , () => _createDraft('No')),
+                _buildButton(Icons.schedule, 'Follow Up',Colors.blue , () => _createDraft('Follow Up')),
+                _buildButton(Icons.question_answer, 'Request for more information',Colors.pinkAccent , () => _createDraft('Request for more information')),
               ],
             ),
             const SizedBox(height: 20),
@@ -147,7 +177,7 @@ class _EmailComposerState extends State<EmailComposer> {
                   child: Container(
                     decoration: BoxDecoration(
                       color: Colors.grey[200],
-                      border: Border.all(color: Colors.blue, width: 2.0),
+                      border: Border.all(color: Colors.grey, width: 1.0),
                       borderRadius: BorderRadius.circular(12.0),
                     ),
                     child: TextField(
@@ -162,7 +192,7 @@ class _EmailComposerState extends State<EmailComposer> {
                 IconButton(
                   onPressed: () {},
                   icon: Icon(Icons.send),
-                  color: Colors.blue, // Icon color
+                  color: Colors.grey[600], // Icon color
                 ),
               ],
             ),
