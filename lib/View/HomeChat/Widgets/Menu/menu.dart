@@ -35,7 +35,7 @@ class _MenuState extends State<Menu>{
                         width: 10,
                       ),
                       const Text(
-                        "Mia Assistant",
+                        "Ami Assistant",
                         style: TextStyle(
                           color: Colors.black,
                           fontWeight: FontWeight.bold,
@@ -144,7 +144,7 @@ class _MenuState extends State<Menu>{
         }
       },
       child: Container(
-        color: (index== (_selectedIndex )) ? Colors.blueAccent : null,
+        color: (index== (_selectedIndex )) ? Colors.grey[400] : null,
         child: ListTile(
           leading: Icon(icon),
           title: Text(title),
