@@ -66,16 +66,9 @@ class _MenuState extends State<Menu>{
                 ],
               )
           ),
-          _buildWidgetItem(Icons.add, "New chat", 0),
-          _buildWidgetItem(Icons.smart_button, "Prompt Management", 1),
-          // const SizedBox(
-          //   height: 10,
-          // ),
-          // const Divider(//   height: 0.5,
-          //   color: Color.fromRGBO(2, 13, 82, 1.0),
-          // ),
-          _buildWidgetItem(Icons.play_lesson, "Knowledge Management", 2),
-          _buildWidgetItem(Icons.verified_sharp, "Upgrade Version", 3),
+          _buildWidgetItem(Icons.smart_button, "Prompt Management", 0),
+          _buildWidgetItem(Icons.play_lesson, "Knowledge Management", 1),
+          _buildWidgetItem(Icons.verified_sharp, "Upgrade Version", 2),
           const Divider(
             height: 0.5,
             color: Color.fromRGBO(2, 13, 82, 1.0),
@@ -138,12 +131,12 @@ class _MenuState extends State<Menu>{
         setState(() {
           _selectedIndex = index;
         });
-        if (index == 3) { // Assuming "Upgrade Version" is at index 3
+        if (index == 2) { // Assuming "Upgrade Version" is at index 3
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => UpgradeVersion()),
           );
-        } else if (index == 2) {
+        } else if (index == 1) {
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => const KnowledgeScreen()),

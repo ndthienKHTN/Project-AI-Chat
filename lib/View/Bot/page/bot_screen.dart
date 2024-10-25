@@ -8,6 +8,11 @@ import 'package:project_ai_chat/View/Bot/page/public_bot.dart';
 import 'package:project_ai_chat/View/Bot/widgets/bot_card.dart';
 import 'package:project_ai_chat/View/Bot/widgets/filter_button.dart';
 import 'package:project_ai_chat/View/Bot/model/bot.dart';
+import 'package:project_ai_chat/View/HomeChat/Widgets/BottomNavigatorBarCustom/custom-bottom-navigator-bar.dart';
+import 'package:project_ai_chat/View/HomeChat/home.dart';
+
+import '../../Account/pages/account_screent.dart';
+import '../../BottomSheet/custom_bottom_sheet.dart';
 
 class BotScreen extends StatefulWidget {
   const BotScreen({super.key});
@@ -62,7 +67,6 @@ class _BotScreenState extends State<BotScreen> {
               },
             ));
   }
-
   void _openEditBotDialog(BuildContext context, Bot bot, int index) {
     // showDialog(
     //     context: context,

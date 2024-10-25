@@ -5,6 +5,7 @@ import 'package:project_ai_chat/View/SplashScreen/splash_screen.dart';
 import 'package:project_ai_chat/utils/theme/theme.dart';
 import 'package:project_ai_chat/Provider/KnowledgeBaseProvider.dart';
 import 'View/UpgradeVersion/upgrade-version.dart';
+import 'ViewModel/ai-chat-list.dart';
 import 'ViewModel/message-home-chat.dart';
 import 'View/HomeChat/home.dart';
 import 'package:provider/provider.dart';
@@ -16,6 +17,7 @@ void main() {
       providers: [
         ChangeNotifierProvider(create: (context) => MessageModel()),
         ChangeNotifierProvider(create: (context) => KnowledgeBaseProvider()),
+        ChangeNotifierProvider(create: (context) => AIChatList()),
       ],
       child: MyApp(),
     ),

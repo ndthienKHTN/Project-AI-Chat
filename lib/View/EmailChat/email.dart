@@ -1,5 +1,10 @@
 
 import 'package:flutter/material.dart';
+import 'package:project_ai_chat/core/Widget/dropdown-button.dart';
+import 'package:provider/provider.dart';
+
+import '../../ViewModel/ai-chat-list.dart';
+import '../HomeChat/model/ai-logo-list.dart';
 
 class EmailComposer extends StatefulWidget {
   @override
@@ -9,8 +14,14 @@ class EmailComposer extends StatefulWidget {
 class _EmailComposerState extends State<EmailComposer> {
   final TextEditingController _emailReceivedController = TextEditingController();
   final TextEditingController _emailReplyController = TextEditingController();
-  int _countToken = 100;
-
+  late int _countToken ;
+  late List<AIItem> _listAIItems;
+  @override
+  void initState() {
+    _listAIItems = Provider.of<AIChatList>(context,listen: false).aiItems;
+    _countToken = _listAIItems.first.tokenCount;
+    super.initState();
+  }
   void _createDraft(String action) {
     String draft;
     switch (action) {
@@ -96,16 +107,6 @@ class _EmailComposerState extends State<EmailComposer> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title:  const Center(
-          child: Text(
-              'Email reply',
-          style: TextStyle(
-            color: Colors.blue,
-            fontWeight: FontWeight.bold,
-            fontSize: 30,
-            ),
-          ),
-        ),
         leading: IconButton(
           icon: Icon(Icons.arrow_back,size: 30),
           onPressed: () {
@@ -113,6 +114,16 @@ class _EmailComposerState extends State<EmailComposer> {
           },
         ),
         actions: [
+          Spacer(),
+          AIDropdown(
+            listAIItems: _listAIItems,
+            onChanged: (value) {
+              setState(() {
+                _countToken = _listAIItems.firstWhere((element) => element.name == value).tokenCount;
+              });
+            },
+          ),
+          SizedBox(width: 10,),
           Container(
             padding: EdgeInsets.only(left: 10, right: 10, top: 5, bottom: 5),
             decoration: BoxDecoration(
@@ -136,7 +147,8 @@ class _EmailComposerState extends State<EmailComposer> {
                 ),
               ],
             ),
-          )
+          ),
+          SizedBox(width: 10,)
         ],
       ),
       body: Padding(
