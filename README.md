@@ -6,7 +6,7 @@
 - 21120561 - Bùi Đức Thịnh
 
 ## Link Youtube: 
-- Link video demo UI: [tại đây]()
+- Link video demo UI: [](https://youtu.be/fnXSZV_mmTc)
 
 ## Các màn hình đã thực hiện
 
@@ -24,6 +24,8 @@
   - Chọn Menu
   - Chọn AI-Bot
   - Thêm đoạn chat mới
+  - Giảm số lượng token khi chat
+  - Xem lịch sử chat, mở lịch sử chat
   - Soạn, gửi tin nhắn
   - Up hình, chụp hình
   - Soạn email
