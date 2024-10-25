@@ -1,16 +1,14 @@
 import 'package:flutter/material.dart';
 
+import '../../View/HomeChat/model/ai-logo-list.dart';
+
 class AIDropdown extends StatelessWidget {
-  final String selectedAIItem;
-  final List<String> listAIItems;
-  final Map<String, int> aiTokenCounts;
+  final List<AIItem> listAIItems;
   final ValueChanged<String?> onChanged;
 
   const AIDropdown({
     Key? key,
-    required this.selectedAIItem,
     required this.listAIItems,
-    required this.aiTokenCounts,
     required this.onChanged,
   }) : super(key: key);
 
@@ -18,32 +16,50 @@ class AIDropdown extends StatelessWidget {
   Widget build(BuildContext context) {
     return Expanded(
       child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          color: Colors.grey[50],
+        ),
         height: 38,
         child: DropdownButtonFormField<String>(
-          value: listAIItems.contains(selectedAIItem) ? selectedAIItem : listAIItems.first,
+          value: listAIItems.first.name,
           isExpanded: true,
           onChanged: onChanged,
-          items: listAIItems.map<DropdownMenuItem<String>>((String value) {
+          items:  listAIItems.map<DropdownMenuItem<String>>((AIItem item) {
             return DropdownMenuItem<String>(
-              value: value,
+              value: item.name,
               child: Row(
                 children: [
-                  Text(
-                    value,
-                    style: const TextStyle(fontSize: 12),
+                  Image.asset(
+                    fit: BoxFit.cover,
+                    item.logoPath,
+                    width: 25,
+                    height: 25,
                   ),
-                  Spacer(),
+                  Expanded(
+                    child: Text(
+                      item.name,
+                      style: const TextStyle(fontSize: 12),
+                    ),
+                  ),
+                  //Spacer(),
                   const Icon(Icons.flash_on, color: Colors.greenAccent, size: 12),
-                  Text('${aiTokenCounts[value]}', style: TextStyle(fontSize: 12)),
+                  Text(item.tokenCount.toString(), style: TextStyle(fontSize: 12)),
                 ],
               ),
             );
           }).toList(),
           selectedItemBuilder: (BuildContext context) {
-            return listAIItems.map<Widget>((String value) {
-              return Text(
-                value,
-                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+            return listAIItems.map<Widget>((AIItem item) {
+              // return Text(
+              //   value,
+              //   style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+              // );
+              return Image.asset(
+                fit: BoxFit.cover,
+                item.logoPath,
+                width: 25,
+                height: 25,
               );
             }).toList();
           },

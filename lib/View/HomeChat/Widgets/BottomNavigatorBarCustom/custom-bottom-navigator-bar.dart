@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class CustomBottomNavigationBar extends StatelessWidget {
   final int currentIndex;
@@ -20,11 +21,11 @@ class CustomBottomNavigationBar extends StatelessWidget {
           label: 'Chat',
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.light_mode_sharp),
+          icon: Icon(FontAwesomeIcons.list),
           label: 'Prompt',
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.subtitles_sharp),
+          icon: Icon(FontAwesomeIcons.robot),
           label: 'Bot AI',
         ),
         BottomNavigationBarItem(
