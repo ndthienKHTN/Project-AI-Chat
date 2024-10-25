@@ -69,3 +69,6 @@ Từ màn hình chính nhấn vào **biểu tượng Person (Information)** tron
 
 ### 11. Upgrade
 Màn hình nâng cấp tài khoản người dùng **(/lib/View/UpgradeVersion/upgrade-version.dart)**
+
+### 12. Forgot Password
+Màn hình gửi email xác nhận để reset mật khẩu **(/lib/View/ForgotPassword/forgot_password.dart)**
