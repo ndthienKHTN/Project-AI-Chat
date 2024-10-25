@@ -1,9 +1,8 @@
 import 'dart:io';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:project_ai_chat/View/HomeChat/Widgets/dropdownbutton-custom.dart';
 import 'package:project_ai_chat/View/Account/pages/account_screent.dart';
 import 'package:project_ai_chat/View/Bot/page/bot_screen.dart';
+import '../../core/Widget/dropdown-button.dart';
 import '../BottomSheet/custom_bottom_sheet.dart';
 import 'package:flutter/widgets.dart';
 import 'package:image_picker/image_picker.dart';
@@ -13,6 +12,11 @@ import '../EmailChat/email.dart';
 import 'Widgets/BottomNavigatorBarCustom/custom-bottom-navigator-bar.dart';
 import 'Widgets/Menu/menu.dart';
 import 'Widgets/tool.dart';
+import 'package:project_ai_chat/ViewModel/ai-chat-list.dart';
+
+import 'model/ai-logo-list.dart';
+
+
 
 class HomeChat extends StatefulWidget {
   const HomeChat({super.key});
@@ -24,18 +28,12 @@ class _HomeChatState extends State<HomeChat> {
   String? _selectedImagePath;
   final TextEditingController _controller = TextEditingController();
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  String selectedAIItem = 'Jarvis';
+  late String selectedAIItem;
   bool _isOpenToolWidget = false;
   bool _isOpenDeviceWidget = false;
-  List<String> listAIItems = ['Bin AI', 'Monica', 'Chat GPT', 'Jarvis'];
-  Map<String, int> aiTokenCounts = {
-    'Bin AI': 50,
-    'Monica': 60,
-    'Chat GPT': 70,
-    'Jarvis': 80,
-  };
   int _selectedBottomItemIndex = 0;
   final FocusNode _focusNode = FocusNode();
+  late List<AIItem> _listAIItem;
   @override
   void initState() {
     super.initState();
@@ -46,6 +44,8 @@ class _HomeChatState extends State<HomeChat> {
         });
       }
     });
+    _listAIItem = Provider.of<AIChatList>(context,listen: false).aiItems;
+    selectedAIItem = _listAIItem.first.name;
   }
   @override
   void dispose() {
@@ -101,14 +101,16 @@ class _HomeChatState extends State<HomeChat> {
         'text': 'This is a bot response.',
       });
       _controller.clear();
-      aiTokenCounts[selectedAIItem] = aiTokenCounts[selectedAIItem]! - 1;
+      _listAIItem.firstWhere((aiItem) => aiItem.name == selectedAIItem).tokenCount -= 1;
+
     });
   }
   void updateSelectedAIItem(String newValue) {
     setState(() {
-      listAIItems.remove(newValue);
-      listAIItems.insert(0, newValue);
       selectedAIItem = newValue;
+      AIItem aiItem = _listAIItem.firstWhere((aiItem) => aiItem.name == newValue);
+      _listAIItem.removeWhere((aiItem) => aiItem.name == newValue);
+      _listAIItem.insert(0, aiItem);
     });
   }
 
@@ -177,28 +179,33 @@ class _HomeChatState extends State<HomeChat> {
                       },
                       icon: const Icon(Icons.menu)),
                   AIDropdown(
-                      selectedAIItem: selectedAIItem,
-                      listAIItems: listAIItems,
-                      aiTokenCounts: aiTokenCounts,
+                      listAIItems: _listAIItem,
                       onChanged: (String? newValue) {
                           if (newValue != null) {
                           updateSelectedAIItem(newValue);}
                           },
                   ),
                   Spacer(),
-                  Row(
-                    children: [
-                      const Icon(
-                        Icons.flash_on,
-                        color: Colors.greenAccent,
-                      ),
-                      Text(
-                        '${aiTokenCounts[selectedAIItem]}',
-                        style: const TextStyle(
-                            color: Color.fromRGBO(
-                                119, 117, 117, 1.0)),
-                      )
-                    ],
+                  Container(
+                    padding: EdgeInsets.all(5),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[200],
+                      borderRadius: BorderRadius.circular(12.0),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(
+                          Icons.flash_on,
+                          color: Colors.greenAccent,
+                        ),
+                        Text(
+                          _listAIItem.firstWhere((aiItem) => aiItem.name == selectedAIItem).tokenCount.toString(),
+                          style: const TextStyle(
+                              color: Color.fromRGBO(
+                                  119, 117, 117, 1.0)),
+                        )
+                      ],
+                    ),
                   ),
                   IconButton(
                     icon: const Icon(Icons.add_circle_outline),

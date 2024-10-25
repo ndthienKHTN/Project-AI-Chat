@@ -166,13 +166,14 @@ class _UpgradeVersionState extends State<UpgradeVersion> {
       padding: EdgeInsets.all(8),
       decoration: BoxDecoration(
         color: Color.fromRGBO(246, 247, 250, 1.0),
-        border: Border.all(color: isSelected ? Colors.blue : Colors.black, width: 3.0),
-        borderRadius: BorderRadius.circular(12.0),
+        border: Border.all(color: isSelected ? Colors.blue : Colors.black, width: 4.0),
+        borderRadius: BorderRadius.circular(20.0),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Radio<String>(
+            activeColor: Colors.blue,
             value: title,
             groupValue: _selectedOption,
             onChanged: (String? value) {
