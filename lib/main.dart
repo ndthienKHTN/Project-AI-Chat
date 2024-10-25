@@ -5,6 +5,7 @@ import 'package:project_ai_chat/View/SplashScreen/splash_screen.dart';
 import 'package:project_ai_chat/View/Welcome/welcome_screen.dart';
 import 'package:project_ai_chat/utils/theme/theme.dart';
 import 'package:project_ai_chat/ViewModel/KnowledgeBaseProvider.dart';
+import 'View/ForgetPassword/forget-password.dart';
 import 'View/UpgradeVersion/upgrade-version.dart';
 import 'ViewModel/ai-chat-list.dart';
 import 'ViewModel/message-home-chat.dart';
@@ -30,7 +31,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Bin AI',
+      title: 'Ami Assistant',
       theme: TAppTheme.lightTheme,
       darkTheme: TAppTheme.darkTheme,
       themeMode: ThemeMode.system,

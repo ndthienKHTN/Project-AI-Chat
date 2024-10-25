@@ -8,6 +8,8 @@ import 'package:project_ai_chat/constants/text_strings.dart';
 import 'package:project_ai_chat/core/Widget/elevated_button.dart';
 import 'package:project_ai_chat/core/Widget/outlined_button.dart';
 
+import '../ForgetPassword/forget-password.dart';
+
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
 
@@ -65,7 +67,12 @@ class LoginScreen extends StatelessWidget {
                       Align(
                         alignment: Alignment.centerRight,
                         child: TextButton(
-                            onPressed: () {},
+                            onPressed: () {
+                              Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => ForgetPasswordScreen()));
+                            },
                             child: const Text(tForgetPassword, style: TextStyle(color: Colors.blue))),
                       ),
                       SizedBox(
