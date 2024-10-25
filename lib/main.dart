@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:project_ai_chat/View/SplashScreen/splash_screen.dart';
 import 'package:flutter/widgets.dart';
 import 'package:project_ai_chat/View/SplashScreen/splash_screen.dart';
+import 'package:project_ai_chat/View/Welcome/welcome_screen.dart';
 import 'package:project_ai_chat/utils/theme/theme.dart';
 import 'package:project_ai_chat/Provider/KnowledgeBaseProvider.dart';
 import 'View/UpgradeVersion/upgrade-version.dart';

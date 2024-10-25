@@ -17,12 +17,12 @@ class TTextTheme {
       fontWeight: FontWeight.w700,
     ),
     headlineSmall: GoogleFonts.poppins(
-      color: tDarkColor,
+      color: tSecondaryColor,
       fontSize: 22,
       fontWeight: FontWeight.w500,
     ),
     bodyLarge: GoogleFonts.poppins(
-      color: tDarkColor,
+      color: tSecondaryColor,
       fontSize: 16,
       fontWeight: FontWeight.normal,
     ),
