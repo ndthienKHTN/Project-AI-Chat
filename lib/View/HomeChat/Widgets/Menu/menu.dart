@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:project_ai_chat/View/Knowledge/page/knowledge_screen.dart';
 import 'package:project_ai_chat/ViewModel/message-home-chat.dart';
 import 'package:provider/provider.dart';
 
@@ -141,6 +142,11 @@ class _MenuState extends State<Menu>{
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => UpgradeVersion()),
+          );
+        } else if (index == 2) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const KnowledgeScreen()),
           );
         }
       },

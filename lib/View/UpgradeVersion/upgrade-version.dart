@@ -91,15 +91,15 @@ class _UpgradeVersionState extends State<UpgradeVersion> {
                 backgroundColor: Colors.blue,
               ),
               child: Container(
-                width: MediaQuery.of(context).size.width * 0.5,
+                width: MediaQuery.of(context).size.width * 0.4,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      'CONTINUE FREE TRIAL',
+                      'UPGRADE VERSION',
                       style: TextStyle(
                         color: Colors.white,
-                        fontSize: 16,
+                        fontSize: 14,
                       ),
                     ),
                     SizedBox(
@@ -122,7 +122,6 @@ class _UpgradeVersionState extends State<UpgradeVersion> {
                 fontSize: 15,
               ),
             ),
-
           ],
         ),
       ),
