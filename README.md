@@ -6,7 +6,7 @@
 - 21120561 - Bùi Đức Thịnh
 
 ## Link Youtube: 
-- Link video demo UI: [](https://youtu.be/fnXSZV_mmTc)
+- Link video demo UI: [https://youtu.be/fnXSZV_mmTc]()
 
 ## Các màn hình đã thực hiện
 
