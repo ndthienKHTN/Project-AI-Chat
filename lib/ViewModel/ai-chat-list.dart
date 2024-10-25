@@ -6,8 +6,8 @@ import '../View/HomeChat/model/ai-logo-list.dart';
 class AIChatList extends ChangeNotifier {
   List<AIItem> aiItems = [
     AIItem(
-      name: 'Bin AI',
-      logoPath: 'assets/logo/google-logo.png',
+      name: 'Copilot',
+      logoPath: 'assets/logo/copilot.jpg',
       path: 'path/to/bin-ai',
       tokenCount: 50,
     ),
@@ -24,8 +24,8 @@ class AIChatList extends ChangeNotifier {
       tokenCount: 70,
     ),
     AIItem(
-      name: 'Jarvis',
-      logoPath: 'assets/logo/chat-gpt.jpg',
+      name: 'Google',
+      logoPath: 'assets/logo/google-logo.png',
       path: 'path/to/jarvis',
       tokenCount: 80,
     ),
