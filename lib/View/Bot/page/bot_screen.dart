@@ -67,6 +67,7 @@ class _BotScreenState extends State<BotScreen> {
               },
             ));
   }
+
   void _openEditBotDialog(BuildContext context, Bot bot, int index) {
     // showDialog(
     //     context: context,
@@ -80,11 +81,11 @@ class _BotScreenState extends State<BotScreen> {
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => EditBot(
-              editBot: (bot) {
-                _editBot(bot, index);
-              },
-              bot: bot,
-            ),
+          editBot: (bot) {
+            _editBot(bot, index);
+          },
+          bot: bot,
+        ),
       ),
     );
   }
@@ -181,8 +182,18 @@ class _BotScreenState extends State<BotScreen> {
                         ),
                       ],
                     ),
-                    child: BotCard(
-                      bot: bots[index],
+                    child: InkWell(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const HomeChat(),
+                          ),
+                        );
+                      },
+                      child: BotCard(
+                        bot: bots[index],
+                      ),
                     ),
                   );
                 },
