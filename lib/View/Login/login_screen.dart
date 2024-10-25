@@ -5,6 +5,8 @@ import 'package:project_ai_chat/constants/colors.dart';
 import 'package:project_ai_chat/constants/image_strings.dart';
 import 'package:project_ai_chat/constants/sizes.dart';
 import 'package:project_ai_chat/constants/text_strings.dart';
+import 'package:project_ai_chat/core/Widget/elevated_button.dart';
+import 'package:project_ai_chat/core/Widget/outlined_button.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
@@ -68,15 +70,16 @@ class LoginScreen extends StatelessWidget {
                       ),
                       SizedBox(
                         width: double.infinity,
-                        child: ElevatedButton(
+                        child: ElevatedButtonCustom(
+                          text: tLogin.toUpperCase(),
                             onPressed: () {
                               Navigator.pushReplacement(
                                   context,
                                   MaterialPageRoute(
                                       builder: (context) => HomeChat()));
                             },
-                            child: Text(tLogin.toUpperCase())),
-                      )
+                      ),
+                      ),
                     ],
                   ),
                 ),
@@ -91,13 +94,13 @@ class LoginScreen extends StatelessWidget {
                   const SizedBox(height: tFormHeight - 20),
                   SizedBox(
                     width: double.infinity,
-                    child: OutlinedButton.icon(
+                    child: OutlinedButtonCustom(
                       icon: Image(
                         image: AssetImage(tGoogleLogoImage),
                         width: 20.0,
                       ),
                       onPressed: () {},
-                      label: Text(tSignInWithGoogle),
+                      label: tSignInWithGoogle,
                     ),
                   ),
                   const SizedBox(height: tFormHeight - 20),

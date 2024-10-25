@@ -4,6 +4,8 @@ import 'package:project_ai_chat/constants/colors.dart';
 import 'package:project_ai_chat/constants/image_strings.dart';
 import 'package:project_ai_chat/constants/sizes.dart';
 import 'package:project_ai_chat/constants/text_strings.dart';
+import 'package:project_ai_chat/core/Widget/elevated_button.dart';
+import 'package:project_ai_chat/core/Widget/outlined_button.dart';
 
 class WelcomeScreen extends StatelessWidget{
   const WelcomeScreen({super.key});
@@ -33,25 +35,21 @@ class WelcomeScreen extends StatelessWidget{
             Row(
               children: [
                 Expanded(
-                  child: OutlinedButton(
+                  child: OutlinedButtonCustom(
                       onPressed: () {
                         Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(builder: (context) => LoginScreen())
                         );
                       },
-
-                      child: Text(tLogin.toUpperCase()),
+                      label: tLogin.toUpperCase(),
                   )
                 ),
                 const SizedBox(
                   width: 10,
                 ),
                 Expanded(
-                    child: ElevatedButton(
-                      onPressed: (){},
-
-                      child: Text(tRegister.toUpperCase()),
+                    child: ElevatedButtonCustom(text: tRegister.toUpperCase(),onPressed: () {}
                     )
                 ),
               ],

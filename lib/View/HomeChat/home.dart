@@ -166,6 +166,7 @@ class _HomeChatState extends State<HomeChat> {
                       icon: const Icon(Icons.menu)),
                   Expanded(
                     child: DropdownButtonFormField<String>(
+                      isExpanded: true,
                       value: listAIItems.contains(selectedAIItem) ? selectedAIItem : listAIItems.first,
                       onChanged: (String? newValue) {
                         if (newValue != null) {

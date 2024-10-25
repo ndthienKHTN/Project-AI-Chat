@@ -11,16 +11,16 @@ class TAppTheme {
   static ThemeData lightTheme = ThemeData(
       brightness: Brightness.light,
       textTheme: TTextTheme.lightTextTheme,
-      outlinedButtonTheme: TOutlinedButtonTheme.lightOutlinedButtonTheme,
-      elevatedButtonTheme: TElevatedButtonTheme.lightElevatedButtonTheme,
+      // outlinedButtonTheme: TOutlinedButtonTheme.lightOutlinedButtonTheme,
+      //elevatedButtonTheme: TElevatedButtonTheme.lightElevatedButtonTheme,
       inputDecorationTheme: TTextFormFieldTheme.lightInputDecorationTheme,
   );
 
   static ThemeData darkTheme = ThemeData(
       brightness: Brightness.dark,
       textTheme: TTextTheme.darkTextTheme,
-      outlinedButtonTheme: TOutlinedButtonTheme.darkOutlinedButtonTheme,
-      elevatedButtonTheme: TElevatedButtonTheme.darkElevatedButtonTheme,
+      // outlinedButtonTheme: TOutlinedButtonTheme.darkOutlinedButtonTheme,
+      //elevatedButtonTheme: TElevatedButtonTheme.darkElevatedButtonTheme,
       inputDecorationTheme: TTextFormFieldTheme.darkInputDecorationTheme,
   );
 
