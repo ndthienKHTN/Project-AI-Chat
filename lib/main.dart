@@ -31,11 +31,11 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Bin AI',
+      title: 'Ami Assistant',
       theme: TAppTheme.lightTheme,
       darkTheme: TAppTheme.darkTheme,
       themeMode: ThemeMode.system,
-      home: ForgetPasswordScreen(),
+      home: SplashScreen(),
     );
   }
 }

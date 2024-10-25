@@ -23,7 +23,7 @@ class ElevatedButtonCustom extends StatelessWidget {
           elevation: 0,
           shape: RoundedRectangleBorder(),
           foregroundColor: tWhiteColor,
-          backgroundColor: tPrimaryColor,
+          backgroundColor: tSecondaryColor,
           side: BorderSide(color: tSecondaryColor),
           padding: EdgeInsets.symmetric(vertical: tButtonHeight),
         ),

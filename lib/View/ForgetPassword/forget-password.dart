@@ -12,10 +12,8 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
   void _submit() {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
-      // Gửi yêu cầu đặt lại mật khẩu với email đã nhập
-      // Ví dụ: AuthService.resetPassword(_email);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Yêu cầu đặt lại mật khẩu đã được gửi')),
+        SnackBar(content: Text('Reset link sent to $_email')),
       );
     }
   }
@@ -81,7 +79,10 @@ class _ForgetPasswordScreenState extends State<ForgetPasswordScreen> {
               Center(
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blueAccent[200],
+                    backgroundColor: Colors.blueAccent[100],
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
                   ),
                   onPressed: _submit,
                   child: Text('Send request',style: TextStyle(color: Colors.black),),
