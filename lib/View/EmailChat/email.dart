@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:project_ai_chat/core/Widget/dropdown-button.dart';
 import 'package:provider/provider.dart';
 
-import '../../ViewModel/ai-chat-list.dart';
+import '../../viewmodels/ai-chat-list.dart';
 import '../HomeChat/model/ai-logo-list.dart';
 
 class EmailComposer extends StatefulWidget {
