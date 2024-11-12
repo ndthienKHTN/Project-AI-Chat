@@ -30,8 +30,8 @@ class AuthViewModel extends ChangeNotifier {
 
       if (response.success && response.data['user'] != null) {
         // Chỉ lưu thông tin user
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setString('user', jsonEncode(response.data['user']));
+        // final prefs = await SharedPreferences.getInstance();
+        // await prefs.setString('user', jsonEncode(response.data['user']));
 
         isLoading = false;
         notifyListeners();
@@ -72,6 +72,15 @@ class AuthViewModel extends ChangeNotifier {
         if (response.data['token']?['refreshToken'] != null) {
           await prefs.setString(
               'refreshToken', response.data['token']['refreshToken']);
+        }
+
+        // Lưu thông tin user
+        if (response.data['token']?['accessToken'] != null) {
+          final userInfo = await _authService
+              .getCurrentUser(response.data['token']['accessToken']);
+          if (userInfo.success && userInfo.data != null) {
+            await prefs.setString('user', jsonEncode(userInfo.data));
+          }
         }
 
         isLoading = false;

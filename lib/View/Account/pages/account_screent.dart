@@ -1,8 +1,37 @@
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:project_ai_chat/models/user_model.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class AccountScreent extends StatelessWidget {
+class AccountScreent extends StatefulWidget {
   const AccountScreent({super.key});
+
+  @override
+  State<AccountScreent> createState() => _AccountScreentState();
+}
+
+class _AccountScreentState extends State<AccountScreent> {
+  User? user;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserInfo();
+  }
+
+  Future<void> _loadUserInfo() async {
+    final prefs = await SharedPreferences.getInstance();
+    final userJson = prefs.getString('user');
+
+    if (userJson != null) {
+      final userMap = jsonDecode(userJson) as Map<String, dynamic>;
+      setState(() {
+        user = User.fromJson(userMap);
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -40,16 +69,16 @@ class AccountScreent extends StatelessWidget {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Đức Thịnh Bùi',
-                        style: TextStyle(
+                      Text(
+                        user?.username ?? '',
+                        style: const TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        'ducthinh12tn137@gmail.com',
+                        user?.email ?? '',
                         style: TextStyle(
                           fontSize: 16,
                           color: Colors.grey[600],
@@ -118,11 +147,11 @@ class AccountScreent extends StatelessWidget {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    const Card(
+                    Card(
                       color: Colors.white, // Màu nền sáng
                       child: ListTile(
-                        leading: Icon(Icons.account_circle),
-                        title: Text('ducthinh12tn137'),
+                        leading: const Icon(Icons.account_circle),
+                        title: Text(user?.username ?? ''),
                       ),
                     ),
                     const SizedBox(height: 10),

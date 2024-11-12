@@ -148,13 +148,22 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         SizedBox(
                           width: double.infinity,
-                          child: ElevatedButtonCustom(
-                            text: tLogin.toUpperCase(),
-                            onPressed: Provider.of<AuthViewModel>(context,
-                                        listen: false)
-                                    .isLoading
-                                ? () {}
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              elevation: 0,
+                              shape: RoundedRectangleBorder(),
+                              foregroundColor: tWhiteColor,
+                              backgroundColor: tSecondaryColor,
+                              side: BorderSide(color: tSecondaryColor),
+                              padding:
+                                  EdgeInsets.symmetric(vertical: tButtonHeight),
+                            ),
+                            onPressed: context.watch<AuthViewModel>().isLoading
+                                ? null
                                 : _login,
+                            child: context.watch<AuthViewModel>().isLoading
+                                ? CircularProgressIndicator()
+                                : Text('LOGIN'),
                           ),
                         ),
                       ],

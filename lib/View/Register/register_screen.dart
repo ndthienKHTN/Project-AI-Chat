@@ -34,11 +34,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   String? _validatePassword(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Vui lòng nhập mật khẩu';
+    if (value == null || value.isEmpty || value.length < 6) {
+      return 'Password must be at least 6 characters';
     }
-    if (value.length < 6) {
-      return 'Mật khẩu phải có ít nhất 6 ký tự';
+
+    // pattern for validate password, it must have at least 1 uppercase letter, at least 1 number
+    String pattern = r'^(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{6,}$';
+    RegExp regex = RegExp(pattern);
+    if (!regex.hasMatch(value)) {
+      return 'Mật khẩu phải chứa ít nhất 1 chữ hoa và 1 số';
     }
     return null;
   }
@@ -80,143 +84,129 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery
-        .of(context)
-        .size;
+    final size = MediaQuery.of(context).size;
     return Scaffold(
       body: SingleChildScrollView(
-        child: Container(
-          padding: const EdgeInsets.all(tDefaultSize),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // -- Section - 1 --
-              Image(
-                image: AssetImage(tWelcomeScreenImage),
-                height: size.height * 0.2,
-              ),
-              Text(
-                tRegisterTitle,
-                style: Theme
-                    .of(context)
-                    .textTheme
-                    .headlineLarge,
-              ),
-              Text(
-                tRegisterSubTitle,
-                style: Theme
-                    .of(context)
-                    .textTheme
-                    .bodyMedium,
-              ),
-              // -- .end - 1 --
-              SizedBox(height: tFormHeight),
-              Form(
-                key: _formKey,
-                child: Column(
-                  children: [
-                    TextFormField(
-                      controller: _usernameController,
-                      decoration: const InputDecoration(
-                        prefixIcon: Icon(Icons.person_outline_rounded),
-                        label: Text('Username'),
-                      ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Vui lòng nhập username';
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: tFormHeight - 20),
-                    TextFormField(
-                      controller: _emailController,
-                      decoration: const InputDecoration(
-                        prefixIcon: Icon(Icons.email_outlined),
-                        label: Text('Email'),
-                      ),
-                      validator: _validateEmail,
-                    ),
-                    const SizedBox(height: tFormHeight - 20),
-                    TextFormField(
-                      controller: _passwordController,
-                      obscureText: true,
-                      decoration: const InputDecoration(
-                        prefixIcon: Icon(Icons.fingerprint),
-                        label: Text('Password'),
-                      ),
-                      validator: _validatePassword,
-                    ),
-                    const SizedBox(height: tFormHeight - 10),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          elevation: 0,
-                          shape: RoundedRectangleBorder(),
-                          foregroundColor: tWhiteColor,
-                          backgroundColor: tSecondaryColor,
-                          side: BorderSide(color: tSecondaryColor),
-                          padding: EdgeInsets.symmetric(vertical: tButtonHeight),
-                        ),
-                        onPressed:
-                        context.watch<AuthViewModel>().isLoading ? null : _register,
-                        child: context.watch<AuthViewModel>().isLoading
-                            ? CircularProgressIndicator()
-                            : Text('Đăng ký'),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: tFormHeight - 20),
-              // -- Section - 3 --
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
+          child: Container(
+        padding: const EdgeInsets.all(tDefaultSize),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // -- Section - 1 --
+            Image(
+              image: AssetImage(tWelcomeScreenImage),
+              height: size.height * 0.2,
+            ),
+            Text(
+              tRegisterTitle,
+              style: Theme.of(context).textTheme.headlineLarge,
+            ),
+            Text(
+              tRegisterSubTitle,
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+            // -- .end - 1 --
+            SizedBox(height: tFormHeight),
+            Form(
+              key: _formKey,
+              child: Column(
                 children: [
-                  const Text("OR"),
-                  const SizedBox(height: tFormHeight - 20),
-                  SizedBox(
-                    width: double.infinity,
-                    child: OutlinedButtonCustom(
-                      icon: Image(
-                        image: AssetImage(tGoogleLogoImage),
-                        width: 20.0,
-                      ),
-                      onPressed: () {},
-                      label: tSignInWithGoogle,
+                  TextFormField(
+                    controller: _usernameController,
+                    decoration: const InputDecoration(
+                      prefixIcon: Icon(Icons.person_outline_rounded),
+                      label: Text('Username'),
                     ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Vui lòng nhập username';
+                      }
+                      return null;
+                    },
                   ),
                   const SizedBox(height: tFormHeight - 20),
-                  TextButton(
-                      onPressed: () {
-                        Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => LoginScreen()));
-                      },
-                      child: Text.rich(
-                          TextSpan(
-                              text: tAlreadyHaveAnAccount,
-                              style: Theme
-                                  .of(context)
-                                  .textTheme
-                                  .bodyLarge,
-                              children: const[
-                                TextSpan(
-                                  text: " " + tLogin,
-                                  style: TextStyle(color: Colors.blue),
-                                )
-                              ]
-                          )
-                      ))
+                  TextFormField(
+                    controller: _emailController,
+                    decoration: const InputDecoration(
+                      prefixIcon: Icon(Icons.email_outlined),
+                      label: Text('Email'),
+                    ),
+                    validator: _validateEmail,
+                  ),
+                  const SizedBox(height: tFormHeight - 20),
+                  TextFormField(
+                    controller: _passwordController,
+                    obscureText: true,
+                    decoration: const InputDecoration(
+                      prefixIcon: Icon(Icons.fingerprint),
+                      label: Text('Password'),
+                    ),
+                    validator: _validatePassword,
+                  ),
+                  const SizedBox(height: tFormHeight - 10),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(),
+                        foregroundColor: tWhiteColor,
+                        backgroundColor: tSecondaryColor,
+                        side: BorderSide(color: tSecondaryColor),
+                        padding: EdgeInsets.symmetric(vertical: tButtonHeight),
+                      ),
+                      onPressed: context.watch<AuthViewModel>().isLoading
+                          ? null
+                          : _register,
+                      child: context.watch<AuthViewModel>().isLoading
+                          ? CircularProgressIndicator()
+                          : Text('Đăng ký'),
+                    ),
+                  ),
                 ],
-              )
-              // -- .end - 3--
-            ],
-          ),
-        )
-      ),
+              ),
+            ),
+            const SizedBox(height: tFormHeight - 20),
+            // -- Section - 3 --
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const Text("OR"),
+                const SizedBox(height: tFormHeight - 20),
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButtonCustom(
+                    icon: Image(
+                      image: AssetImage(tGoogleLogoImage),
+                      width: 20.0,
+                    ),
+                    onPressed: () {},
+                    label: tSignInWithGoogle,
+                  ),
+                ),
+                const SizedBox(height: tFormHeight - 20),
+                TextButton(
+                    onPressed: () {
+                      Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => LoginScreen()));
+                    },
+                    child: Text.rich(TextSpan(
+                        text: tAlreadyHaveAnAccount,
+                        style: Theme.of(context).textTheme.bodyLarge,
+                        children: const [
+                          TextSpan(
+                            text: " " + tLogin,
+                            style: TextStyle(color: Colors.blue),
+                          )
+                        ])))
+              ],
+            )
+            // -- .end - 3--
+          ],
+        ),
+      )),
     );
   }
 }
