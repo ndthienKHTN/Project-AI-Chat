@@ -2,9 +2,11 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:project_ai_chat/View/Account/pages/account_screent.dart';
 import 'package:project_ai_chat/View/Bot/page/bot_screen.dart';
+import 'package:project_ai_chat/models/chat_exception.dart';
+import 'package:project_ai_chat/services/chat_service.dart';
 import '../../core/Widget/dropdown-button.dart';
-import '../../viewmodels/ai-chat-list.dart';
-import '../../viewmodels/message-home-chat.dart';
+import '../../viewmodels/aichat_list.dart';
+import '../../viewmodels/message_homechat.dart';
 import '../BottomSheet/custom_bottom_sheet.dart';
 import 'package:flutter/widgets.dart';
 import 'package:image_picker/image_picker.dart';
@@ -14,7 +16,7 @@ import 'Widgets/BottomNavigatorBarCustom/custom-bottom-navigator-bar.dart';
 import 'Widgets/Menu/menu.dart';
 import 'Widgets/tool.dart';
 
-import 'model/ai-logo-list.dart';
+import 'model/ai_logo_list.dart';
 
 class HomeChat extends StatefulWidget {
   const HomeChat({super.key});
@@ -36,6 +38,7 @@ class _HomeChatState extends State<HomeChat> {
   @override
   void initState() {
     super.initState();
+
     _focusNode.addListener(() {
       if (_focusNode.hasFocus) {
         setState(() {
@@ -45,6 +48,21 @@ class _HomeChatState extends State<HomeChat> {
     });
     _listAIItem = Provider.of<AIChatList>(context, listen: false).aiItems;
     selectedAIItem = _listAIItem.first.name;
+
+    // Khởi tạo chat
+    final aiItem = _listAIItem.first;
+    Provider.of<MessageModel>(context, listen: false)
+        .initializeChat(aiItem.id)
+        .then((_) {
+      // Cập nhật token count sau khi khởi tạo chat
+      final remainingUsage =
+          Provider.of<MessageModel>(context, listen: false).lastRemainingUsage;
+      if (remainingUsage != null) {
+        setState(() {
+          aiItem.tokenCount = remainingUsage;
+        });
+      }
+    });
   }
 
   @override
@@ -86,23 +104,47 @@ class _HomeChatState extends State<HomeChat> {
 
   void _sendMessage() async {
     if (_controller.text.isEmpty && _selectedImagePath == null) return;
-    await Provider.of<MessageModel>(context, listen: false).sendMessage(
-      _controller.text,
-      _listAIItem.firstWhere((aiItem) => aiItem.name == selectedAIItem).id,
-    );
-    // if (_selectedImagePath != null) {
-    //   Provider.of<MessageModel>(context, listen: false).addMessage({
-    //     'sender': 'user',
-    //     'image': _selectedImagePath!,
-    //   });
-    //   _selectedImagePath = null;
-    // } else {
-    //   await Provider.of<MessageModel>(context, listen: false).sendMessage(
-    //     _controller.text,
-    //     _listAIItem.firstWhere((aiItem) => aiItem.name == selectedAIItem).id,
-    //   );
-    // }
-    _controller.clear();
+
+    try {
+      final aiItem =
+          _listAIItem.firstWhere((aiItem) => aiItem.name == selectedAIItem);
+
+      // Gọi sendMessage từ MessageModel
+      await Provider.of<MessageModel>(context, listen: false).sendMessage(
+        _controller.text,
+        aiItem.id,
+      );
+
+      // Cập nhật số token còn lại từ tin nhắn cuối cùng
+      final messages =
+          Provider.of<MessageModel>(context, listen: false).messages;
+      if (messages.isNotEmpty && !messages.last['isError']) {
+        setState(() {
+          aiItem.tokenCount =
+              messages.last['remainingUsage'] ?? aiItem.tokenCount;
+        });
+      }
+
+      // Xóa nội dung input
+      _controller.clear();
+
+      // Xóa hình ảnh đã chọn (nếu có)
+      if (_selectedImagePath != null) {
+        setState(() {
+          _selectedImagePath = null;
+        });
+      }
+    } catch (e) {
+      // Hiển thị thông báo lỗi
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            e is ChatException ? e.message : 'Có lỗi xảy ra khi gửi tin nhắn',
+          ),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
   void updateSelectedAIItem(String newValue) {
@@ -144,9 +186,6 @@ class _HomeChatState extends State<HomeChat> {
     );
   }
 
-  // void _saveConversation() {
-  //   Provider.of<MessageModel>(context, listen: false).saveConversation();
-  // }
   Future<void> _openGallery() async {
     final ImagePicker _picker = ImagePicker();
     final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
@@ -200,7 +239,7 @@ class _HomeChatState extends State<HomeChat> {
                   Container(
                     padding: EdgeInsets.all(5),
                     decoration: BoxDecoration(
-                      color: Colors.grey[200],
+                      color: Color.fromARGB(255, 235, 240, 244),
                       borderRadius: BorderRadius.circular(12.0),
                     ),
                     child: Row(

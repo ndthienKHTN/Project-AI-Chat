@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:project_ai_chat/models/chat_models.dart';
+import 'package:project_ai_chat/models/assistant_response.dart';
+import 'package:project_ai_chat/models/chat_exception.dart';
+import 'package:project_ai_chat/models/message_response.dart';
 import 'package:project_ai_chat/services/chat_service.dart';
 
 class MessageModel extends ChangeNotifier {
@@ -12,6 +14,50 @@ class MessageModel extends ChangeNotifier {
 
   List<Map<String, dynamic>> get messages => _messages;
   bool get isLoading => _isLoading;
+
+  Future<void> initializeChat(String assistantId) async {
+    try {
+      _isLoading = true;
+      notifyListeners();
+
+      final response = await _chatService.fetchAIChat(
+        content: "Hi",
+        assistantId: assistantId,
+      );
+
+      print('✅ Initial chat response:');
+      print('Message: ${response.message}');
+      print('Remaining Usage: ${response.remainingUsage}');
+
+      _messages.add({
+        'sender': 'model',
+        'text': response.message,
+        'isError': false,
+        'remainingUsage': response.remainingUsage,
+      });
+
+      _currentConversationId = response.conversationId;
+    } catch (e) {
+      print('❌ Error in initializing chat:');
+      if (e is ChatException) {
+        print('Status: ${e.statusCode}');
+        print('Message: ${e.message}');
+      } else {
+        print('Unexpected error: $e');
+      }
+
+      _messages.add({
+        'sender': 'model',
+        'text': e is ChatException
+            ? e.message
+            : 'Lỗi không xác định khi khởi tạo chat: ${e.toString()}',
+        'isError': true,
+      });
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
 
   Future<void> sendMessage(String content, String assistantId) async {
     try {
@@ -59,6 +105,7 @@ class MessageModel extends ChangeNotifier {
         'sender': 'model',
         'text': response.message,
         'isError': false,
+        'remainingUsage': response.remainingUsage,
       });
     } catch (e) {
       print('❌ Error in MessageModel:');
@@ -80,5 +127,12 @@ class MessageModel extends ChangeNotifier {
       _isLoading = false;
       notifyListeners();
     }
+  }
+
+  int? get lastRemainingUsage {
+    if (_messages.isNotEmpty && !_messages.last['isError']) {
+      return _messages.last['remainingUsage'] as int?;
+    }
+    return null;
   }
 }
