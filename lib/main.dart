@@ -8,19 +8,16 @@ import 'package:project_ai_chat/viewmodels/auth_view_model.dart';
 import 'package:project_ai_chat/viewmodels/message_homechat.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:dio/dio.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final prefs = await SharedPreferences.getInstance();
-  final dio = Dio();
 
   runApp(
     MultiProvider(
       providers: [
         Provider<ChatService>(
           create: (_) => ChatService(
-            dio: dio,
             prefs: prefs,
           ),
         ),

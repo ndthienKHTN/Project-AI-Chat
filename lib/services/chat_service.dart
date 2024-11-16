@@ -2,26 +2,16 @@ import 'package:dio/dio.dart';
 import 'package:project_ai_chat/models/chat_exception.dart';
 import 'package:project_ai_chat/models/chat_response.dart';
 import 'package:project_ai_chat/models/message_response.dart';
+import 'package:project_ai_chat/services/dio_client.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
 class ChatService {
-  final Dio dio;
   final SharedPreferences prefs;
+  late final Dio dio;
 
-  ChatService({required this.dio, required this.prefs}) {
-    // Thiết lập base URL và interceptors
-    dio.options.baseUrl = 'https://api.dev.jarvis.cx';
-    dio.interceptors.add(InterceptorsWrapper(
-      onRequest: (options, handler) async {
-        // Thêm headers
-        final token = prefs.getString('token');
-        options.headers['Authorization'] = 'Bearer $token';
-        options.headers['x-jarvis-guid'] =
-            const Uuid().v4(); // Cần thêm package uuid
-        return handler.next(options);
-      },
-    ));
+  ChatService({required this.prefs}) {
+    dio = DioClient().dio;
   }
 
   Future<ChatResponse> sendMessage({
@@ -54,7 +44,7 @@ class ChatService {
       print('Body: $requestData');
 
       final response = await dio.post(
-        '/api/v1/ai-chat/messages',
+        '/ai-chat/messages',
         data: requestData,
       );
 
@@ -92,7 +82,7 @@ class ChatService {
       print('Body: $requestData');
 
       final response = await dio.post(
-        '/api/v1/ai-chat',
+        '/ai-chat',
         data: requestData,
       );
 

@@ -112,17 +112,29 @@ class MessageModel extends ChangeNotifier {
       if (e is ChatException) {
         print('Status: ${e.statusCode}');
         print('Message: ${e.message}');
+
+        if (e.statusCode == 500) {
+          _messages.add({
+            'sender': 'model',
+            'text':
+                'Đã xảy ra lỗi máy chủ. Vui lòng thử lại sau hoặc liên hệ hỗ trợ.',
+            'isError': true,
+          });
+        } else {
+          _messages.add({
+            'sender': 'model',
+            'text': e.message,
+            'isError': true,
+          });
+        }
       } else {
         print('Unexpected error: $e');
+        _messages.add({
+          'sender': 'model',
+          'text': 'Lỗi không xác định khi gửi tin nhắn: ${e.toString()}',
+          'isError': true,
+        });
       }
-
-      _messages.add({
-        'sender': 'model',
-        'text': e is ChatException
-            ? e.message
-            : 'Lỗi không xác định: ${e.toString()}',
-        'isError': true,
-      });
     } finally {
       _isLoading = false;
       notifyListeners();
