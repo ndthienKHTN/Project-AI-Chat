@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:project_ai_chat/View/Account/pages/account_screent.dart';
 import 'package:project_ai_chat/View/Bot/page/bot_screen.dart';
 import 'package:project_ai_chat/models/chat_exception.dart';
-import 'package:project_ai_chat/services/chat_service.dart';
 import '../../core/Widget/dropdown-button.dart';
 import '../../viewmodels/aichat_list.dart';
 import '../../viewmodels/message_homechat.dart';
