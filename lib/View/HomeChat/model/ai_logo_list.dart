@@ -1,7 +1,7 @@
 class AIItem {
   final String name;
   final String logoPath;
-  final int tokenCount;
+  int tokenCount;
   final String id;
 
   AIItem({

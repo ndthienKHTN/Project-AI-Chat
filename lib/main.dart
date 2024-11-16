@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:project_ai_chat/View/SplashScreen/splash_screen.dart';
 import 'package:project_ai_chat/services/chat_service.dart';
-
 import 'package:project_ai_chat/utils/theme/theme.dart';
 import 'package:project_ai_chat/viewmodels/KnowledgeBaseProvider.dart';
-import 'package:project_ai_chat/viewmodels/ai-chat-list.dart';
+import 'package:project_ai_chat/viewmodels/aichat_list.dart';
 import 'package:project_ai_chat/viewmodels/auth_view_model.dart';
-import 'package:project_ai_chat/viewmodels/message-home-chat.dart';
+import 'package:project_ai_chat/viewmodels/message_homechat.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:dio/dio.dart';
