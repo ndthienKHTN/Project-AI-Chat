@@ -5,6 +5,8 @@ import 'package:project_ai_chat/constants/colors.dart';
 import 'package:project_ai_chat/constants/image_strings.dart';
 import 'package:project_ai_chat/constants/sizes.dart';
 import 'package:project_ai_chat/constants/text_strings.dart';
+import 'package:project_ai_chat/viewmodels/auth_view_model.dart';
+import 'package:provider/provider.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -18,7 +20,15 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   void initState() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadIsloginState();
+    });
     startAnimation();
+  }
+
+  Future<void> _loadIsloginState() async {
+    await Provider.of<AuthViewModel>(context, listen: false)
+        .loadIsLoggedInFromPrefs();
   }
 
   @override
@@ -99,7 +109,20 @@ class _SplashScreenState extends State<SplashScreen> {
     await Future.delayed(Duration(milliseconds: 500));
     setState(() => animate = true);
     await Future.delayed(Duration(milliseconds: 5000));
-    Navigator.pushReplacement(
-        context, MaterialPageRoute(builder: (context) => WelcomeScreen()));
+
+    final authState = Provider.of<AuthViewModel>(context, listen: false);
+
+    // Điều hướng dựa trên isLoggedIn
+    if (authState.isLoggedIn) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => HomeChat()),
+      );
+    } else {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => WelcomeScreen()),
+      );
+    }
   }
 }
