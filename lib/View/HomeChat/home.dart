@@ -7,15 +7,13 @@ import '../../core/Widget/dropdown-button.dart';
 import '../../viewmodels/aichat_list.dart';
 import '../../viewmodels/message_homechat.dart';
 import '../BottomSheet/custom_bottom_sheet.dart';
-import 'package:flutter/widgets.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import '../EmailChat/email.dart';
 import 'Widgets/BottomNavigatorBarCustom/custom-bottom-navigator-bar.dart';
 import 'Widgets/Menu/menu.dart';
-import 'Widgets/tool.dart';
 
-import 'model/ai_logo_list.dart';
+import 'model/ai_logo.dart';
 
 class HomeChat extends StatefulWidget {
   const HomeChat({super.key});
@@ -29,7 +27,6 @@ class _HomeChatState extends State<HomeChat> {
   final TextEditingController _controller = TextEditingController();
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   late String selectedAIItem;
-  bool _isOpenToolWidget = false;
   bool _isOpenDeviceWidget = false;
   int _selectedBottomItemIndex = 0;
   final FocusNode _focusNode = FocusNode();
@@ -48,8 +45,17 @@ class _HomeChatState extends State<HomeChat> {
     _listAIItem = Provider.of<AIChatList>(context, listen: false).aiItems;
     selectedAIItem = _listAIItem.first.name;
 
+    final aiItemName = _listAIItem.first.name;
     // Khởi tạo chat
-    final aiItem = _listAIItem.first;
+    //createAiChat(aiItemName);
+    Provider.of<MessageModel>(context, listen: false)
+        .loadConversationHistory(_listAIItem.first.id);
+  }
+
+  void createAiChat(String aiItemName) async {
+    // Khởi tạo chat
+    final aiItem =
+        _listAIItem.firstWhere((aiItem) => aiItem.name == aiItemName);
     Provider.of<MessageModel>(context, listen: false)
         .initializeChat(aiItem.id)
         .then((_) {
@@ -89,12 +95,6 @@ class _HomeChatState extends State<HomeChat> {
     }
   }
 
-  void _toggleToolVisibility() {
-    setState(() {
-      _isOpenToolWidget = !_isOpenToolWidget;
-    });
-  }
-
   void _toggleDeviceVisibility() {
     setState(() {
       _isOpenDeviceWidget = !_isOpenDeviceWidget;
@@ -111,7 +111,7 @@ class _HomeChatState extends State<HomeChat> {
       // Gọi sendMessage từ MessageModel
       await Provider.of<MessageModel>(context, listen: false).sendMessage(
         _controller.text,
-        aiItem.id,
+        aiItem,
       );
 
       // Cập nhật số token còn lại từ tin nhắn cuối cùng
@@ -146,7 +146,8 @@ class _HomeChatState extends State<HomeChat> {
     }
   }
 
-  void updateSelectedAIItem(String newValue) {
+  void _updateSelectedAIItem(String newValue) {
+    createAiChat(newValue);
     setState(() {
       selectedAIItem = newValue;
       AIItem aiItem =
@@ -230,7 +231,7 @@ class _HomeChatState extends State<HomeChat> {
                     listAIItems: _listAIItem,
                     onChanged: (String? newValue) {
                       if (newValue != null) {
-                        updateSelectedAIItem(newValue);
+                        _updateSelectedAIItem(newValue);
                       }
                     },
                   ),
@@ -260,14 +261,10 @@ class _HomeChatState extends State<HomeChat> {
                     ),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.add_circle_outline),
-                    onPressed: () {},
-                  ),
-                  IconButton(
+                      icon: const Icon(Icons.add_circle_outline),
                       onPressed: () {
-                        _toggleToolVisibility();
-                      },
-                      icon: const Icon(Icons.more_horiz)),
+                        createAiChat(selectedAIItem);
+                      }),
                 ],
               ),
             )),
@@ -425,8 +422,6 @@ class _HomeChatState extends State<HomeChat> {
                         ),
                       ),
                     ),
-                    // Phần bên phải: Thanh công cụ
-                    if (_isOpenToolWidget) Tool(),
                   ],
                 ),
               ),
