@@ -1,6 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:project_ai_chat/models/chat_exception.dart';
 import 'package:project_ai_chat/models/chat_response.dart';
+import 'package:project_ai_chat/models/conversation_history_response.dart';
+
 import 'package:project_ai_chat/models/message_response.dart';
 import 'package:project_ai_chat/services/dio_client.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -100,6 +102,45 @@ class ChatService {
           statusCode: response.statusCode ?? 500,
         );
       }
+    } on DioException catch (e) {
+      print('❌ DioException:');
+      print('Status: ${e.response?.statusCode}');
+      print('Data: ${e.response?.data}');
+      print('Message: ${e.message}');
+
+      throw ChatException(
+        message: e.response?.data?['message'] ??
+            e.message ??
+            'Lỗi kết nối tới server',
+        statusCode: e.response?.statusCode ?? 500,
+      );
+    }
+  }
+
+  Future<ConversationMessagesResponse> fetchConversationHistory({
+    required String conversationId,
+    required String assistantId,
+  }) async {
+    try {
+      final queryParams = {
+        'assistantId': assistantId,
+        'assistantModel': 'dify',
+      };
+
+      print('🚀 REQUEST DATA:');
+      print(
+          'URL: ${dio.options.baseUrl}/api/v1/ai-chat/conversations/$conversationId/messages');
+      print('Headers: ${dio.options.headers}');
+      print('Query params: $queryParams');
+
+      final response = await dio.get(
+        '/ai-chat/conversations/$conversationId/messages',
+        queryParameters: queryParams,
+      );
+
+      print('✅ RESPONSE DATA: ${response.data}');
+
+      return ConversationMessagesResponse.fromJson(response.data);
     } on DioException catch (e) {
       print('❌ DioException:');
       print('Status: ${e.response?.statusCode}');
