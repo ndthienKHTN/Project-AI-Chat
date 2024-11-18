@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 
-import '../View/HomeChat/model/ai_logo_list.dart';
+import '../View/HomeChat/model/ai_logo.dart';
 
 class AIChatList extends ChangeNotifier {
   List<AIItem> aiItems = [

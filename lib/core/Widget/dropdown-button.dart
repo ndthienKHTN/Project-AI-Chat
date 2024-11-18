@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../View/HomeChat/model/ai_logo_list.dart';
+import '../../View/HomeChat/model/ai_logo.dart';
 
 class AIDropdown extends StatelessWidget {
   final List<AIItem> listAIItems;
@@ -39,28 +39,15 @@ class AIDropdown extends StatelessWidget {
                   Expanded(
                     child: Text(
                       item.name,
-                      style: const TextStyle(fontSize: 12),
+                      style: const TextStyle(
+                          fontSize: 12, overflow: TextOverflow.ellipsis),
+                      maxLines: 1,
                     ),
                   ),
-                  //Spacer(),
-                  const Icon(Icons.flash_on,
-                      color: Colors.greenAccent, size: 12),
-                  Text(item.tokenCount.toString(),
-                      style: TextStyle(fontSize: 12)),
                 ],
               ),
             );
           }).toList(),
-          selectedItemBuilder: (BuildContext context) {
-            return listAIItems.map<Widget>((AIItem item) {
-              return Image.asset(
-                fit: BoxFit.cover,
-                item.logoPath,
-                width: 25,
-                height: 25,
-              );
-            }).toList();
-          },
           decoration: InputDecoration(
             contentPadding: EdgeInsets.only(left: 10, right: 10),
             enabledBorder: OutlineInputBorder(

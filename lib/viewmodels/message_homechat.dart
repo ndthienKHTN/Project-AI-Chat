@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:project_ai_chat/View/HomeChat/model/ai_logo.dart';
 import 'package:project_ai_chat/models/assistant_response.dart';
 import 'package:project_ai_chat/models/chat_exception.dart';
 import 'package:project_ai_chat/models/conversation_model.dart';
@@ -24,6 +25,9 @@ class MessageModel extends ChangeNotifier {
     try {
       _isLoading = true;
       notifyListeners();
+
+      _messages.clear();
+      _currentConversationId = null;
 
       final response = await _chatService.fetchAIChat(
         content: "Hi",
@@ -64,7 +68,7 @@ class MessageModel extends ChangeNotifier {
     }
   }
 
-  Future<void> sendMessage(String content, String assistantId) async {
+  Future<void> sendMessage(String content, AIItem assistant) async {
     try {
       _isLoading = true;
       notifyListeners();
@@ -78,21 +82,21 @@ class MessageModel extends ChangeNotifier {
 
       print('💬 Sending message:');
       print('Content: $content');
-      print('Assistant ID: $assistantId');
+      print('Assistant ID: ${assistant.id}');
       print('Conversation ID: $_currentConversationId');
 
       final response = await _chatService.sendMessage(
         content: content,
-        assistantId: assistantId,
+        assistantId: assistant.id,
         conversationId: _currentConversationId,
         previousMessages: _messages
             .map((msg) => Message(
                   role: msg['sender'] == 'user' ? 'user' : 'model',
                   content: msg['text'],
                   assistant: Assistant(
-                    id: assistantId,
+                    id: assistant.id,
                     model: "dify",
-                    name: "Claude 3 Haiku",
+                    name: assistant.name,
                   ),
                   isErrored: msg['isError'] as bool? ?? false,
                 ))
@@ -176,6 +180,39 @@ class MessageModel extends ChangeNotifier {
       notifyListeners();
       // logout();
       throw response;
+      }
+  }
+  Future<void> loadConversationHistory(String assistantId) async {
+    if (_currentConversationId == null) return;
+
+    try {
+      _isLoading = true;
+      notifyListeners();
+
+      final response = await _chatService.fetchConversationHistory(
+        conversationId: _currentConversationId!,
+        assistantId: assistantId,
+      );
+
+      // Xử lý messages nhận được
+      for (var message in response.items) {
+        _messages.add({
+          'sender': 'user',
+          'text': message.query,
+          'isError': false,
+        });
+        _messages.add({
+          'sender': 'model',
+          'text': message.answer,
+          'isError': false,
+        });
+      }
+    } catch (e) {
+      print('❌ Error loading conversation history: $e');
+      // Xử lý lỗi tương tự như các method khác
+    } finally {
+      _isLoading = false;
+      notifyListeners();
     }
   }
 }
