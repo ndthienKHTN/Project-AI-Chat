@@ -1,8 +1,10 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:project_ai_chat/View/Login/login_screen.dart';
+import 'package:project_ai_chat/models/api_response.dart';
 import 'package:project_ai_chat/models/user_model.dart';
 import 'package:project_ai_chat/viewmodels/auth_view_model.dart';
 import 'package:provider/provider.dart';
@@ -28,7 +30,11 @@ class _AccountScreentState extends State<AccountScreent> {
     try {
       await Provider.of<AuthViewModel>(context, listen: false).fetchUserInfo();
     } catch (e) {
-      await _logout();
+      if (e is ApiResponse<dynamic>) {
+        if (e.statusCode == 401) {
+          await _logout();
+        }
+      }
     }
   }
 

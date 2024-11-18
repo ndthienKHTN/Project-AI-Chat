@@ -1,19 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:project_ai_chat/models/assistant_response.dart';
 import 'package:project_ai_chat/models/chat_exception.dart';
+import 'package:project_ai_chat/models/conversation_model.dart';
 import 'package:project_ai_chat/models/message_response.dart';
 import 'package:project_ai_chat/services/chat_service.dart';
 
 class MessageModel extends ChangeNotifier {
   final List<Map<String, dynamic>> _messages = [];
+  final List<Conversation> _conversations = [];
   final ChatService _chatService;
   String? _currentConversationId;
   bool _isLoading = false;
+  String? _errorMessage;
 
   MessageModel(this._chatService);
 
   List<Map<String, dynamic>> get messages => _messages;
+  List<Conversation> get conversations => _conversations;
   bool get isLoading => _isLoading;
+  String? get errorMessage => _errorMessage;
 
   Future<void> initializeChat(String assistantId) async {
     try {
@@ -146,5 +151,31 @@ class MessageModel extends ChangeNotifier {
       return _messages.last['remainingUsage'] as int?;
     }
     return null;
+  }
+
+  Future<void> fetchAllConversations(
+      String assistantId, String assistantModel) async {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    final response =
+        await _chatService.getAllConversations(assistantId, assistantModel);
+
+    if (response.success && response.data != null) {
+      _conversations.clear();
+      _conversations.addAll(
+        (response.data['items'] as List<dynamic>)
+            .map((item) => Conversation.fromJson(item)),
+      );
+      _isLoading = false;
+      notifyListeners();
+    } else {
+      _isLoading = false;
+      _errorMessage = response.message;
+      notifyListeners();
+      // logout();
+      throw response;
+    }
   }
 }

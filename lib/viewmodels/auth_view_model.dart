@@ -121,12 +121,13 @@ class AuthViewModel extends ChangeNotifier {
     if (response.success && response.data != null) {
       _user = User.fromJson(response.data);
       isLoading = false;
+      _isLoggedIn = true;
       notifyListeners();
     } else {
       isLoading = false;
       error = response.message;
       logout();
-      throw Exception(response.message);
+      throw response;
     }
   }
 

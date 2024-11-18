@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:project_ai_chat/View/Knowledge/page/knowledge_screen.dart';
+import 'package:project_ai_chat/models/api_response.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../viewmodels/message_homechat.dart';
@@ -14,6 +15,27 @@ class Menu extends StatefulWidget {
 
 class _MenuState extends State<Menu> {
   int _selectedIndex = -1;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadConversations();
+    });
+  }
+
+  Future<void> _loadConversations() async {
+    try {
+      // select model ai here for get conversation
+
+      //
+      await Provider.of<MessageModel>(context, listen: false)
+          .fetchAllConversations('gpt-4o-mini', 'dify');
+    } catch (e) {
+      print("error: $e");
+    }
+  }
+
   void _logout() async {}
   @override
   Widget build(BuildContext context) {
@@ -91,36 +113,51 @@ class _MenuState extends State<Menu> {
               ],
             ),
           ),
-          // Consumer<MessageModel>(
-          //   builder: (context, messageModel, child){
-          //     return ListView.builder(
-          //       shrinkWrap: true,
-          //       itemCount: messageModel.savedConversations.length,
-          //       itemBuilder: (context,index){
-          //         final conversation = messageModel.savedConversations[index];
-          //         return ListTile(
-          //           title: Text("Conversation ${index+1}"),
-          //           subtitle: Text(
-          //             conversation.map((msg) => msg["text"]).join(','),
-          //             maxLines: 1,
-          //             overflow: TextOverflow.ellipsis,
-          //           ),
-          //           trailing: IconButton(
-          //             icon: Icon(Icons.delete),
-          //             onPressed: () {
-          //               messageModel.deleteConversation(index);
-          //             },
-          //           ),
-          //           onTap: () {
-          //             Provider.of<MessageModel>(context, listen: false)
-          //                 .setConversation(conversation,index);
-          //             Navigator.pop(context); // Close the drawer
-          //           },
-          //         );
-          //       },
-          //     );
-          //   },
-          // )
+          Consumer<MessageModel>(
+            builder: (context, messageModel, child) {
+              if (messageModel.isLoading) {
+                // Display loading indicator while fetching conversations
+                return Center(child: CircularProgressIndicator());
+              }
+
+              if (messageModel.errorMessage != null) {
+                // Display error message if there's an error
+                return Center(
+                  child: Text(
+                    messageModel.errorMessage ?? 'Có lỗi xảy ra',
+                    style: TextStyle(color: Colors.red, fontSize: 16),
+                  ),
+                );
+              }
+
+              return ListView.builder(
+                shrinkWrap: true,
+                itemCount: messageModel.conversations.length,
+                itemBuilder: (context, index) {
+                  final conversation = messageModel.conversations[index];
+                  return ListTile(
+                    title: Text("Conversation ${index + 1}"),
+                    subtitle: Text(
+                      conversation.title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    // trailing: IconButton(
+                    //   icon: Icon(Icons.delete),
+                    //   onPressed: () {
+                    //     messageModel.deleteConversation(index);
+                    //   },
+                    // ),
+                    // onTap: () {
+                    //   Provider.of<MessageModel>(context, listen: false)
+                    //       .setConversation(conversation,index);
+                    //   Navigator.pop(context); // Close the drawer
+                    // },
+                  );
+                },
+              );
+            },
+          )
         ],
       ),
     );
