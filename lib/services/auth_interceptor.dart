@@ -31,17 +31,24 @@ class AuthInterceptor extends Interceptor {
       final isTokenRefreshed = await _refreshAccessToken();
       if (isTokenRefreshed) {
         // Gửi lại request với accessToken mới
-        final retryResponse = await dio.request(
-          err.requestOptions.path,
-          options: Options(
-            method: err.requestOptions.method,
-            // headers: error.requestOptions.headers, do onrequest đã có rồi
-          ),
-          data: err.requestOptions.data,
-          queryParameters: err.requestOptions.queryParameters,
-        );
-        handler.resolve(retryResponse); // Trả về response mới
-        return;
+        try {
+          final retryResponse = await dio.request(
+            err.requestOptions.path,
+            options: Options(
+              method: err.requestOptions.method,
+              // headers: error.requestOptions.headers, do onrequest đã có rồi
+            ),
+            data: err.requestOptions.data,
+            queryParameters: err.requestOptions.queryParameters,
+          );
+          handler.resolve(retryResponse); // Trả về response mới
+          return;
+        } catch (retryError) {
+          if(retryError is DioException){
+            handler.next(retryError); // Hoặc xử lý lại theo cách khác
+            return;
+          }
+        }
       } else {
         // Nếu làm mới token không thành công, đăng xuất
         // await _logout();
