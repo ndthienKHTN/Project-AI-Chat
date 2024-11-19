@@ -1,28 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:project_ai_chat/View/Login/login_screen.dart';
 import 'package:project_ai_chat/View/SplashScreen/splash_screen.dart';
 import 'package:project_ai_chat/services/chat_service.dart';
-import 'package:project_ai_chat/services/prompt_service.dart';
-
 import 'package:project_ai_chat/utils/theme/theme.dart';
 import 'package:project_ai_chat/viewmodels/KnowledgeBaseProvider.dart';
-import 'package:project_ai_chat/viewmodels/ai-chat-list.dart';
+import 'package:project_ai_chat/viewmodels/aichat_list.dart';
 import 'package:project_ai_chat/viewmodels/auth_view_model.dart';
-import 'package:project_ai_chat/viewmodels/message-home-chat.dart';
+import 'package:project_ai_chat/viewmodels/message_homechat.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:dio/dio.dart';
+import 'package:project_ai_chat/services/prompt_service.dart';
+
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final prefs = await SharedPreferences.getInstance();
-  final dio = Dio();
 
   runApp(
     MultiProvider(
       providers: [
         Provider<ChatService>(
           create: (_) => ChatService(
-            dio: dio,
             prefs: prefs,
           ),
         ),
@@ -55,6 +54,8 @@ class MyApp extends StatelessWidget {
       theme: TAppTheme.lightTheme,
       darkTheme: TAppTheme.darkTheme,
       themeMode: ThemeMode.system,
+      navigatorKey: navigatorKey,
+      routes: {'/login': (context) => const LoginScreen()},
       home: SplashScreen(),
     );
   }

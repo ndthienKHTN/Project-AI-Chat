@@ -25,6 +25,26 @@ class _LoginScreenState extends State<LoginScreen> {
   final _passwordController = TextEditingController();
   bool _isPasswordVisible = false;
 
+  @override
+  void initState() {
+    super.initState();
+    
+    // Sử dụng addPostFrameCallback để tránh lỗi khi gọi setState trong build
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final shouldShowMessage =
+          ModalRoute.of(context)?.settings.arguments as bool? ?? false;
+
+      if (shouldShowMessage) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Session expired, please log in again."),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    });
+  }
+
   String? _validateEmail(String? value) {
     if (value == null || value.isEmpty) {
       return 'Vui lòng nhập email';

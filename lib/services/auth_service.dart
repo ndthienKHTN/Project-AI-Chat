@@ -1,5 +1,4 @@
 import 'dart:developer';
-
 import 'package:project_ai_chat/services/dio_client.dart';
 import '../models/user_model.dart';
 import '../models/api_response.dart';
@@ -115,14 +114,7 @@ class AuthService {
 
   Future<ApiResponse> getCurrentUser(String accessToken) async {
     try {
-      final response = await dio.get(
-        '/auth/me',
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $accessToken',
-          },
-        ),
-      );
+      final response = await dio.get('/auth/me');
       if (response.statusCode == 200) {
         return ApiResponse(
           success: true,

@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:project_ai_chat/services/auth_interceptor.dart';
 
 class DioClient {
   static final DioClient _instance = DioClient._internal();
@@ -30,5 +31,7 @@ class DioClient {
       responseBody: true,
       error: true,
     ));
+
+    dio.interceptors.add(AuthInterceptor(dio: dio));
   }
 }

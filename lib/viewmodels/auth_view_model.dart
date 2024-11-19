@@ -3,12 +3,16 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/user_model.dart';
 import '../services/auth_service.dart';
 import 'package:flutter/foundation.dart';
-import 'dart:convert';
 
 class AuthViewModel extends ChangeNotifier {
   final AuthService _authService = AuthService();
+  bool _isLoggedIn = false;
+  User? _user;
   bool isLoading = false;
   String? error;
+
+  bool get isLoggedIn => _isLoggedIn;
+  User? get user => _user;
 
   Future<bool> register({
     required String username,
@@ -66,21 +70,13 @@ class AuthViewModel extends ChangeNotifier {
         final prefs = await SharedPreferences.getInstance();
         // Lưu access token
         if (response.data['token']?['accessToken'] != null) {
-          await prefs.setString('token', response.data['token']['accessToken']);
+          await prefs.setString(
+              'accessToken', response.data['token']['accessToken']);
         }
         // Lưu refresh token
         if (response.data['token']?['refreshToken'] != null) {
           await prefs.setString(
               'refreshToken', response.data['token']['refreshToken']);
-        }
-
-        // Lưu thông tin user
-        if (response.data['token']?['accessToken'] != null) {
-          final userInfo = await _authService
-              .getCurrentUser(response.data['token']['accessToken']);
-          if (userInfo.success && userInfo.data != null) {
-            await prefs.setString('user', jsonEncode(userInfo.data));
-          }
         }
 
         isLoading = false;
@@ -99,5 +95,47 @@ class AuthViewModel extends ChangeNotifier {
       notifyListeners();
       return false;
     }
+  }
+
+  Future<void> loadIsLoggedInFromPrefs() async {
+    final prefs = await SharedPreferences.getInstance();
+    final accessToken = prefs.getString('accessToken');
+    final refreshToken = prefs.getString('refreshToken');
+
+    // await prefs.setString('refreshToken', "deleteRefreshToken");
+
+    _isLoggedIn = accessToken != null && refreshToken != null;
+    notifyListeners();
+  }
+
+  Future<void> fetchUserInfo() async {
+    isLoading = true;
+    error = null;
+    notifyListeners();
+
+    final prefs = await SharedPreferences.getInstance();
+    final accessToken = prefs.getString('accessToken');
+    final response = await _authService.getCurrentUser(accessToken!);
+
+    if (response.success && response.data != null) {
+      _user = User.fromJson(response.data);
+      isLoading = false;
+      _isLoggedIn = true;
+      notifyListeners();
+    } else {
+      isLoading = false;
+      error = response.message;
+      logout();
+      throw response;
+    }
+  }
+
+  Future<void> logout() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('accessToken');
+    await prefs.remove('refreshToken');
+    _isLoggedIn = false;
+    _user = null;
+    notifyListeners();
   }
 }

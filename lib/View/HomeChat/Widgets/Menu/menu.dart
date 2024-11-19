@@ -1,10 +1,10 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:project_ai_chat/View/HomeChat/model/ai_logo.dart';
 import 'package:project_ai_chat/View/Knowledge/page/knowledge_screen.dart';
 import 'package:provider/provider.dart';
-
-import '../../../../viewmodels/message-home-chat.dart';
+import '../../../../viewmodels/message_homechat.dart';
 import '../../../UpgradeVersion/upgrade-version.dart';
+import '../../../../viewmodels/aichat_list.dart';
 
 class Menu extends StatefulWidget {
   const Menu({Key? key}) : super(key: key);
@@ -14,13 +14,36 @@ class Menu extends StatefulWidget {
 
 class _MenuState extends State<Menu> {
   int _selectedIndex = -1;
+  late final AIChatList aiChatList;
+  late AIItem currentAI;
+  @override
+  void initState() {
+    super.initState();
+    aiChatList = Provider.of<AIChatList>(context, listen: false);
+    currentAI = aiChatList.selectedAIItem;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadConversations();
+    });
+  }
+
+  Future<void> _loadConversations() async {
+    try {
+      await Provider.of<MessageModel>(context, listen: false)
+          .fetchAllConversations(currentAI.id, 'dify');
+    } catch (e) {
+      print("error: $e");
+    }
+  }
+
   void _logout() async {}
   @override
   Widget build(BuildContext context) {
     return Drawer(
-      child: ListView(
+      child: Column(
         children: [
-          DrawerHeader(
+          SizedBox(
+            height: 100,
+            child: DrawerHeader(
               decoration: BoxDecoration(
                 color: Colors.blue[100],
               ),
@@ -45,27 +68,10 @@ class _MenuState extends State<Menu> {
                       ),
                     ],
                   ),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      _buildButtonItem(
-                        title: "Login",
-                        onPressed: () {},
-                      ),
-                      const SizedBox(
-                        width: 20,
-                      ),
-                      _buildButtonItem(
-                        title: "Logout",
-                        onPressed: () {},
-                      ),
-                    ],
-                  )
                 ],
-              )),
+              ),
+            ),
+          ),
           _buildWidgetItem(Icons.smart_button, "Prompt Management", 0),
           _buildWidgetItem(Icons.play_lesson, "Knowledge Management", 1),
           _buildWidgetItem(Icons.verified_sharp, "Upgrade Version", 2),
@@ -91,36 +97,51 @@ class _MenuState extends State<Menu> {
               ],
             ),
           ),
-          // Consumer<MessageModel>(
-          //   builder: (context, messageModel, child){
-          //     return ListView.builder(
-          //       shrinkWrap: true,
-          //       itemCount: messageModel.savedConversations.length,
-          //       itemBuilder: (context,index){
-          //         final conversation = messageModel.savedConversations[index];
-          //         return ListTile(
-          //           title: Text("Conversation ${index+1}"),
-          //           subtitle: Text(
-          //             conversation.map((msg) => msg["text"]).join(','),
-          //             maxLines: 1,
-          //             overflow: TextOverflow.ellipsis,
-          //           ),
-          //           trailing: IconButton(
-          //             icon: Icon(Icons.delete),
-          //             onPressed: () {
-          //               messageModel.deleteConversation(index);
-          //             },
-          //           ),
-          //           onTap: () {
-          //             Provider.of<MessageModel>(context, listen: false)
-          //                 .setConversation(conversation,index);
-          //             Navigator.pop(context); // Close the drawer
-          //           },
-          //         );
-          //       },
-          //     );
-          //   },
-          // )
+          Consumer<MessageModel>(
+            builder: (context, messageModel, child) {
+              if (messageModel.isLoading) {
+                // Display loading indicator while fetching conversations
+                return const Center(child: CircularProgressIndicator());
+              }
+
+              if (messageModel.errorMessage != null) {
+                // Display error message if there's an error
+                return Center(
+                  child: Text(
+                    messageModel.errorMessage ?? 'Có lỗi xảy ra',
+                    style: const TextStyle(color: Colors.red, fontSize: 16),
+                  ),
+                );
+              }
+
+              return ListView.builder(
+                shrinkWrap: true,
+                itemCount: messageModel.conversations.length,
+                itemBuilder: (context, index) {
+                  final conversation = messageModel.conversations[index];
+                  return ListTile(
+                    title: Text("Conversation ${index + 1}"),
+                    subtitle: Text(
+                      conversation.title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    onTap: () async {
+                      // Lấy assistantId từ currentAI
+                      final assistantId = currentAI.id;
+
+                      // Gọi loadConversationHistory
+                      await Provider.of<MessageModel>(context, listen: false)
+                          .loadConversationHistory(
+                              assistantId, conversation.id);
+
+                      Navigator.pop(context); // Đóng drawer
+                    },
+                  );
+                },
+              );
+            },
+          ),
         ],
       ),
     );

@@ -1,8 +1,13 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:project_ai_chat/View/Login/login_screen.dart';
+import 'package:project_ai_chat/models/api_response.dart';
 import 'package:project_ai_chat/models/user_model.dart';
+import 'package:project_ai_chat/viewmodels/auth_view_model.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AccountScreent extends StatefulWidget {
@@ -13,23 +18,34 @@ class AccountScreent extends StatefulWidget {
 }
 
 class _AccountScreentState extends State<AccountScreent> {
-  User? user;
-
   @override
   void initState() {
     super.initState();
-    _loadUserInfo();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadUserInfo();
+    });
   }
 
   Future<void> _loadUserInfo() async {
-    final prefs = await SharedPreferences.getInstance();
-    final userJson = prefs.getString('user');
+    try {
+      await Provider.of<AuthViewModel>(context, listen: false).fetchUserInfo();
+    } catch (e) {
+      if (e is ApiResponse<dynamic>) {
+        if (e.statusCode == 401) {
+          // await _logout();
+        }
+      }
+    }
+  }
 
-    if (userJson != null) {
-      final userMap = jsonDecode(userJson) as Map<String, dynamic>;
-      setState(() {
-        user = User.fromJson(userMap);
-      });
+  Future<void> _logout() async {
+    await Provider.of<AuthViewModel>(context, listen: false).logout();
+    if (mounted) {
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => const LoginScreen()),
+        (Route<dynamic> route) => false,
+      );
     }
   }
 
@@ -66,25 +82,29 @@ class _AccountScreentState extends State<AccountScreent> {
                     ),
                   ),
                   const SizedBox(width: 16),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        user?.username ?? '',
-                        style: const TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        user?.email ?? '',
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.grey[600],
-                        ),
-                      ),
-                    ],
+                  Consumer<AuthViewModel>(
+                    builder: (context, authViewModel, child) {
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            authViewModel.user?.username ?? '',
+                            style: const TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            authViewModel.user?.email ?? '',
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                        ],
+                      );
+                    },
                   ),
                 ],
               ),
@@ -119,7 +139,7 @@ class _AccountScreentState extends State<AccountScreent> {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'Truy vấn 1/40',
+                          'Basic version',
                           style: TextStyle(
                             color: Colors.grey[600],
                           ),
@@ -147,23 +167,24 @@ class _AccountScreentState extends State<AccountScreent> {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    Card(
-                      color: Colors.white, // Màu nền sáng
-                      child: ListTile(
-                        leading: const Icon(Icons.account_circle),
-                        title: Text(user?.username ?? ''),
-                      ),
+                    Consumer<AuthViewModel>(
+                      builder: (context, authViewModel, child) {
+                        return Card(
+                          color: Colors.white, // Màu nền sáng
+                          child: ListTile(
+                            leading: const Icon(Icons.account_circle),
+                            title: Text(authViewModel.user?.username ?? ''),
+                          ),
+                        );
+                      },
                     ),
                     const SizedBox(height: 10),
                     Card(
                       color: Colors.red[100], // Màu nền nút đăng xuất
                       child: ListTile(
-                        leading: Icon(Icons.logout, color: Colors.red),
-                        title: Text('Log out'),
-                        onTap: () {
-                          // Hàm đăng xuất
-                        },
-                      ),
+                          leading: Icon(Icons.logout, color: Colors.red),
+                          title: Text('Log out'),
+                          onTap: _logout),
                     ),
                     const SizedBox(height: 20),
                     // Support Section
