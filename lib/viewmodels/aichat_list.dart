@@ -6,29 +6,44 @@ class AIChatList extends ChangeNotifier {
   List<AIItem> aiItems = [
     AIItem(
       name: 'Claude 3 Haiku',
-      logoPath: 'assets/logo/copilot.jpg',
-      tokenCount: 50,
+      logoPath: 'assets/logo/claude-3-haiku.png',
       id: 'claude-3-haiku-20240307',
     ),
     AIItem(
       name: 'GPT-4o mini',
       logoPath: 'assets/logo/monica.png',
-      tokenCount: 60,
       id: 'gpt-4o-mini',
     ),
     AIItem(
-      name: 'Chat GPT',
-      logoPath: 'assets/logo/chat-gpt.jpg',
-      tokenCount: 70,
-      id: 'gpt-3.5-turbo',
+      name: 'Gemini 1.5 Pro',
+      logoPath: 'assets/logo/gemini-1.5-pro.png',
+      id: 'gemini-1.5-pro-latest',
     ),
     AIItem(
-      name: 'Google PaLM',
-      logoPath: 'assets/logo/google-logo.png',
-      tokenCount: 80,
-      id: 'palm-2',
+      name: 'Gemini 1.5 Flash',
+      logoPath: 'assets/logo/gemini-1.5-flash-latest.jpg',
+      id: 'gemini-1.5-flash-latest',
+    ),
+    AIItem(
+      name: 'Claude 3 Sonnet',
+      logoPath: 'assets/logo/claude-3-sonet.jpg',
+      id: 'claude-3-sonnet-20240229',
     ),
   ];
+
+  late AIItem _selectedAIItem;
+  int tokenCount = 30;
+
+  AIChatList() {
+    _selectedAIItem = aiItems.first;
+  }
+
+  AIItem get selectedAIItem => _selectedAIItem;
+
+  void setSelectedAIItem(AIItem item) {
+    _selectedAIItem = item;
+    notifyListeners();
+  }
 
   void addAIItem(AIItem newAIItem) {
     aiItems.add(newAIItem);

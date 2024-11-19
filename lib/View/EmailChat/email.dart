@@ -19,7 +19,7 @@ class _EmailComposerState extends State<EmailComposer> {
   @override
   void initState() {
     _listAIItems = Provider.of<AIChatList>(context, listen: false).aiItems;
-    _countToken = _listAIItems.first.tokenCount;
+    _countToken = 25;
     super.initState();
   }
 
@@ -124,9 +124,7 @@ class _EmailComposerState extends State<EmailComposer> {
             listAIItems: _listAIItems,
             onChanged: (value) {
               setState(() {
-                _countToken = _listAIItems
-                    .firstWhere((element) => element.name == value)
-                    .tokenCount;
+                _countToken = 24;
               });
             },
           ),
