@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:project_ai_chat/viewmodels/prompt-list-view-model.dart';
+import 'package:project_ai_chat/viewmodels/prompt-list.dart';
+import 'package:provider/provider.dart';
 
+import '../../services/prompt_service.dart';
+import '../../viewmodels/prompt.dart';
 import 'Dialog/custom_dialog.dart';
+import 'Widgets/PromptList/prompt_list.dart';
 
 class CustomBottomSheet {
 
@@ -86,7 +92,8 @@ class CustomBottomSheet {
                 SizedBox(height: 10),
 
                 // Row 5: Scrollable List
-                _buildPromptsList(),
+                // _buildPromptsList3(context),
+                PromptListWidget(),
 
               ],
             ),
@@ -316,6 +323,130 @@ class CustomBottomSheet {
       },
     );
   }
+
+  static Widget _buildPromptsList2() {
+    List<bool> isStarred = List.generate(10, (index) => false); // Trạng thái ngôi sao cho từng item
+    return StatefulBuilder(
+      builder: (context, setState) {
+        return Expanded(
+          child: ListView.builder(
+            itemCount: 10, // Số lượng item trong list
+            itemBuilder: (context, index) {
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 10.0), // Tăng khoảng cách giữa các row
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.pop(context); // Đóng BottomSheet hiện tại
+                            _showPromptDetailsBottomSheet(context, 'Title $index'); // Mở BottomSheet mới
+                          },
+                          child: Text(
+                            'Title $index',
+                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                          ),
+                        ),
+
+                      ],
+                    ),
+                    const SizedBox(height: 8), // Tăng khoảng cách giữa các dòng
+                    Text('This is a description for title $index.'),
+                    const Divider(thickness: 1.2), // Tăng độ dày của Divider
+                  ],
+                ),
+              );
+            },
+          ),
+        );
+      },
+    );
+  }
+
+  static Widget _buildPromptsList3(BuildContext context) {
+    final _promptService = context.read<PromptService>();
+    final viewModel = PromptListViewModel(_promptService);
+    List<bool> isStarred = List.generate(10, (index) => false); // Trạng thái ngôi sao cho từng item
+
+    return FutureBuilder<PromptList>(
+      future: viewModel.fetchPrompts(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(child: Text('Error: ${snapshot.error}'));
+        } else if (!snapshot.hasData || snapshot.data!.items.isEmpty) {
+          return Center(child: Text('No prompts found.'));
+        } else {
+          final prompts = snapshot.data!;
+          return Expanded(
+            child: ListView.builder(
+              itemCount: prompts.total,
+              itemBuilder: (context, index) {
+                final prompt = prompts.items[index];
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 10.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: <Widget>[
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.pop(context);
+                              _showPromptDetailsBottomSheet(context, prompt.title);
+                            },
+                            child: Text(
+                              prompt.title,
+                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                          Row(
+                            children: [
+                              GestureDetector(
+                                onTap: () {
+                                  // setState(() {
+                                  //   isStarred[index] = !isStarred[index]; // Đổi trạng thái ngôi sao
+                                  // });
+                                },
+                                child: Icon(
+                                  isStarred[index] ? Icons.star : Icons.star_border,
+                                  color: isStarred[index] ? Colors.yellow : Colors.grey,
+                                ),
+                              ),
+                              SizedBox(width: 15), // Tăng khoảng cách giữa các icon
+                              Icon(Icons.info_outline, color: Colors.grey),
+                              SizedBox(width: 15),
+                              GestureDetector(
+                                onTap: () {
+                                  Navigator.pop(context); // Đóng BottomSheet hiện tại
+                                  _showPromptDetailsBottomSheet(context, 'Title $index'); // Mở BottomSheet mới
+                                },
+                                child: Icon(Icons.arrow_right, color: Colors.grey),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 8),
+                      Text("prompt.description"),
+                      Divider(thickness: 1.2),
+                    ],
+                  ),
+                );
+              },
+            ),
+          );
+        }
+      },
+    );
+  }
+
+
 
   static void _showPromptDetailsBottomSheet(BuildContext context, String itemTitle) {
     showModalBottomSheet(

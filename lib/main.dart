@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:project_ai_chat/View/SplashScreen/splash_screen.dart';
 import 'package:project_ai_chat/services/chat_service.dart';
+import 'package:project_ai_chat/services/prompt_service.dart';
 
 import 'package:project_ai_chat/utils/theme/theme.dart';
 import 'package:project_ai_chat/viewmodels/KnowledgeBaseProvider.dart';
@@ -23,6 +24,12 @@ void main() async {
           create: (_) => ChatService(
             dio: dio,
             prefs: prefs,
+          ),
+        ),
+        Provider<PromptService>(
+          create: (_) => PromptService(
+            // dio: dio,
+            // prefs: prefs,
           ),
         ),
         ChangeNotifierProvider(
