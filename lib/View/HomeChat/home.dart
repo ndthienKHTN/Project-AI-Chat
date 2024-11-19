@@ -167,7 +167,12 @@ class _HomeChatState extends State<HomeChat> {
           borderRadius: BorderRadius.circular(12),
         ),
         child: Consumer<MessageModel>(builder: (context, messageModel, child) {
-          if (!isUser && messageModel.isSending) {
+          bool isLastAIMessage = !isUser &&
+              message ==
+                  messageModel.messages.lastWhere((m) => m.role != 'user',
+                      orElse: () => message);
+
+          if (isLastAIMessage && messageModel.isSending) {
             return Row(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -457,7 +462,7 @@ class _HomeChatState extends State<HomeChat> {
                                     onPressed: _hasText ? _sendMessage : null,
                                     style: IconButton.styleFrom(
                                       foregroundColor:
-                                          _hasText ? Colors.blue : Colors.grey,
+                                          _hasText ? Colors.black : Colors.grey,
                                     ),
                                   ),
                                 ],
