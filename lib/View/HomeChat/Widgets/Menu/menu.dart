@@ -68,25 +68,6 @@ class _MenuState extends State<Menu> {
                       ),
                     ],
                   ),
-                  // const SizedBox(
-                  //   height: 10,
-                  // ),
-                  // Row(
-                  //   mainAxisAlignment: MainAxisAlignment.center,
-                  //   children: [
-                  //     _buildButtonItem(
-                  //       title: "Login",
-                  //       onPressed: () {},
-                  //     ),
-                  //     const SizedBox(
-                  //       width: 20,
-                  //     ),
-                  //     _buildButtonItem(
-                  //       title: "Logout",
-                  //       onPressed: () {},
-                  //     ),
-                  //   ],
-                  // )
                 ],
               ),
             ),
@@ -157,43 +138,10 @@ class _MenuState extends State<Menu> {
                       Navigator.pop(context); // Đóng drawer
                     },
                   );
-                }
-
-                return ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: messageModel.conversations.length,
-                  itemBuilder: (context, index) {
-                    final conversation = messageModel.conversations[index];
-                    return Card(
-                      child: ListTile(
-                        title: Text(
-                          conversation.title,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        // subtitle: Text(
-                        //   conversation.title,
-                        //   maxLines: 1,
-                        //   overflow: TextOverflow.ellipsis,
-                        // ),
-                        // trailing: IconButton(
-                        //   icon: Icon(Icons.delete),
-                        //   onPressed: () {
-                        //     messageModel.deleteConversation(index);
-                        //   },
-                        // ),
-                        // onTap: () {
-                        //   Provider.of<MessageModel>(context, listen: false)
-                        //       .setConversation(conversation,index);
-                        //   Navigator.pop(context); // Close the drawer
-                        // },
-                      ),
-                    );
-                  },
-                );
-              },
-            ),
-          )
+                },
+              );
+            },
+          ),
         ],
       ),
     );
