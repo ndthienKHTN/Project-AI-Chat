@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:project_ai_chat/View/Login/login_screen.dart';
 import 'package:project_ai_chat/View/SplashScreen/splash_screen.dart';
 import 'package:project_ai_chat/services/chat_service.dart';
 import 'package:project_ai_chat/utils/theme/theme.dart';
@@ -8,6 +9,8 @@ import 'package:project_ai_chat/viewmodels/auth_view_model.dart';
 import 'package:project_ai_chat/viewmodels/message_homechat.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -44,6 +47,8 @@ class MyApp extends StatelessWidget {
       theme: TAppTheme.lightTheme,
       darkTheme: TAppTheme.darkTheme,
       themeMode: ThemeMode.system,
+      navigatorKey: navigatorKey,
+      routes: {'/login': (context) => const LoginScreen()},
       home: SplashScreen(),
     );
   }

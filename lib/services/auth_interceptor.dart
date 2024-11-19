@@ -1,4 +1,6 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
+import 'package:project_ai_chat/main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthInterceptor extends Interceptor {
@@ -44,14 +46,14 @@ class AuthInterceptor extends Interceptor {
           handler.resolve(retryResponse); // Trả về response mới
           return;
         } catch (retryError) {
-          if(retryError is DioException){
+          if (retryError is DioException) {
             handler.next(retryError); // Hoặc xử lý lại theo cách khác
             return;
           }
         }
       } else {
         // Nếu làm mới token không thành công, đăng xuất
-        // await _logout();
+        await _logout();
         // handler.next(err);
         // handler.reject(DioException(
         //   requestOptions: err.requestOptions,
@@ -89,5 +91,7 @@ class AuthInterceptor extends Interceptor {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('accessToken');
     await prefs.remove('refreshToken');
+    navigatorKey.currentState
+        ?.pushNamedAndRemoveUntil('/login', (route) => false, arguments: true);
   }
 }
