@@ -32,7 +32,7 @@ class _AccountScreentState extends State<AccountScreent> {
     } catch (e) {
       if (e is ApiResponse<dynamic>) {
         if (e.statusCode == 401) {
-          await _logout();
+          // await _logout();
         }
       }
     }
@@ -41,12 +41,6 @@ class _AccountScreentState extends State<AccountScreent> {
   Future<void> _logout() async {
     await Provider.of<AuthViewModel>(context, listen: false).logout();
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Yêu cầu xác thực hết hạn, cần đăng nhập lại"),
-          backgroundColor: Colors.red,
-        ),
-      );
       Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(builder: (context) => const LoginScreen()),
@@ -145,7 +139,7 @@ class _AccountScreentState extends State<AccountScreent> {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'Truy vấn 1/40',
+                          'Basic version',
                           style: TextStyle(
                             color: Colors.grey[600],
                           ),
