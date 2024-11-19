@@ -7,19 +7,22 @@ import 'package:project_ai_chat/models/message_response.dart';
 import 'package:project_ai_chat/services/chat_service.dart';
 
 class MessageModel extends ChangeNotifier {
-  final List<Map<String, dynamic>> _messages = [];
+  final List<Message> _messages = [];
   final List<Conversation> _conversations = [];
   final ChatService _chatService;
   String? _currentConversationId;
+  int? _remainingUsage;
   bool _isLoading = false;
   String? _errorMessage;
-
+  bool _isSending = false;
   MessageModel(this._chatService);
 
-  List<Map<String, dynamic>> get messages => _messages;
+  int? get remainingUsage => _remainingUsage;
+  List<Message> get messages => _messages;
   List<Conversation> get conversations => _conversations;
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
+  bool get isSending => _isSending;
 
   Future<void> initializeChat(String assistantId) async {
     try {
@@ -38,14 +41,20 @@ class MessageModel extends ChangeNotifier {
       print('Message: ${response.message}');
       print('Remaining Usage: ${response.remainingUsage}');
 
-      _messages.add({
-        'sender': 'model',
-        'text': response.message,
-        'isError': false,
-        'remainingUsage': response.remainingUsage,
-      });
+      _messages.add(Message(
+        role: 'model',
+        content: response.message,
+        assistant: Assistant(
+          id: assistantId,
+          model: "dify",
+          name: "AI Assistant",
+        ),
+        isErrored: false,
+      ));
 
       _currentConversationId = response.conversationId;
+      _remainingUsage = response.remainingUsage;
+      notifyListeners();
     } catch (e) {
       print('❌ Error in initializing chat:');
       if (e is ChatException) {
@@ -55,13 +64,18 @@ class MessageModel extends ChangeNotifier {
         print('Unexpected error: $e');
       }
 
-      _messages.add({
-        'sender': 'model',
-        'text': e is ChatException
+      _messages.add(Message(
+        role: 'model',
+        content: e is ChatException
             ? e.message
             : 'Lỗi không xác định khi khởi tạo chat: ${e.toString()}',
-        'isError': true,
-      });
+        assistant: Assistant(
+          id: assistantId,
+          model: "dify",
+          name: "AI Assistant",
+        ),
+        isErrored: true,
+      ));
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -70,14 +84,19 @@ class MessageModel extends ChangeNotifier {
 
   Future<void> sendMessage(String content, AIItem assistant) async {
     try {
-      _isLoading = true;
+      _isSending = true;
       notifyListeners();
 
-      _messages.add({
-        'sender': 'user',
-        'text': content,
-        'isError': false,
-      });
+      _messages.add(Message(
+        role: 'user',
+        content: content,
+        assistant: Assistant(
+          id: assistant.id,
+          model: "dify",
+          name: assistant.name,
+        ),
+        isErrored: false,
+      ));
       notifyListeners();
 
       print('💬 Sending message:');
@@ -89,18 +108,7 @@ class MessageModel extends ChangeNotifier {
         content: content,
         assistantId: assistant.id,
         conversationId: _currentConversationId,
-        previousMessages: _messages
-            .map((msg) => Message(
-                  role: msg['sender'] == 'user' ? 'user' : 'model',
-                  content: msg['text'],
-                  assistant: Assistant(
-                    id: assistant.id,
-                    model: "dify",
-                    name: assistant.name,
-                  ),
-                  isErrored: msg['isError'] as bool? ?? false,
-                ))
-            .toList(),
+        previousMessages: _messages,
       );
 
       print('✅ Response received:');
@@ -109,13 +117,19 @@ class MessageModel extends ChangeNotifier {
       print('Remaining Usage: ${response.remainingUsage}');
 
       _currentConversationId = response.conversationId;
+      _remainingUsage = response.remainingUsage;
+      notifyListeners();
 
-      _messages.add({
-        'sender': 'model',
-        'text': response.message,
-        'isError': false,
-        'remainingUsage': response.remainingUsage,
-      });
+      _messages.add(Message(
+        role: 'model',
+        content: response.message,
+        assistant: Assistant(
+          id: assistant.id,
+          model: "dify",
+          name: assistant.name,
+        ),
+        isErrored: false,
+      ));
     } catch (e) {
       print('❌ Error in MessageModel:');
       if (e is ChatException) {
@@ -123,38 +137,46 @@ class MessageModel extends ChangeNotifier {
         print('Message: ${e.message}');
 
         if (e.statusCode == 500) {
-          _messages.add({
-            'sender': 'model',
-            'text':
+          _messages.add(Message(
+            role: 'model',
+            content:
                 'Đã xảy ra lỗi máy chủ. Vui lòng thử lại sau hoặc liên hệ hỗ trợ.',
-            'isError': true,
-          });
+            assistant: Assistant(
+              id: assistant.id,
+              model: "dify",
+              name: "AI Assistant",
+            ),
+            isErrored: true,
+          ));
         } else {
-          _messages.add({
-            'sender': 'model',
-            'text': e.message,
-            'isError': true,
-          });
+          _messages.add(Message(
+            role: 'model',
+            content: e.message,
+            assistant: Assistant(
+              id: assistant.id,
+              model: "dify",
+              name: "AI Assistant",
+            ),
+            isErrored: true,
+          ));
         }
       } else {
         print('Unexpected error: $e');
-        _messages.add({
-          'sender': 'model',
-          'text': 'Lỗi không xác định khi gửi tin nhắn: ${e.toString()}',
-          'isError': true,
-        });
+        _messages.add(Message(
+          role: 'model',
+          content: 'Lỗi không xác định khi gửi tin nhắn: ${e.toString()}',
+          assistant: Assistant(
+            id: assistant.id,
+            model: "dify",
+            name: "AI Assistant",
+          ),
+          isErrored: true,
+        ));
       }
     } finally {
-      _isLoading = false;
+      _isSending = false;
       notifyListeners();
     }
-  }
-
-  int? get lastRemainingUsage {
-    if (_messages.isNotEmpty && !_messages.last['isError']) {
-      return _messages.last['remainingUsage'] as int?;
-    }
-    return null;
   }
 
   Future<void> fetchAllConversations(
@@ -180,32 +202,46 @@ class MessageModel extends ChangeNotifier {
       notifyListeners();
       // logout();
       throw response;
-      }
+    }
   }
-  Future<void> loadConversationHistory(String assistantId) async {
-    if (_currentConversationId == null) return;
 
+  Future<void> loadConversationHistory(
+      String assistantId, String conversationId) async {
     try {
       _isLoading = true;
       notifyListeners();
 
       final response = await _chatService.fetchConversationHistory(
-        conversationId: _currentConversationId!,
+        conversationId: conversationId,
         assistantId: assistantId,
       );
 
+      _messages.clear(); // Xóa tin nhắn cũ trước khi thêm lịch sử mới
+      _currentConversationId =
+          conversationId; // Cập nhật ID cuộc hội thoại hiện tại
+
       // Xử lý messages nhận được
       for (var message in response.items) {
-        _messages.add({
-          'sender': 'user',
-          'text': message.query,
-          'isError': false,
-        });
-        _messages.add({
-          'sender': 'model',
-          'text': message.answer,
-          'isError': false,
-        });
+        _messages.add(Message(
+          role: 'user',
+          content: message.query,
+          assistant: Assistant(
+            id: assistantId,
+            model: "dify",
+            name: "AI Assistant",
+          ),
+          isErrored: false,
+        ));
+        _messages.add(Message(
+          role: 'model',
+          content: message.answer,
+          assistant: Assistant(
+            id: assistantId,
+            model: "dify",
+            name: "AI Assistant",
+          ),
+          isErrored: false,
+        ));
       }
     } catch (e) {
       print('❌ Error loading conversation history: $e');

@@ -30,11 +30,17 @@ class AIDropdown extends StatelessWidget {
               value: item.name,
               child: Row(
                 children: [
-                  Image.asset(
-                    fit: BoxFit.cover,
-                    item.logoPath,
-                    width: 25,
-                    height: 25,
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: Image.asset(
+                      fit: BoxFit.cover,
+                      item.logoPath,
+                      width: 20,
+                      height: 20,
+                    ),
+                  ),
+                  const SizedBox(
+                    width: 5,
                   ),
                   Expanded(
                     child: Text(

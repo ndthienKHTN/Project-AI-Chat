@@ -1,11 +1,10 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:project_ai_chat/View/HomeChat/model/ai_logo.dart';
 import 'package:project_ai_chat/View/Knowledge/page/knowledge_screen.dart';
-import 'package:project_ai_chat/models/api_response.dart';
 import 'package:provider/provider.dart';
-
 import '../../../../viewmodels/message_homechat.dart';
 import '../../../UpgradeVersion/upgrade-version.dart';
+import '../../../../viewmodels/aichat_list.dart';
 
 class Menu extends StatefulWidget {
   const Menu({Key? key}) : super(key: key);
@@ -15,10 +14,13 @@ class Menu extends StatefulWidget {
 
 class _MenuState extends State<Menu> {
   int _selectedIndex = -1;
-
+  late final AIChatList aiChatList;
+  late AIItem currentAI;
   @override
   void initState() {
     super.initState();
+    aiChatList = Provider.of<AIChatList>(context, listen: false);
+    currentAI = aiChatList.selectedAIItem;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadConversations();
     });
@@ -26,11 +28,8 @@ class _MenuState extends State<Menu> {
 
   Future<void> _loadConversations() async {
     try {
-      // select model ai here for get conversation
-
-      //
       await Provider.of<MessageModel>(context, listen: false)
-          .fetchAllConversations('gpt-4o-mini', 'dify');
+          .fetchAllConversations(currentAI.id, 'dify');
     } catch (e) {
       print("error: $e");
     }
@@ -117,7 +116,7 @@ class _MenuState extends State<Menu> {
             builder: (context, messageModel, child) {
               if (messageModel.isLoading) {
                 // Display loading indicator while fetching conversations
-                return Center(child: CircularProgressIndicator());
+                return const Center(child: CircularProgressIndicator());
               }
 
               if (messageModel.errorMessage != null) {
@@ -125,7 +124,7 @@ class _MenuState extends State<Menu> {
                 return Center(
                   child: Text(
                     messageModel.errorMessage ?? 'Có lỗi xảy ra',
-                    style: TextStyle(color: Colors.red, fontSize: 16),
+                    style: const TextStyle(color: Colors.red, fontSize: 16),
                   ),
                 );
               }
@@ -142,17 +141,17 @@ class _MenuState extends State<Menu> {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    // trailing: IconButton(
-                    //   icon: Icon(Icons.delete),
-                    //   onPressed: () {
-                    //     messageModel.deleteConversation(index);
-                    //   },
-                    // ),
-                    // onTap: () {
-                    //   Provider.of<MessageModel>(context, listen: false)
-                    //       .setConversation(conversation,index);
-                    //   Navigator.pop(context); // Close the drawer
-                    // },
+                    onTap: () async {
+                      // Lấy assistantId từ currentAI
+                      final assistantId = currentAI.id;
+
+                      // Gọi loadConversationHistory
+                      await Provider.of<MessageModel>(context, listen: false)
+                          .loadConversationHistory(
+                              assistantId, conversation.id);
+
+                      Navigator.pop(context); // Đóng drawer
+                    },
                   );
                 },
               );
