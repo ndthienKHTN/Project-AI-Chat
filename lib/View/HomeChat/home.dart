@@ -14,6 +14,8 @@ import '../EmailChat/email.dart';
 import 'Widgets/BottomNavigatorBarCustom/custom-bottom-navigator-bar.dart';
 import 'Widgets/Menu/menu.dart';
 import 'model/ai_logo.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class HomeChat extends StatefulWidget {
   const HomeChat({super.key});
@@ -155,6 +157,17 @@ class _HomeChatState extends State<HomeChat> {
     bool isUser = message.role == 'user';
     bool isError = message.isErrored ?? false;
 
+    Future<void> _launchURL(String url) async {
+      final Uri uri = Uri.parse(url);
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Không thể mở link: $url')),
+        );
+      }
+    }
+
     return Align(
       alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(
@@ -167,12 +180,8 @@ class _HomeChatState extends State<HomeChat> {
           borderRadius: BorderRadius.circular(12),
         ),
         child: Consumer<MessageModel>(builder: (context, messageModel, child) {
-          bool isLastAIMessage = !isUser &&
-              message ==
-                  messageModel.messages.lastWhere((m) => m.role != 'user',
-                      orElse: () => message);
-
-          if (isLastAIMessage && messageModel.isSending) {
+          // Hiển thị loading nếu là tin nhắn model rỗng và đang trong trạng thái gửi
+          if (!isUser && message.content.isEmpty && messageModel.isSending) {
             return Row(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -194,12 +203,31 @@ class _HomeChatState extends State<HomeChat> {
               ],
             );
           }
-          return Text(
-            message.content,
-            style: TextStyle(
-              color: isError ? Colors.red : Colors.black,
-            ),
-          );
+
+          // Sử dụng Markdown widget cho tin nhắn model
+          return isUser
+              ? Text(
+                  message.content,
+                  style: TextStyle(color: isError ? Colors.red : Colors.black),
+                )
+              : MarkdownBody(
+                  data: message.content,
+                  styleSheet: MarkdownStyleSheet(
+                    p: TextStyle(color: isError ? Colors.red : Colors.black),
+                    a: const TextStyle(
+                      color: Colors.blue,
+                      decoration: TextDecoration.underline,
+                    ),
+                    listBullet:
+                        TextStyle(color: isError ? Colors.red : Colors.black),
+                  ),
+                  selectable: true,
+                  onTapLink: (text, href, title) {
+                    if (href != null) {
+                      _launchURL(href);
+                    }
+                  },
+                );
         }),
       ),
     );
