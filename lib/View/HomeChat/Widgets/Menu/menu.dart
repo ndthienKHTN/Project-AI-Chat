@@ -62,13 +62,15 @@ class _MenuState extends State<Menu> {
       child: Column(
         children: [
           SizedBox(
-            height: 100,
             child: DrawerHeader(
               decoration: BoxDecoration(
                 color: Colors.blue[100],
               ),
               child: Column(
                 children: [
+                  const SizedBox(
+                    height: 15,
+                  ),
                   Row(
                     children: [
                       Image.asset(
@@ -125,7 +127,6 @@ class _MenuState extends State<Menu> {
                   // Display loading indicator while fetching conversations
                   return const Center(child: CircularProgressIndicator());
                 }
-
                 if (messageModel.errorMessage != null &&
                     messageModel.conversations.isEmpty) {
                   // Display error message if there's an error
