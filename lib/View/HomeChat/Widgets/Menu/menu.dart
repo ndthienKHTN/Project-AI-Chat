@@ -42,13 +42,15 @@ class _MenuState extends State<Menu> {
       child: Column(
         children: [
           SizedBox(
-            height: 100,
             child: DrawerHeader(
               decoration: BoxDecoration(
                 color: Colors.blue[100],
               ),
               child: Column(
                 children: [
+                  const SizedBox(
+                    height: 15,
+                  ),
                   Row(
                     children: [
                       Image.asset(
@@ -97,50 +99,52 @@ class _MenuState extends State<Menu> {
               ],
             ),
           ),
-          Consumer<MessageModel>(
-            builder: (context, messageModel, child) {
-              if (messageModel.isLoading) {
-                // Display loading indicator while fetching conversations
-                return const Center(child: CircularProgressIndicator());
-              }
+          Expanded(
+            child: Consumer<MessageModel>(
+              builder: (context, messageModel, child) {
+                if (messageModel.isLoading) {
+                  // Display loading indicator while fetching conversations
+                  return const Center(child: CircularProgressIndicator());
+                }
 
-              if (messageModel.errorMessage != null) {
-                // Display error message if there's an error
-                return Center(
-                  child: Text(
-                    messageModel.errorMessage ?? 'Có lỗi xảy ra',
-                    style: const TextStyle(color: Colors.red, fontSize: 16),
-                  ),
-                );
-              }
-
-              return ListView.builder(
-                shrinkWrap: true,
-                itemCount: messageModel.conversations.length,
-                itemBuilder: (context, index) {
-                  final conversation = messageModel.conversations[index];
-                  return ListTile(
-                    title: Text("Conversation ${index + 1}"),
-                    subtitle: Text(
-                      conversation.title,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                if (messageModel.errorMessage != null) {
+                  // Display error message if there's an error
+                  return Center(
+                    child: Text(
+                      messageModel.errorMessage ?? 'Có lỗi xảy ra',
+                      style: const TextStyle(color: Colors.red, fontSize: 16),
                     ),
-                    onTap: () async {
-                      // Lấy assistantId từ currentAI
-                      final assistantId = currentAI.id;
-
-                      // Gọi loadConversationHistory
-                      await Provider.of<MessageModel>(context, listen: false)
-                          .loadConversationHistory(
-                              assistantId, conversation.id);
-
-                      Navigator.pop(context); // Đóng drawer
-                    },
                   );
-                },
-              );
-            },
+                }
+
+                return ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: messageModel.conversations.length,
+                  itemBuilder: (context, index) {
+                    final conversation = messageModel.conversations[index];
+                    return ListTile(
+                      title: Text("Conversation ${index + 1}"),
+                      subtitle: Text(
+                        conversation.title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      onTap: () async {
+                        // Lấy assistantId từ currentAI
+                        final assistantId = currentAI.id;
+
+                        // Gọi loadConversationHistory
+                        await Provider.of<MessageModel>(context, listen: false)
+                            .loadConversationHistory(
+                                assistantId, conversation.id);
+
+                        Navigator.pop(context); // Đóng drawer
+                      },
+                    );
+                  },
+                );
+              },
+            ),
           ),
         ],
       ),
