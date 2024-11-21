@@ -87,21 +87,24 @@ class PromptService {
 
   final dio = DioClient().dio;
 
-  Future<PromptList> fetchPrompts(PromptRequest request, String accessToken) async {
+  Future<PromptList> fetchPrompts(PromptRequest request) async {
     try {
       final requestData = request.toJson();
 
       print('🚀 REQUEST DATA: $requestData');
 
-      final response = await dio.get(
-        '/prompts',
-        options: Options(
-          headers: {
-            'Authorization': 'Bearer $accessToken',
-          },
-        ),
-        data: requestData,
-      );
+      final response;
+      if (request.category == 'all')
+      {
+        response = await dio.get(
+            '/prompts?query=${request.query}&offset=${request.offset}&limit=${request.limit}&isFavorite=${request.isFavorite}&isPublic=${request.isPublic}'
+        );
+      }else {
+        response = await dio.get(
+            '/prompts?query=${request.query}&offset=${request.offset}&limit=${request.limit}&category=${request.category}&isFavorite=${request.isFavorite}&isPublic=${request.isPublic}'
+        );
+      }
+
 
       print('✅ RESPONSE DATA: ${response.data}');
 
@@ -119,14 +122,29 @@ class PromptService {
     }
   }
 
-  Future<void> toggleFavorite(String promptId, bool isFavorite) async {
+  Future<bool> toggleFavorite(String promptId, bool isFavorite) async {
     try {
-      final response = await dio.patch(
-        '/api/v1/prompts/$promptId/favorite',
-        data: {'isFavorite': isFavorite},
-      );
 
-      print('✅ TOGGLE FAVORITE RESPONSE: ${response.data}');
+      final response;
+      if (!isFavorite)
+      {
+        response = await dio.post(
+            '/prompts/$promptId/favorite'
+        );
+      }else {
+        response = await dio.delete(
+            '/prompts/$promptId/favorite'
+        );
+      }
+
+      print('✅ TOGGLE FAVORITE RESPONSE: ${response.statusCode}');
+
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        return true;
+      } else {
+        return false;
+      }
+
     } on DioException catch (e) {
       print('❌ DioException khi toggle favorite:');
       print('Status: ${e.response?.statusCode}');
@@ -139,11 +157,16 @@ class PromptService {
     }
   }
 
-  Future<void> deletePrompt(String promptId) async {
+  Future<bool> deletePrompt(String promptId) async {
     try {
-      final response = await dio.delete('/api/v1/prompts/$promptId');
+      final response = await dio.delete('/prompts/$promptId');
 
-      print('✅ DELETE PROMPT RESPONSE: ${response.data}');
+      print('✅ DELETE PROMPT RESPONSE CODE: ${response.statusCode}');
+
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        return true;
+      }
+      return false;
     } on DioException catch (e) {
       print('❌ DioException khi xóa prompt:');
       print('Status: ${e.response?.statusCode}');
@@ -152,6 +175,36 @@ class PromptService {
 
       throw Exception(
         e.response?.data?['message'] ?? e.message ?? 'Không thể xóa prompt',
+      );
+    }
+  }
+
+  Future<bool> createPrompt(PromptRequest newPrompt) async {
+    try {
+      final requestData = newPrompt.toJson();
+
+      print('🚀 REQUEST DATA: $requestData');
+
+      final response = await dio.post(
+        '/prompts',
+        data: requestData,
+      );
+
+      print('✅ CREATE PROMPT RESPONSE: ${response.data}');
+
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        return true;
+      } else {
+        return false;
+      }
+    } on DioException catch (e) {
+      print('❌ DioException:');
+      print('Status: ${e.response?.statusCode}');
+      print('Data: ${e.response?.data}');
+      print('Message: ${e.message}');
+
+      throw Exception(
+        e.response?.data?['message'] ?? e.message ?? 'Lỗi kết nối tới server',
       );
     }
   }
