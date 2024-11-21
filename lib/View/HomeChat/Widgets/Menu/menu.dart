@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:project_ai_chat/View/HomeChat/model/ai_logo.dart';
 import 'package:project_ai_chat/View/Knowledge/page/knowledge_screen.dart';
 import 'package:provider/provider.dart';
@@ -16,24 +17,43 @@ class _MenuState extends State<Menu> {
   int _selectedIndex = -1;
   late final AIChatList aiChatList;
   late AIItem currentAI;
+  late ScrollController
+      _scrollController; // variable for load more conversation
+
   @override
   void initState() {
     super.initState();
     aiChatList = Provider.of<AIChatList>(context, listen: false);
     currentAI = aiChatList.selectedAIItem;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _loadConversations();
-    });
+
+    _scrollController = ScrollController()
+      ..addListener(() {
+        // Khi cuộn đến cuối danh sách
+        if (_scrollController.position.pixels ==
+            _scrollController.position.maxScrollExtent) {
+          Provider.of<MessageModel>(context, listen: false)
+              .fetchAllConversations(
+            currentAI.id,
+            'dify',
+            isLoadMore: true,
+          ); // Gọi Load More
+        }
+      });
   }
 
-  Future<void> _loadConversations() async {
-    try {
-      await Provider.of<MessageModel>(context, listen: false)
-          .fetchAllConversations(currentAI.id, 'dify');
-    } catch (e) {
-      print("error: $e");
-    }
+  String _formatTimestamp(int timestamp) {
+    final dateTime = DateTime.fromMillisecondsSinceEpoch(timestamp * 1000);
+    return DateFormat('dd/MM/yyyy HH:mm').format(dateTime);
   }
+
+  // Future<void> _loadConversations() async {
+  //   try {
+  //     await Provider.of<MessageModel>(context, listen: false)
+  //         .fetchAllConversations(currentAI.id, 'dify');
+  //   } catch (e) {
+  //     print("error: $e");
+  //   }
+  // }
 
   void _logout() async {}
   @override
@@ -84,7 +104,7 @@ class _MenuState extends State<Menu> {
             child: Row(
               children: [
                 Text(
-                  'Tất cả cuộc trò chuyện',
+                  'All conversations',
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
@@ -97,50 +117,76 @@ class _MenuState extends State<Menu> {
               ],
             ),
           ),
-          Consumer<MessageModel>(
-            builder: (context, messageModel, child) {
-              if (messageModel.isLoading) {
-                // Display loading indicator while fetching conversations
-                return const Center(child: CircularProgressIndicator());
-              }
+          Expanded(
+            child: Consumer<MessageModel>(
+              builder: (context, messageModel, child) {
+                if (messageModel.isLoading &&
+                    messageModel.conversations.isEmpty) {
+                  // Display loading indicator while fetching conversations
+                  return const Center(child: CircularProgressIndicator());
+                }
 
-              if (messageModel.errorMessage != null) {
-                // Display error message if there's an error
-                return Center(
-                  child: Text(
-                    messageModel.errorMessage ?? 'Có lỗi xảy ra',
-                    style: const TextStyle(color: Colors.red, fontSize: 16),
-                  ),
-                );
-              }
-
-              return ListView.builder(
-                shrinkWrap: true,
-                itemCount: messageModel.conversations.length,
-                itemBuilder: (context, index) {
-                  final conversation = messageModel.conversations[index];
-                  return ListTile(
-                    title: Text("Conversation ${index + 1}"),
-                    subtitle: Text(
-                      conversation.title,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                if (messageModel.errorMessage != null &&
+                    messageModel.conversations.isEmpty) {
+                  // Display error message if there's an error
+                  return Center(
+                    child: Text(
+                      messageModel.errorMessage ??
+                          'Server error, please try again',
+                      style: const TextStyle(color: Colors.red, fontSize: 16),
                     ),
-                    onTap: () async {
-                      // Lấy assistantId từ currentAI
-                      final assistantId = currentAI.id;
-
-                      // Gọi loadConversationHistory
-                      await Provider.of<MessageModel>(context, listen: false)
-                          .loadConversationHistory(
-                              assistantId, conversation.id);
-
-                      Navigator.pop(context); // Đóng drawer
-                    },
                   );
-                },
-              );
-            },
+                }
+
+                return ListView.builder(
+                  controller: _scrollController,
+                  shrinkWrap: true,
+                  itemCount: messageModel.conversations.length + 1,
+                  itemBuilder: (context, index) {
+                    if (index == messageModel.conversations.length) {
+                      // Loader khi đang tải thêm
+                      if (messageModel.hasMoreConversation) {
+                        return const Padding(
+                          padding: EdgeInsets.all(16.0),
+                          child: Center(child: CircularProgressIndicator()),
+                        );
+                      } else {
+                        return const SizedBox.shrink(); // Không còn dữ liệu
+                      }
+                    }
+                    final conversation = messageModel.conversations[index];
+                    return ListTile(
+                      title: Text("Conversation ${index + 1}"),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            conversation.title,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          Text(
+                            _formatTimestamp(conversation.createdAt),
+                            style: TextStyle(fontSize: 12, color: Colors.grey),
+                          ),
+                        ],
+                      ),
+                      onTap: () async {
+                        // Lấy assistantId từ currentAI
+                        final assistantId = currentAI.id;
+
+                        // Gọi loadConversationHistory
+                        await Provider.of<MessageModel>(context, listen: false)
+                            .loadConversationHistory(
+                                assistantId, conversation.id);
+
+                        Navigator.pop(context); // Đóng drawer
+                      },
+                    );
+                  },
+                );
+              },
+            ),
           ),
         ],
       ),

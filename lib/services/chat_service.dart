@@ -119,11 +119,13 @@ class ChatService {
   }
 
   Future<ApiResponse> getAllConversations(
-      String assistantId, String assistantModel) async {
+      String assistantId, String assistantModel, String? cursor) async {
     try {
       final response = await dio.get(
         '/ai-chat/conversations',
         queryParameters: {
+          'cursor': cursor,
+          'limit': 20,
           'assistantId': assistantId,
           'assistantModel': assistantModel,
         },
