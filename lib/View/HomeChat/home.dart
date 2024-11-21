@@ -4,6 +4,7 @@ import 'package:project_ai_chat/View/Account/pages/account_screent.dart';
 import 'package:project_ai_chat/View/Bot/page/bot_screen.dart';
 import 'package:project_ai_chat/models/chat_exception.dart';
 import 'package:project_ai_chat/models/message_response.dart';
+import 'package:project_ai_chat/viewmodels/auth_view_model.dart';
 import '../../core/Widget/dropdown-button.dart';
 import '../../viewmodels/aichat_list.dart';
 import '../../viewmodels/message_homechat.dart';
@@ -55,6 +56,11 @@ class _HomeChatState extends State<HomeChat> {
       }
     });
 
+    // lấy thông tin user
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadUserInfo();
+    });
+
     final aiChatList = Provider.of<AIChatList>(context, listen: false);
     _listAIItem = aiChatList.aiItems;
     selectedAIItem = aiChatList.selectedAIItem.name;
@@ -68,7 +74,19 @@ class _HomeChatState extends State<HomeChat> {
         _listAIItem.firstWhere((aiItem) => aiItem.name == aiItemName);
     Provider.of<MessageModel>(context, listen: false)
         .initializeChat(aiItem.id)
-        .then((_) {});
+        .then((_) async {
+      // Cập nhật danh sách conversations
+      await Provider.of<MessageModel>(context, listen: false)
+          .fetchAllConversations(aiItem.id, 'dify');
+    });
+  }
+
+  Future<void> _loadUserInfo() async {
+    try {
+      await Provider.of<AuthViewModel>(context, listen: false).fetchUserInfo();
+    } catch (e) {
+      return;
+    }
   }
 
   @override

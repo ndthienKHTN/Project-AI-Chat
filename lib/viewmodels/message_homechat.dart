@@ -17,12 +17,19 @@ class MessageModel extends ChangeNotifier {
   bool _isSending = false;
   MessageModel(this._chatService);
 
+  // load more conversations
+  String? _cursorConversation;
+  bool _hasMoreConversation = true;
+
   int? get remainingUsage => _remainingUsage;
   List<Message> get messages => _messages;
   List<Conversation> get conversations => _conversations;
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
   bool get isSending => _isSending;
+
+  // load more conversations
+  bool get hasMoreConversation => _hasMoreConversation;
 
   Future<void> initializeChat(String assistantId) async {
     try {
@@ -185,21 +192,34 @@ class MessageModel extends ChangeNotifier {
     }
   }
 
-  Future<void> fetchAllConversations(
-      String assistantId, String assistantModel) async {
+  Future<void> fetchAllConversations(String assistantId, String assistantModel,
+      {bool isLoadMore = false}) async {
+    if (isLoadMore && _hasMoreConversation == false) {
+      return;
+    }
+
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
 
-    final response =
-        await _chatService.getAllConversations(assistantId, assistantModel);
+    if (isLoadMore == false) {
+      _cursorConversation = null;
+      _hasMoreConversation = true;
+    }
+
+    final response = await _chatService.getAllConversations(
+        assistantId, assistantModel, _cursorConversation);
 
     if (response.success && response.data != null) {
-      _conversations.clear();
+      if (isLoadMore == false) {
+        _conversations.clear();
+      }
       _conversations.addAll(
         (response.data['items'] as List<dynamic>)
             .map((item) => Conversation.fromJson(item)),
       );
+      _cursorConversation = response.data['cursor'];
+      _hasMoreConversation = response.data['has_more'];
       _isLoading = false;
       notifyListeners();
     } else {
@@ -207,7 +227,7 @@ class MessageModel extends ChangeNotifier {
       _errorMessage = response.message;
       notifyListeners();
       // logout();
-      throw response;
+      // throw response;
     }
   }
 
