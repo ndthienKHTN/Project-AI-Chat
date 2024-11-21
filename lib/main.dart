@@ -9,6 +9,7 @@ import 'package:project_ai_chat/viewmodels/auth_view_model.dart';
 import 'package:project_ai_chat/viewmodels/message_homechat.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:project_ai_chat/services/prompt_service.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
@@ -22,6 +23,12 @@ void main() async {
         Provider<ChatService>(
           create: (_) => ChatService(
             prefs: prefs,
+          ),
+        ),
+        Provider<PromptService>(
+          create: (_) => PromptService(
+            // dio: dio,
+            // prefs: prefs,
           ),
         ),
         ChangeNotifierProvider(
