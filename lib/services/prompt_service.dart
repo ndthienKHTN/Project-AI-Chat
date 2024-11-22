@@ -63,7 +63,7 @@
 import 'package:dio/dio.dart';
 import 'package:project_ai_chat/models/prompt_model.dart';
 import 'package:project_ai_chat/services/dio_client.dart';
-import 'package:project_ai_chat/viewmodels/prompt-list.dart';
+import 'package:project_ai_chat/viewmodels/prompt_list.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
@@ -89,11 +89,8 @@ class PromptService {
 
   Future<PromptList> fetchAllPrompts() async {
     try {
-
       final response;
-        response = await dio.get(
-            '/prompts'
-        );
+      response = await dio.get('/prompts');
 
       print('✅ RESPONSE DATA: ${response.data}');
 
@@ -117,17 +114,13 @@ class PromptService {
       print('🚀 REQUEST DATA: $requestData');
 
       final response;
-      if (request.category == 'all')
-      {
+      if (request.category == 'all') {
         response = await dio.get(
-            '/prompts?query=${request.query}&offset=${request.offset}&limit=${request.limit}&isFavorite=${request.isFavorite}&isPublic=${request.isPublic}'
-        );
-      }else {
+            '/prompts?query=${request.query}&offset=${request.offset}&limit=${request.limit}&isFavorite=${request.isFavorite}&isPublic=${request.isPublic}');
+      } else {
         response = await dio.get(
-            '/prompts?query=${request.query}&offset=${request.offset}&limit=${request.limit}&category=${request.category}&isFavorite=${request.isFavorite}&isPublic=${request.isPublic}'
-        );
+            '/prompts?query=${request.query}&offset=${request.offset}&limit=${request.limit}&category=${request.category}&isFavorite=${request.isFavorite}&isPublic=${request.isPublic}');
       }
-
 
       print('✅ RESPONSE DATA: ${response.data}');
 
@@ -147,17 +140,11 @@ class PromptService {
 
   Future<bool> toggleFavorite(String promptId, bool isFavorite) async {
     try {
-
       final response;
-      if (!isFavorite)
-      {
-        response = await dio.post(
-            '/prompts/$promptId/favorite'
-        );
-      }else {
-        response = await dio.delete(
-            '/prompts/$promptId/favorite'
-        );
+      if (!isFavorite) {
+        response = await dio.post('/prompts/$promptId/favorite');
+      } else {
+        response = await dio.delete('/prompts/$promptId/favorite');
       }
 
       print('✅ TOGGLE FAVORITE RESPONSE: ${response.statusCode}');
@@ -167,7 +154,6 @@ class PromptService {
       } else {
         return false;
       }
-
     } on DioException catch (e) {
       print('❌ DioException khi toggle favorite:');
       print('Status: ${e.response?.statusCode}');
@@ -175,7 +161,9 @@ class PromptService {
       print('Message: ${e.message}');
 
       throw Exception(
-        e.response?.data?['message'] ?? e.message ?? 'Không thể thay đổi trạng thái yêu thích',
+        e.response?.data?['message'] ??
+            e.message ??
+            'Không thể thay đổi trạng thái yêu thích',
       );
     }
   }
@@ -261,6 +249,4 @@ class PromptService {
       );
     }
   }
-
 }
-

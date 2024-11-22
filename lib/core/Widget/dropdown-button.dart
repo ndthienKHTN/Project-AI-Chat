@@ -18,7 +18,7 @@ class AIDropdown extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20),
-          color: const Color.fromARGB(255, 235, 240, 244),
+          color: const Color.fromARGB(255, 241, 247, 252),
         ),
         height: 30,
         child: DropdownButtonFormField<String>(

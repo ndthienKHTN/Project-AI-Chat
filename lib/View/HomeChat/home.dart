@@ -5,10 +5,11 @@ import 'package:project_ai_chat/View/Bot/page/bot_screen.dart';
 import 'package:project_ai_chat/models/chat_exception.dart';
 import 'package:project_ai_chat/models/message_response.dart';
 import 'package:project_ai_chat/viewmodels/auth_view_model.dart';
+import 'package:project_ai_chat/viewmodels/prompt_list.dart';
+import 'package:project_ai_chat/viewmodels/prompt_list_view_model.dart';
 import '../../core/Widget/dropdown-button.dart';
 import '../../viewmodels/aichat_list.dart';
 import '../../viewmodels/message_homechat.dart';
-import '../../viewmodels/prompt-list-view-model.dart';
 import '../BottomSheet/custom_bottom_sheet.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
@@ -27,17 +28,18 @@ class HomeChat extends StatefulWidget {
 }
 
 class _HomeChatState extends State<HomeChat> {
-  String? _selectedImagePath;
   final TextEditingController _controller = TextEditingController();
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  final ScrollController _scrollController = ScrollController();
+  final FocusNode _focusNode = FocusNode();
   bool _isOpenDeviceWidget = false;
   int _selectedBottomItemIndex = 0;
-  final FocusNode _focusNode = FocusNode();
+  String? _selectedImagePath;
   late List<AIItem> _listAIItem;
   late String selectedAIItem;
   bool _hasText = false;
-  final ScrollController _scrollController = ScrollController();
-
+  bool _showSlash = false;
+  late final PromptList prompts;
   @override
   void initState() {
     super.initState();
@@ -45,7 +47,9 @@ class _HomeChatState extends State<HomeChat> {
     _controller.addListener(() {
       setState(() {
         _hasText = _controller.text.isNotEmpty;
-        _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+        if (_scrollController.hasClients) {
+          _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+        }
       });
     });
 
@@ -67,6 +71,9 @@ class _HomeChatState extends State<HomeChat> {
     selectedAIItem = aiChatList.selectedAIItem.name;
     // Khởi tạo chat với AIItem được chọn
     createAiChat(selectedAIItem);
+    Provider.of<PromptListViewModel>(context, listen: false).fetchAllPrompts();
+    prompts =
+        Provider.of<PromptListViewModel>(context, listen: false).allprompts;
   }
 
   void createAiChat(String aiItemName) async {
@@ -275,6 +282,14 @@ class _HomeChatState extends State<HomeChat> {
     }
   }
 
+  void _onTextChanged(String input) {
+    if (input.isNotEmpty) {
+      _showSlash = input.startsWith('/');
+    } else {
+      _showSlash = false; // Đặt lại _showSlash khi không có input
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -308,7 +323,7 @@ class _HomeChatState extends State<HomeChat> {
                     Container(
                       padding: EdgeInsets.all(5),
                       decoration: BoxDecoration(
-                        color: Color.fromARGB(255, 235, 240, 244),
+                        color: const Color.fromARGB(255, 238, 245, 247),
                         borderRadius: BorderRadius.circular(12.0),
                       ),
                       child: Consumer<MessageModel>(
@@ -355,6 +370,7 @@ class _HomeChatState extends State<HomeChat> {
                             children: [
                               Expanded(
                                 child: ListView.builder(
+                                  controller: _scrollController,
                                   itemCount: messageModel.messages.length,
                                   itemBuilder: (context, index) {
                                     final message =
@@ -364,6 +380,64 @@ class _HomeChatState extends State<HomeChat> {
                                 ),
                               ),
                               const SizedBox(height: 10),
+                              if (_showSlash)
+                                Consumer<PromptListViewModel>(
+                                  builder: (context, promptList, child) {
+                                    if (promptList.isLoading) {
+                                      return const CircularProgressIndicator(); // Hoặc một widget khác để hiển thị khi đang tải
+                                    } else if (promptList.hasError) {
+                                      return Text(
+                                          'Có lỗi xảy ra: ${promptList.error}'); // Hiển thị lỗi
+                                    } else {
+                                      return Padding(
+                                        padding: const EdgeInsets.all(5),
+                                        child: Container(
+                                          width: MediaQuery.of(context)
+                                                  .size
+                                                  .width /
+                                              3 *
+                                              2,
+                                          decoration: BoxDecoration(
+                                            border: Border.all(
+                                              color: const Color.fromARGB(
+                                                  255,
+                                                  158,
+                                                  198,
+                                                  232), // Color of the border
+                                              width: 1.0, // Width of the border
+                                            ),
+                                            borderRadius: BorderRadius.circular(
+                                                20.0), // Border radius
+                                          ),
+                                          constraints: BoxConstraints(
+                                              maxHeight: MediaQuery.of(context)
+                                                      .size
+                                                      .height /
+                                                  3),
+                                          child: ListView.builder(
+                                            itemCount: promptList
+                                                .allprompts.items.length,
+                                            itemBuilder: (context, index) {
+                                              return ListTile(
+                                                title: Text(promptList
+                                                    .allprompts
+                                                    .items[index]
+                                                    .title),
+                                                onTap: () {
+                                                  _controller.text = promptList
+                                                      .allprompts
+                                                      .items[index]
+                                                      .title; // Chọn prompt
+                                                  Navigator.of(context).pop();
+                                                },
+                                              );
+                                            },
+                                          ),
+                                        ),
+                                      );
+                                    }
+                                  },
+                                ),
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.start,
                                 children: [
@@ -399,7 +473,7 @@ class _HomeChatState extends State<HomeChat> {
                                       decoration: BoxDecoration(
                                         borderRadius: BorderRadius.circular(12),
                                         color: const Color.fromARGB(
-                                            255, 235, 240, 244),
+                                            255, 241, 247, 252),
                                         border: Border.all(
                                           color: Colors.grey.withOpacity(0.5),
                                           width: 0.5,
@@ -421,10 +495,12 @@ class _HomeChatState extends State<HomeChat> {
                                               TextField(
                                                 focusNode: _focusNode,
                                                 controller: _controller,
+                                                onChanged: _onTextChanged,
                                                 maxLines: null,
                                                 decoration: InputDecoration(
                                                   contentPadding:
-                                                      EdgeInsets.symmetric(
+                                                      const EdgeInsets
+                                                          .symmetric(
                                                     horizontal: 12,
                                                     vertical: 8,
                                                   ),
@@ -481,7 +557,7 @@ class _HomeChatState extends State<HomeChat> {
                                                           top: -15,
                                                           right: -15,
                                                           child: IconButton(
-                                                            icon: Icon(
+                                                            icon: const Icon(
                                                               Icons.close,
                                                               size: 20,
                                                               color: Colors
