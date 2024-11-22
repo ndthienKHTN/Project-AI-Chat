@@ -35,6 +35,7 @@ class _HomeChatState extends State<HomeChat> {
   late List<AIItem> _listAIItem;
   late String selectedAIItem;
   bool _hasText = false;
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
@@ -43,8 +44,7 @@ class _HomeChatState extends State<HomeChat> {
     _controller.addListener(() {
       setState(() {
         _hasText = _controller.text.isNotEmpty;
-        print('Text changed: ${_controller.text}');
-        print('Has text: $_hasText');
+        _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
       });
     });
 
@@ -94,6 +94,7 @@ class _HomeChatState extends State<HomeChat> {
     _controller.removeListener(() {});
     _controller.dispose();
     _focusNode.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 

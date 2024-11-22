@@ -88,7 +88,9 @@ class MessageModel extends ChangeNotifier {
       notifyListeners();
     }
   }
-
+  String _removeHttpPrefix(String url) {
+    return url.replaceAll(RegExp(r'^(https?:\/\/)?(www\.)?'), '');
+  }
   Future<void> sendMessage(String content, AIItem assistant) async {
     try {
       _isSending = true;
@@ -134,7 +136,7 @@ class MessageModel extends ChangeNotifier {
       processedMessage = processedMessage.replaceAllMapped(pattern, (match) {
         final number = match[1]; // Số thứ tự (1.)
         final name = match[2]; // Tên website
-        final url = match[3]; // URL
+        final url = _removeHttpPrefix(match[3]!); // URL
         final desc = match[4]; // Mô tả
 
         return '''$number$name- $url

@@ -3,20 +3,18 @@ import 'package:project_ai_chat/viewmodels/prompt-list.dart';
 
 import '../services/prompt_service.dart';
 
-
 class PromptListViewModel {
   final PromptService _service;
 
   PromptListViewModel(this._service);
 
   PromptRequest pr = PromptRequest(
-    query: "",
-    offset: 0,
-    limit: 100,
-    category: "",
-    isFavorite: false,
-    isPublic: true
-  );
+      query: "",
+      offset: 0,
+      limit: 100,
+      category: "",
+      isFavorite: false,
+      isPublic: true);
 
   Future<PromptList> fetchPrompts({
     required String category,
@@ -25,11 +23,10 @@ class PromptListViewModel {
     required bool isPublic,
   }) async {
     pr = pr.copyWith(
-      category: category,
-      query: query,
-      isFavorite: isFavorite,
-      isPublic: isPublic
-    );
+        category: category,
+        query: query,
+        isFavorite: isFavorite,
+        isPublic: isPublic);
     print("-------------------->>>>>>> ${pr.category}");
     return _service.fetchPrompts(pr);
   }
@@ -45,5 +42,5 @@ class PromptListViewModel {
   Future<bool> deletePrompt(String id) {
     return _service.deletePrompt(id);
   }
-
 }
+

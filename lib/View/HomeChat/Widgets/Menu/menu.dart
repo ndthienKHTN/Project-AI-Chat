@@ -4,7 +4,7 @@ import 'package:project_ai_chat/View/HomeChat/model/ai_logo.dart';
 import 'package:project_ai_chat/View/Knowledge/page/knowledge_screen.dart';
 import 'package:provider/provider.dart';
 import '../../../../viewmodels/message_homechat.dart';
-import '../../../UpgradeVersion/upgrade-version.dart';
+import '../../../UpgradeVersion/upgrade_version.dart';
 import '../../../../viewmodels/aichat_list.dart';
 
 class Menu extends StatefulWidget {
