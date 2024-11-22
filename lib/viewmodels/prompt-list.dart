@@ -7,10 +7,10 @@ import 'package:project_ai_chat/viewmodels/prompt.dart';
 // Model cho PromptList
 class PromptList {
   final bool hasNext;
-  final List<Prompt> items;
+  List<Prompt> items;
   final int limit;
   final int offset;
-  final int total;
+  int total;
 
   PromptList({
     required this.hasNext,
