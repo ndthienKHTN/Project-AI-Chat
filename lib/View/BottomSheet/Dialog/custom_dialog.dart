@@ -413,7 +413,7 @@ import 'package:provider/provider.dart';
 
 import '../../../models/prompt_model.dart';
 import '../../../services/prompt_service.dart';
-import '../../../viewmodels/prompt-list-view-model.dart';
+import '../../../viewmodels/prompt_list_view_model.dart';
 
 class CustomDialog {
   static void show(BuildContext context) {
@@ -536,7 +536,7 @@ class _CustomDialogContentState extends State<_CustomDialogContent> {
         _buildLabeledField(
           label: 'Description',
           hint:
-          'Describe your prompt so others can have a better understanding',
+              'Describe your prompt so others can have a better understanding',
           controller: descriptionController,
         ),
         SizedBox(height: 10),
@@ -545,7 +545,7 @@ class _CustomDialogContentState extends State<_CustomDialogContent> {
           label: 'Prompt',
           isRequired: true,
           hint:
-          'e.g: Write an article about [TOPIC], make sure to include these keywords: [KEYWORDS]',
+              'e.g: Write an article about [TOPIC], make sure to include these keywords: [KEYWORDS]',
           infoText: 'Use square brackets [ ] to specify user input',
           controller: contentController,
         ),
@@ -669,7 +669,8 @@ class _CustomDialogContentState extends State<_CustomDialogContent> {
           onChanged: onChanged,
           items: items.map((item) {
             final label = (item as dynamic).label; // Tên hiển thị
-            final itemValue = item.toString().split('.').last; // Giá trị lưu trữ
+            final itemValue =
+                item.toString().split('.').last; // Giá trị lưu trữ
             return DropdownMenuItem(
               value: itemValue, // Giá trị lưu trữ
               child: Text(label), // Tên hiển thị
@@ -687,7 +688,6 @@ class _CustomDialogContentState extends State<_CustomDialogContent> {
       ],
     );
   }
-
 
   // Row buttons (Cancel & Create)
   Widget _buildDialogButtons(BuildContext context) {
@@ -723,7 +723,7 @@ class _CustomDialogContentState extends State<_CustomDialogContent> {
               child: Text(
                 'Cancel',
                 style:
-                TextStyle(color: Colors.blue.shade900), // Chữ màu xanh đậm
+                    TextStyle(color: Colors.blue.shade900), // Chữ màu xanh đậm
               ),
             ),
           ),
@@ -764,7 +764,6 @@ class _CustomDialogContentState extends State<_CustomDialogContent> {
                   content: contentController.text,
                   isPublic: false,
                 );
-
 
                 await viewModel.createPrompt(newPrompt);
 

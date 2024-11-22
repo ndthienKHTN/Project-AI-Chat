@@ -3,11 +3,11 @@ import 'package:project_ai_chat/View/Login/login_screen.dart';
 import 'package:project_ai_chat/View/SplashScreen/splash_screen.dart';
 import 'package:project_ai_chat/services/chat_service.dart';
 import 'package:project_ai_chat/utils/theme/theme.dart';
-import 'package:project_ai_chat/viewmodels/KnowledgeBaseProvider.dart';
+import 'package:project_ai_chat/viewmodels/knowledge_base.dart';
 import 'package:project_ai_chat/viewmodels/aichat_list.dart';
 import 'package:project_ai_chat/viewmodels/auth_view_model.dart';
 import 'package:project_ai_chat/viewmodels/message_homechat.dart';
-import 'package:project_ai_chat/viewmodels/prompt-list-view-model.dart';
+import 'package:project_ai_chat/viewmodels/prompt_list_view_model.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:project_ai_chat/services/prompt_service.dart';
@@ -28,15 +28,16 @@ void main() async {
         ),
         Provider<PromptService>(
           create: (_) => PromptService(
-            // dio: dio,
-            // prefs: prefs,
-          ),
+              // dio: dio,
+              // prefs: prefs,
+              ),
         ),
         ChangeNotifierProvider(
           create: (context) => MessageModel(
             context.read<ChatService>(),
           ),
         ),
+        ChangeNotifierProvider(create: (context) => PromptListViewModel()),
         ChangeNotifierProvider(create: (context) => KnowledgeBaseProvider()),
         ChangeNotifierProvider(create: (context) => AIChatList()),
         ChangeNotifierProvider(create: (_) => AuthViewModel()),
