@@ -87,6 +87,29 @@ class PromptService {
 
   final dio = DioClient().dio;
 
+  Future<PromptList> fetchAllPrompts() async {
+    try {
+
+      final response;
+        response = await dio.get(
+            '/prompts'
+        );
+
+      print('✅ RESPONSE DATA: ${response.data}');
+
+      return PromptList.fromJson(response.data);
+    } on DioException catch (e) {
+      print('❌ DioException:');
+      print('Status: ${e.response?.statusCode}');
+      print('Data: ${e.response?.data}');
+      print('Message: ${e.message}');
+
+      throw Exception(
+        e.response?.data?['message'] ?? e.message ?? 'Lỗi kết nối tới server',
+      );
+    }
+  }
+
   Future<PromptList> fetchPrompts(PromptRequest request) async {
     try {
       final requestData = request.toJson();
@@ -208,5 +231,36 @@ class PromptService {
       );
     }
   }
+
+  Future<bool> updatePrompt(PromptRequest newPrompt, String promptId) async {
+    try {
+      final requestData = newPrompt.toJson();
+
+      print('🚀 REQUEST DATA: $requestData');
+
+      final response = await dio.patch(
+        '/prompts/$promptId',
+        data: requestData,
+      );
+
+      print('✅ UPDATE PROMPT RESPONSE: ${response.data}');
+
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        return true;
+      } else {
+        return false;
+      }
+    } on DioException catch (e) {
+      print('❌ DioException:');
+      print('Status: ${e.response?.statusCode}');
+      print('Data: ${e.response?.data}');
+      print('Message: ${e.message}');
+
+      throw Exception(
+        e.response?.data?['message'] ?? e.message ?? 'Lỗi kết nối tới server',
+      );
+    }
+  }
+
 }
 
