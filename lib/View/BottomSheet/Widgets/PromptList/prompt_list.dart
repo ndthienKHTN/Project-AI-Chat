@@ -1,9 +1,16 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:project_ai_chat/View/HomeChat/model/ai_logo.dart';
 import 'package:project_ai_chat/services/prompt_service.dart';
+import 'package:project_ai_chat/viewmodels/aichat_list.dart';
+import 'package:project_ai_chat/viewmodels/message_homechat.dart';
 import 'package:project_ai_chat/viewmodels/prompt-list-view-model.dart';
 import 'package:project_ai_chat/viewmodels/prompt-list.dart';
+import 'package:project_ai_chat/viewmodels/prompt.dart';
 import 'package:provider/provider.dart';
+
+import '../../../../models/prompt_model.dart';
+import '../../enums.dart';
 
 class PromptListWidget extends StatefulWidget {
   final String category;
@@ -27,6 +34,8 @@ class _PromptListWidgetState extends State<PromptListWidget> {
   late Future<PromptList> _prompts;
   final Map<String, bool> _favoriteStates = {}; // Theo dõi trạng thái yêu thích
   bool isDeleting = false;
+  final viewModel =
+  PromptListViewModel();
 
   @override
   void didUpdateWidget(PromptListWidget oldWidget) {
@@ -50,7 +59,8 @@ class _PromptListWidgetState extends State<PromptListWidget> {
   @override
   void initState() {
     super.initState();
-    _prompts = _fetchPrompts(
+
+    _prompts = viewModel.fetchPrompts(
       category: widget.category,
       query: widget.query,
       isFavorite: widget.isFavorite,
@@ -64,8 +74,6 @@ class _PromptListWidgetState extends State<PromptListWidget> {
     bool isFavorite = false,
     required bool isPublic,
   }) {
-    final promptService = context.read<PromptService>();
-    final viewModel = PromptListViewModel(promptService);
     return viewModel.fetchPrompts(
       category: category,
       query: query,
@@ -75,15 +83,13 @@ class _PromptListWidgetState extends State<PromptListWidget> {
   }
 
   Future<bool> _toggleFavorite(String promptId, bool isFavorite) {
-    final promptService = context.read<PromptService>();
-    final viewModel = PromptListViewModel(promptService);
     return viewModel.toggleFavorite(promptId, isFavorite);
   }
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [FutureBuilder<PromptList>(
+    return Stack(children: [
+      FutureBuilder<PromptList>(
         future: _prompts,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -107,108 +113,118 @@ class _PromptListWidgetState extends State<PromptListWidget> {
                   final prompt = prompts.items[index];
                   final isFavorite = _favoriteStates[prompt.id] ?? false;
 
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 10.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: <Widget>[
-                            Flexible(
-                              child: GestureDetector(
-                                onTap: () {
-                                  Navigator.pop(context);
-                                  _showPromptDetailsBottomSheet(
-                                      context, prompt.title);
-                                },
-                                child: Text(
-                                  prompt.title,
-                                  overflow: TextOverflow.ellipsis,
-                                  maxLines: 1,
-                                  style: TextStyle(
-                                      fontSize: 16, fontWeight: FontWeight.bold),
-                                ),
-                              ),
-                            ),
-                            Row(
-                              children: [
-                                GestureDetector(
-                                  onTap: () async {
-                                    final success = await _toggleFavorite(
-                                        prompt.id, isFavorite);
-
-                                    if (success) {
-                                      setState(() {
-                                        _favoriteStates[prompt.id] = !isFavorite;
-                                      });
-                                    }
-                                  },
-                                  child: Icon(
-                                    isFavorite ? Icons.star : Icons.star_border,
-                                    color:
-                                        isFavorite ? Colors.yellow : Colors.grey,
-                                  ),
-                                ),
-                                SizedBox(width: 10),
-                                if (!widget
-                                    .isPublic) // Hiển thị thùng rác nếu isPublic = false
-                                  Row(children: [
-                                    GestureDetector(
-                                      onTap: () async {
-                                        setState(() {
-                                          isDeleting = true; // Bắt đầu quá trình xóa
-                                        });
-                                        final promptService =
-                                            context.read<PromptService>();
-                                        final viewModel =
-                                            PromptListViewModel(promptService);
-                                        final success = await viewModel
-                                            .deletePrompt(prompt.id);
-                                        if (success) {
-                                          setState(() {
-                                            _prompts = _fetchPrompts(
-                                              category: widget.category,
-                                              query: widget.query,
-                                              isFavorite: widget.isFavorite,
-                                              isPublic: widget.isPublic,
-                                            );
-                                          });
-
-                                        } else {
-                                          ScaffoldMessenger.of(context)
-                                              .showSnackBar(
-                                            SnackBar(
-                                                content: Text(
-                                                    'Failed to delete prompt.')),
-                                          );
-                                        }
-                                        setState(() {
-                                          isDeleting = false; // Bắt đầu quá trình xóa
-                                        });
-                                      },
-                                      child:
-                                          Icon(Icons.delete_outline, color: Colors.grey),
-                                    ),
-                                    SizedBox(width: 10),
-                                  ]),
-                                GestureDetector(
+                  return GestureDetector(
+                    onTap: () {
+                      Navigator.pop(context);
+                      _showPromptDetailsBottomSheet(context, prompt);
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 10.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: <Widget>[
+                              Flexible(
+                                child: GestureDetector(
                                   onTap: () {
                                     Navigator.pop(context);
                                     _showPromptDetailsBottomSheet(
-                                        context, prompt.title);
+                                        context, prompt);
                                   },
-                                  child:
-                                      Icon(Icons.arrow_right, color: Colors.grey),
+                                  child: Text(
+                                    prompt.title,
+                                    overflow: TextOverflow.ellipsis,
+                                    maxLines: 1,
+                                    style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold),
+                                  ),
                                 ),
-                              ],
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 8),
-                        Text(prompt.description),
-                        Divider(thickness: 1.2),
-                      ],
+                              ),
+                              Row(
+                                children: [
+                                  GestureDetector(
+                                    onTap: () async {
+                                      final success = await _toggleFavorite(
+                                          prompt.id, isFavorite);
+
+                                      if (success) {
+                                        setState(() {
+                                          _favoriteStates[prompt.id] =
+                                          !isFavorite;
+                                          prompt.isFavorite =
+                                          !prompt.isFavorite;
+                                        });
+                                      }
+                                    },
+                                    child: Icon(
+                                      isFavorite
+                                          ? Icons.star
+                                          : Icons.star_border,
+                                      color: isFavorite
+                                          ? Colors.yellow
+                                          : Colors.grey,
+                                    ),
+                                  ),
+                                  SizedBox(width: 10),
+                                  if (!widget
+                                      .isPublic) // Hiển thị thùng rác nếu isPublic = false
+                                    Row(children: [
+                                      GestureDetector(
+                                        onTap: () async {
+                                          setState(() {
+                                            isDeleting =
+                                            true; // Bắt đầu quá trình xóa
+                                          });
+                                          final success = await viewModel
+                                              .deletePrompt(prompt.id);
+                                          if (success) {
+                                            setState(() {
+                                              _prompts = _fetchPrompts(
+                                                category: widget.category,
+                                                query: widget.query,
+                                                isFavorite: widget.isFavorite,
+                                                isPublic: widget.isPublic,
+                                              );
+                                            });
+                                          } else {
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(
+                                              SnackBar(
+                                                  content: Text(
+                                                      'Failed to delete prompt.')),
+                                            );
+                                          }
+                                          setState(() {
+                                            isDeleting =
+                                            false; // Bắt đầu quá trình xóa
+                                          });
+                                        },
+                                        child: Icon(Icons.delete_outline,
+                                            color: Colors.grey),
+                                      ),
+                                      SizedBox(width: 10),
+                                    ]),
+                                  GestureDetector(
+                                    onTap: () {
+                                      Navigator.pop(context);
+                                      _showPromptDetailsBottomSheet(
+                                          context, prompt);
+                                    },
+                                    child: Icon(Icons.arrow_right,
+                                        color: Colors.grey),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 8),
+                          Text(prompt.description),
+                          Divider(thickness: 1.2),
+                        ],
+                      ),
                     ),
                   );
                 },
@@ -217,20 +233,324 @@ class _PromptListWidgetState extends State<PromptListWidget> {
           }
         },
       ),
-        if (isDeleting)
-          Positioned.fill(
-            child: Container(
-              //color: Colors.black.withOpacity(0.5), // Lớp màu mờ
-              child: Center(
-                child: CircularProgressIndicator(color: Colors.blueGrey),
-              ),
+      if (isDeleting)
+        Positioned.fill(
+          child: Container(
+            //color: Colors.black.withOpacity(0.5), // Lớp màu mờ
+            child: Center(
+              child: CircularProgressIndicator(color: Colors.blueGrey),
             ),
           ),
-      ]
-    );
+        ),
+    ]);
   }
 
-  void _showPromptDetailsBottomSheet(BuildContext context, String title) {
-    // Logic để hiển thị bottom sheet
+  static void _showPromptDetailsBottomSheet(BuildContext context,
+      Prompt prompt) {
+    TextEditingController contentController =
+    TextEditingController(text: prompt.content);
+    Language selectedLanguage = Language.values.firstWhere(
+          (lang) => lang.value == prompt.language,
+      orElse: () => Language.English,
+    );
+    bool isLoading = false;
+    final viewModel =
+    PromptListViewModel();
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      // Để bottom sheet có thể chiếm toàn bộ màn hình nếu cần
+      backgroundColor: Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        // Hàm viết hoa chữ cái đầu
+        String capitalizeFirstLetter(String input) {
+          return input
+              .split(' ')
+              .map((word) =>
+          word.isNotEmpty
+              ? '${word[0].toUpperCase()}${word.substring(1)}'
+              : '')
+              .join(' ');
+        }
+
+        // Tìm các từ trong cặp dấu []
+        List<String> extractPlaceholders(String content) {
+          final regex = RegExp(r'\[(.+?)\]');
+          return regex
+              .allMatches(content)
+              .map((match) => match.group(1) ?? '')
+              .toList();
+        }
+
+        List<String> placeholders = extractPlaceholders(prompt.content);
+
+        return StatefulBuilder(
+            builder: (BuildContext context, StateSetter setState) {
+              return Padding(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 16, vertical: 16),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Row 1: Icon "<", Title, Star, and Close icon
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        IconButton(
+                          icon: Icon(Icons.arrow_back),
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                        ),
+                        SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            prompt.title,
+                            style:
+                            TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.bold),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        Row(
+                          children: [
+                            Icon(
+                              prompt.isFavorite ? Icons.star : Icons
+                                  .star_border,
+                              color: prompt.isFavorite ? Colors.yellow : Colors
+                                  .grey,
+                            ),
+                            SizedBox(width: 8),
+                            IconButton(
+                              icon: Icon(Icons.close),
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 16),
+
+                    // Row 2: Category
+                    Row(
+                      children: [
+                        Text(
+                          capitalizeFirstLetter(
+                              "${prompt.category} - ${prompt.userName}"),
+                          style: TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.bold),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 16),
+
+                    // Row 3: Description
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                              prompt.description), // Thay thế bằng mô tả thật
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 16),
+
+                    // Row 4: View Prompt
+                    Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              "Prompt",
+                              style: TextStyle(
+                                  fontSize: 16, fontWeight: FontWeight.bold),
+                            ),
+                            if (!prompt.isPublic)
+                              TextButton.icon(
+                                onPressed: isLoading
+                                    ? null
+                                    : () async {
+                                  setState(() {
+                                    isLoading = true;
+                                  });
+
+                                  try {
+                                    PromptRequest newPrompt = PromptRequest(
+                                      language: selectedLanguage.value,
+                                      title: prompt.title,
+                                      category: prompt.category,
+                                      description: prompt.description,
+                                      content: contentController.text,
+                                      isPublic: false,
+                                    );
+
+
+                                    await viewModel.updatePrompt(newPrompt, prompt.id);
+
+                                    //Navigator.pop(context);
+                                  } catch (error) {
+                                    print("Error: $error");
+                                  } finally {
+                                    setState(() {
+                                      isLoading = false;
+                                    });
+                                  }
+                                },
+                                icon: isLoading
+                                    ? SizedBox(
+                                  width: 10,
+                                  height: 10,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2.0,
+                                    color: Colors.blue,
+                                  ),
+                                )
+                                    : null,
+                                label: Text(
+                                  "Save",
+                                  style: TextStyle(color: Colors.blue),
+                                ),
+                                style: TextButton.styleFrom(
+                                  backgroundColor: Colors.blueGrey[50],
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 10, vertical: 4),
+                                  minimumSize: Size(0, 0),
+                                ),
+                              ),
+                          ],
+                        ),
+                        SizedBox(height: 8),
+                        // Khoảng cách giữa Row và TextField
+                        Container(
+                          height: 120,
+                          child: TextField(
+                            controller: contentController,
+                            maxLines: null,
+                            expands: true,
+                            style: TextStyle(fontSize: 14),
+                            decoration: InputDecoration(
+                              filled: true,
+                              fillColor: Colors.blueGrey[50],
+                              contentPadding: EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 8),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide.none,
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide.none,
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(
+                                  color: Colors.blue,
+                                  width: 1.5,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    SizedBox(height: 16),
+
+                    // Row 5: Output Language Dropdown
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          "Output Language",
+                          style: TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.bold),
+                        ),
+                        DropdownButton<Language>(
+                          value: selectedLanguage,
+                          items: Language.values.map((Language lang) {
+                            return DropdownMenuItem<Language>(
+                              value: lang,
+                              child: Text(lang.label), // Hiển thị nhãn từ enum
+                            );
+                          }).toList(),
+                          onChanged: (newValue) {
+                            if (newValue != null) {
+                              setState(() {
+                                selectedLanguage = newValue;
+                              });
+                            }
+                          },
+                        ),
+                      ],
+                    ),
+
+                    SizedBox(height: 16),
+
+                    // Row 6: Input Field
+                    for (String placeholder in placeholders)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 8.0),
+                        child: TextField(
+                          decoration: InputDecoration(
+                            filled: true,
+                            fillColor: Colors.blueGrey[50],
+                            contentPadding:
+                            EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                            hintText: placeholder,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide.none,
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide.none,
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(
+                                color: Colors.blue,
+                                width: 1.5,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+
+                    SizedBox(height: 16),
+
+                    // Row 7: Send Button
+                    ElevatedButton.icon(
+                      onPressed: () async {
+                        AIItem ai = await Provider.of<AIChatList>(context, listen: false).selectedAIItem;
+                        await Provider.of<MessageModel>(context, listen: false).sendMessage(prompt.content, ai);
+                        Navigator.pop(context);
+                      },
+                      icon: Icon(Icons.send),
+                      label: Text('Send'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blue, // Background màu xanh
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }
+        );
+      },
+    );
   }
 }

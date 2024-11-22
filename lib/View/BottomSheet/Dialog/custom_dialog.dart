@@ -438,7 +438,7 @@ class _CustomDialogContentState extends State<_CustomDialogContent> {
   final TextEditingController titleController = TextEditingController();
   final TextEditingController contentController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
-
+  final viewModel = PromptListViewModel();
   @override
   Widget build(BuildContext context) {
     return Dialog(
@@ -765,9 +765,7 @@ class _CustomDialogContentState extends State<_CustomDialogContent> {
                   isPublic: false,
                 );
 
-                // Gọi hàm createPrompt từ ViewModel (giả sử đã có PromptListViewModel)
-                final promptService = context.read<PromptService>();
-                final viewModel = PromptListViewModel(promptService);
+
                 await viewModel.createPrompt(newPrompt);
 
                 // Đóng dialog

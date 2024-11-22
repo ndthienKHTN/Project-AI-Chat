@@ -1,12 +1,14 @@
+import 'package:flutter/material.dart';
 import 'package:project_ai_chat/models/prompt_model.dart';
 import 'package:project_ai_chat/viewmodels/prompt-list.dart';
+import 'package:provider/provider.dart';
 
 import '../services/prompt_service.dart';
 
-class PromptListViewModel {
-  final PromptService _service;
 
-  PromptListViewModel(this._service);
+class PromptListViewModel{
+  final PromptService _service = PromptService();
+  late final PromptList allprompts;
 
   PromptRequest pr = PromptRequest(
       query: "",
@@ -15,6 +17,11 @@ class PromptListViewModel {
       category: "",
       isFavorite: false,
       isPublic: true);
+
+  Future<PromptList> fetchAllPrompts() async {
+    allprompts = await _service.fetchAllPrompts();
+    return allprompts;
+  }
 
   Future<PromptList> fetchPrompts({
     required String category,
@@ -42,5 +49,10 @@ class PromptListViewModel {
   Future<bool> deletePrompt(String id) {
     return _service.deletePrompt(id);
   }
+  Future<bool> updatePrompt(PromptRequest newPrompt, String promptId) {
+    return _service.updatePrompt(newPrompt, promptId);
+  }
 }
+
+  
 
