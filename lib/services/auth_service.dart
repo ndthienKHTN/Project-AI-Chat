@@ -158,4 +158,45 @@ class AuthService {
       );
     }
   }
+
+  Future<ApiResponse> logout() async {
+    try {
+      final response = await dio.get('/auth/sign-out');
+      if (response.statusCode == 200) {
+        return ApiResponse(
+          success: true,
+          data: response.data,
+          message: 'Logout thành công',
+          statusCode: response.statusCode ?? 200,
+        );
+      } else {
+        return ApiResponse(
+          success: false,
+          message: 'Logout thất bại',
+          statusCode: response.statusCode ?? 400,
+        );
+      }
+    } on DioException catch (e) {
+      String errorMessage = 'Unauthorized';
+      if (e.response != null) {
+        final errorData = e.response!.data;
+
+        // Check for custom error messages in the response data
+        if (errorData['details'] != null && errorData['details'].isNotEmpty) {
+          // Collect all issues in `details` into a single message
+          log('errorData: ${errorData['details']}');
+          List<String> issues = (errorData['details'] as List<dynamic>)
+              .map<String>((detail) => detail['issue'] ?? 'Unknown issue')
+              .toList();
+          errorMessage = issues.join(', ');
+        }
+      }
+
+      return ApiResponse(
+        success: false,
+        message: errorMessage,
+        statusCode: e.response?.statusCode ?? 500,
+      );
+    }
+  }
 }

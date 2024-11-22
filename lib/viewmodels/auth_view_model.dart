@@ -131,6 +131,7 @@ class AuthViewModel extends ChangeNotifier {
   }
 
   Future<void> logout() async {
+    final response = await _authService.logout();
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('accessToken');
     await prefs.remove('refreshToken');
