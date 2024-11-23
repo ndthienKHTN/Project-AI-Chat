@@ -62,8 +62,8 @@
 
 import 'package:dio/dio.dart';
 import 'package:project_ai_chat/models/prompt_model.dart';
-import 'package:project_ai_chat/services/dio_client.dart';
-import 'package:project_ai_chat/viewmodels/prompt_list.dart';
+import 'package:project_ai_chat/utils/dio/dio_client.dart';
+import 'package:project_ai_chat/models/prompt_list.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 

@@ -1,7 +1,7 @@
 import 'dart:developer';
-import 'package:project_ai_chat/services/dio_client.dart';
+import 'package:project_ai_chat/utils/dio/dio_client.dart';
 import '../models/user_model.dart';
-import '../models/api_response.dart';
+import '../models/response/api_response.dart';
 import 'package:dio/dio.dart';
 
 class AuthService {

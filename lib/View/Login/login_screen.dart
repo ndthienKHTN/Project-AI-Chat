@@ -10,7 +10,8 @@ import 'package:project_ai_chat/core/Widget/outlined_button.dart';
 import 'package:project_ai_chat/viewmodels/auth_view_model.dart';
 import 'package:provider/provider.dart';
 
-import '../ForgetPassword/forget-password.dart';
+import '../ForgetPassword/forget_password.dart';
+import 'package:project_ai_chat/utils/validators/login_validator.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -28,7 +29,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   void initState() {
     super.initState();
-    
+
     // Sử dụng addPostFrameCallback để tránh lỗi khi gọi setState trong build
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final shouldShowMessage =
@@ -46,20 +47,11 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   String? _validateEmail(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Vui lòng nhập email';
-    }
-    if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
-      return 'Email không hợp lệ';
-    }
-    return null;
+    return validateEmail(value);
   }
 
   String? _validatePassword(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Vui lòng nhập mật khẩu';
-    }
-    return null;
+    return validatePassword(value);
   }
 
   void _login() async {

@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:project_ai_chat/View/HomeChat/home.dart';
 import 'package:project_ai_chat/View/Login/login_screen.dart';
 import 'package:project_ai_chat/constants/colors.dart';
 import 'package:project_ai_chat/constants/image_strings.dart';
 import 'package:project_ai_chat/constants/sizes.dart';
 import 'package:project_ai_chat/constants/text_strings.dart';
-import 'package:project_ai_chat/core/Widget/elevated_button.dart';
 import 'package:project_ai_chat/core/Widget/outlined_button.dart';
 import 'package:project_ai_chat/viewmodels/auth_view_model.dart';
 import 'package:provider/provider.dart';
+import 'package:project_ai_chat/utils/validators/register_validator.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -24,27 +23,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _passwordController = TextEditingController();
 
   String? _validateEmail(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Vui lòng nhập email';
-    }
-    if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
-      return 'Email không hợp lệ';
-    }
-    return null;
+    return validateEmail(value);
   }
 
   String? _validatePassword(String? value) {
-    if (value == null || value.isEmpty || value.length < 6) {
-      return 'Password must be at least 6 characters';
-    }
-
-    // pattern for validate password, it must have at least 1 uppercase letter, at least 1 number
-    String pattern = r'^(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{6,}$';
-    RegExp regex = RegExp(pattern);
-    if (!regex.hasMatch(value)) {
-      return 'Mật khẩu phải chứa ít nhất 1 chữ hoa và 1 số';
-    }
-    return null;
+    return validatePassword(value);
   }
 
   void _register() async {

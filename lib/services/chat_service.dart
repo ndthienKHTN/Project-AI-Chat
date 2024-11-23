@@ -1,11 +1,12 @@
 import 'package:dio/dio.dart';
-import 'package:project_ai_chat/models/api_response.dart';
-import 'package:project_ai_chat/models/chat_exception.dart';
-import 'package:project_ai_chat/models/chat_response.dart';
-import 'package:project_ai_chat/models/conversation_history_response.dart';
+import 'package:project_ai_chat/models/response/api_response.dart';
+import 'package:project_ai_chat/utils/exceptions/chat_exception.dart';
+import 'package:project_ai_chat/models/response/chat_response.dart';
+import 'package:project_ai_chat/models/response/conversation_history_response.dart';
 
-import 'package:project_ai_chat/models/message_response.dart';
-import 'package:project_ai_chat/services/dio_client.dart';
+import 'package:project_ai_chat/models/response/message_response.dart';
+import 'package:project_ai_chat/models/response/token_usage_response.dart';
+import 'package:project_ai_chat/utils/dio/dio_client.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
@@ -171,6 +172,7 @@ class ChatService {
       );
     }
   }
+
   Future<ConversationMessagesResponse> fetchConversationHistory({
     required String conversationId,
     required String assistantId,
@@ -201,6 +203,30 @@ class ChatService {
       print('Data: ${e.response?.data}');
       print('Message: ${e.message}');
 
+      throw ChatException(
+        message: e.response?.data?['message'] ??
+            e.message ??
+            'Lỗi kết nối tới server',
+        statusCode: e.response?.statusCode ?? 500,
+      );
+    }
+  }
+
+  Future<TokenUsageResponse> fetchTokenUsage() async {
+    try {
+      final response = await dio.get(
+        '/tokens/usage',
+      );
+
+      if (response.statusCode == 200) {
+        return TokenUsageResponse.fromJson(response.data);
+      } else {
+        throw ChatException(
+          message: 'Lỗi không xác định từ server',
+          statusCode: response.statusCode ?? 500,
+        );
+      }
+    } on DioException catch (e) {
       throw ChatException(
         message: e.response?.data?['message'] ??
             e.message ??

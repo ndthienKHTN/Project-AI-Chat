@@ -344,7 +344,7 @@ class MessageModel extends ChangeNotifier {
         assistantId: assistantId,
       );
 
-      _messages.clear(); // Xóa tin nhắn cũ trước khi thêm lịch sử mới
+      _messages.clear(); // Xóa tin nh���n cũ trước khi thêm lịch sử mới
       _currentConversationId =
           conversationId; // Cập nhật ID cuộc hội thoại hiện tại
 
@@ -390,7 +390,14 @@ class MessageModel extends ChangeNotifier {
   Future<void> updateRemainingUsage() async {
     try {
       final tokenUsageResponse = await _chatService.fetchTokenUsage();
-      _remainingUsage = tokenUsageResponse.availableTokens;
+      if (tokenUsageResponse.availableTokens >= 0) {
+        _remainingUsage = tokenUsageResponse.availableTokens;
+        print('✅ Token usage fetched successfully: $_remainingUsage');
+      } else {
+        print(
+            '❌ Token usage is invalid: ${tokenUsageResponse.availableTokens}');
+        _errorMessage = 'Số lượng token không hợp lệ';
+      }
       notifyListeners();
     } catch (e) {
       print('❌ Error fetching token usage: $e');

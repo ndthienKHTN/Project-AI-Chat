@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:project_ai_chat/core/Widget/dropdown-button.dart';
 import 'package:provider/provider.dart';
 
-import '../../viewmodels/aichat_list.dart';
-import '../HomeChat/model/ai_logo.dart';
+import '../../viewmodels/aichat_list_view_model.dart';
+import '../../models/ai_logo.dart';
 
 class EmailComposer extends StatefulWidget {
   @override

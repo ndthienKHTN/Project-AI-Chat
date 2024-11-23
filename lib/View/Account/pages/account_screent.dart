@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:project_ai_chat/View/Login/login_screen.dart';
-import 'package:project_ai_chat/models/api_response.dart';
+import 'package:project_ai_chat/models/response/api_response.dart';
 import 'package:project_ai_chat/models/user_model.dart';
 import 'package:project_ai_chat/viewmodels/auth_view_model.dart';
 import 'package:provider/provider.dart';

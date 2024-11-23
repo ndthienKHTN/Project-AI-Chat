@@ -2,22 +2,22 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:project_ai_chat/View/Account/pages/account_screent.dart';
 import 'package:project_ai_chat/View/Bot/page/bot_screen.dart';
-import 'package:project_ai_chat/models/chat_exception.dart';
-import 'package:project_ai_chat/models/message_response.dart';
+import 'package:project_ai_chat/utils/exceptions/chat_exception.dart';
+import 'package:project_ai_chat/models/response/message_response.dart';
 import 'package:project_ai_chat/viewmodels/auth_view_model.dart';
-import 'package:project_ai_chat/viewmodels/prompt_list.dart';
+import 'package:project_ai_chat/models/prompt_list.dart';
 import 'package:project_ai_chat/viewmodels/prompt_list_view_model.dart';
 import '../../core/Widget/dropdown-button.dart';
-import '../../viewmodels/aichat_list.dart';
-import '../../viewmodels/message_homechat.dart';
+import '../../viewmodels/aichat_list_view_model.dart';
+import '../../viewmodels/homechat_view_model.dart';
 import '../BottomSheet/Widgets/PromptDetailsBottomSheet/prompt_details_bottom_sheet.dart';
 import '../BottomSheet/custom_bottom_sheet.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import '../EmailChat/email.dart';
-import 'Widgets/BottomNavigatorBarCustom/custom-bottom-navigator-bar.dart';
+import 'Widgets/BottomNavigatorBarCustom/bottom_navigation.dart';
 import 'Widgets/Menu/menu.dart';
-import 'model/ai_logo.dart';
+import '../../models/ai_logo.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:project_ai_chat/View/BottomSheet/Widgets/PromptList/prompt_list.dart';
@@ -41,7 +41,6 @@ class _HomeChatState extends State<HomeChat> {
   late String selectedAIItem;
   bool _hasText = false;
   bool _showSlash = false;
-  late final PromptList prompts;
   @override
   void initState() {
     super.initState();
@@ -81,10 +80,14 @@ class _HomeChatState extends State<HomeChat> {
       await Provider.of<MessageModel>(context, listen: false)
           .checkCurrentConversation(aiItem.id);
     });
+    //Hiển thị token
+    Provider.of<MessageModel>(context, listen: false).updateRemainingUsage();
     // Lấy danh sách prompts
-    Provider.of<PromptListViewModel>(context, listen: false).fetchAllPrompts();
-    prompts =
-        Provider.of<PromptListViewModel>(context, listen: false).allprompts;
+    Provider.of<PromptListViewModel>(context, listen: false)
+        .fetchAllPrompts()
+        .then((_) {
+      Provider.of<PromptListViewModel>(context, listen: false).allprompts;
+    });
   }
 
   Future<void> _loadUserInfo() async {
@@ -423,11 +426,13 @@ class _HomeChatState extends State<HomeChat> {
                                                     .items[index]
                                                     .title),
                                                 onTap: () {
-                                                  _controller.text = ""; // Chọn prompt
+                                                  _controller.text =
+                                                      ""; // Chọn prompt
                                                   _showSlash = false;
-                                                  PromptDetailsBottomSheet.show(context, promptList
-                                                      .allprompts
-                                                      .items[index]);
+                                                  PromptDetailsBottomSheet.show(
+                                                      context,
+                                                      promptList.allprompts
+                                                          .items[index]);
                                                 },
                                               );
                                             },

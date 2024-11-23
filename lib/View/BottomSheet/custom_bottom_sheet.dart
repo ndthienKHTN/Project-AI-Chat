@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:project_ai_chat/View/BottomSheet/Widgets/SegmentedControl/segmented_control.dart';
 import 'package:project_ai_chat/viewmodels/prompt_list_view_model.dart';
-import 'package:project_ai_chat/viewmodels/prompt_list.dart';
+import 'package:project_ai_chat/models/prompt_list.dart';
 import 'package:provider/provider.dart';
 
 import '../../services/prompt_service.dart';
-import '../../viewmodels/prompt.dart';
+import '../../models/prompt.dart';
 import 'Dialog/custom_dialog.dart';
 import 'Widgets/PromptCategorySelector/prompt_category_selector.dart';
 import 'Widgets/PromptList/prompt_list.dart';
@@ -46,32 +46,32 @@ class CustomBottomSheet {
                       ),
                       Row(
                         children: [
-                          if(!isPublic)
-                          Container(
-                            width: 35,
-                            // Đảm bảo kích thước bằng với IconButton khác
-                            height: 35,
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                colors: [Colors.blue, Colors.purple],
-                                // Màu gradient
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
+                          if (!isPublic)
+                            Container(
+                              width: 35,
+                              // Đảm bảo kích thước bằng với IconButton khác
+                              height: 35,
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [Colors.blue, Colors.purple],
+                                  // Màu gradient
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                ),
+                                border: Border.all(width: 0),
+                                borderRadius: BorderRadius.circular(8),
                               ),
-                              border: Border.all(width: 0),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: GestureDetector(
-                              onTap: () {
-                                CustomDialog.show(context);
-                              },
-                              child: Icon(
-                                Icons.add,
-                                color: Colors.white,
-                                size: 24, // Kích thước icon
+                              child: GestureDetector(
+                                onTap: () {
+                                  CustomDialog.show(context);
+                                },
+                                child: Icon(
+                                  Icons.add,
+                                  color: Colors.white,
+                                  size: 24, // Kích thước icon
+                                ),
                               ),
                             ),
-                          ),
                           SizedBox(width: 10), // Khoảng cách giữa các nút
                           IconButton(
                             icon: Icon(Icons.close),
