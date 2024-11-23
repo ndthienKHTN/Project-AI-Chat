@@ -17,12 +17,19 @@ class MessageModel extends ChangeNotifier {
   bool _isSending = false;
   MessageModel(this._chatService);
 
+  // load more conversations
+  String? _cursorConversation;
+  bool _hasMoreConversation = true;
+
   int? get remainingUsage => _remainingUsage;
   List<Message> get messages => _messages;
   List<Conversation> get conversations => _conversations;
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
   bool get isSending => _isSending;
+
+  // load more conversations
+  bool get hasMoreConversation => _hasMoreConversation;
 
   Future<void> initializeChat(String assistantId) async {
     try {
@@ -81,12 +88,14 @@ class MessageModel extends ChangeNotifier {
       notifyListeners();
     }
   }
-
+  String _removeHttpPrefix(String url) {
+    return url.replaceAll(RegExp(r'^(https?:\/\/)?(www\.)?'), '');
+  }
   Future<void> sendMessage(String content, AIItem assistant) async {
     try {
       _isSending = true;
-      notifyListeners();
 
+      // Thêm tin nhắn của user
       _messages.add(Message(
         role: 'user',
         content: content,
@@ -97,12 +106,19 @@ class MessageModel extends ChangeNotifier {
         ),
         isErrored: false,
       ));
-      notifyListeners();
 
-      print('💬 Sending message:');
-      print('Content: $content');
-      print('Assistant ID: ${assistant.id}');
-      print('Conversation ID: $_currentConversationId');
+      // Thêm tin nhắn tạm thời cho model (để hiển thị loading)
+      _messages.add(Message(
+        role: 'model',
+        content: '', // Nội dung rỗng
+        assistant: Assistant(
+          id: assistant.id,
+          model: "dify",
+          name: assistant.name,
+        ),
+        isErrored: false,
+      ));
+      notifyListeners();
 
       final response = await _chatService.sendMessage(
         content: content,
@@ -111,18 +127,28 @@ class MessageModel extends ChangeNotifier {
         previousMessages: _messages,
       );
 
-      print('✅ Response received:');
-      print('Conversation ID: ${response.conversationId}');
-      print('Message: ${response.message}');
-      print('Remaining Usage: ${response.remainingUsage}');
+      // Xử lý response.message để thêm bullet points và format markdown
+      String processedMessage = response.message;
 
-      _currentConversationId = response.conversationId;
-      _remainingUsage = response.remainingUsage;
-      notifyListeners();
+      // Xử lý pattern dạng "1. Tên - URL\nMô tả"
+      final RegExp pattern =
+          RegExp(r'(\d+\.\s+)([^-\n]+)-\s*(https?:\/\/[^\n]+)\n([^\n]+)');
+      processedMessage = processedMessage.replaceAllMapped(pattern, (match) {
+        final number = match[1]; // Số thứ tự (1.)
+        final name = match[2]; // Tên website
+        final url = _removeHttpPrefix(match[3]!); // URL
+        final desc = match[4]; // Mô tả
 
+        return '''$number$name- $url
+  • $desc
+
+''';
+      });
+
+      _messages.removeLast(); // Xóa tin nhắn tạm
       _messages.add(Message(
         role: 'model',
-        content: response.message,
+        content: processedMessage,
         assistant: Assistant(
           id: assistant.id,
           model: "dify",
@@ -130,38 +156,27 @@ class MessageModel extends ChangeNotifier {
         ),
         isErrored: false,
       ));
-    } catch (e) {
-      print('❌ Error in MessageModel:');
-      if (e is ChatException) {
-        print('Status: ${e.statusCode}');
-        print('Message: ${e.message}');
 
-        if (e.statusCode == 500) {
-          _messages.add(Message(
-            role: 'model',
-            content:
-                'Đã xảy ra lỗi máy chủ. Vui lòng thử lại sau hoặc liên hệ hỗ trợ.',
-            assistant: Assistant(
-              id: assistant.id,
-              model: "dify",
-              name: "AI Assistant",
-            ),
-            isErrored: true,
-          ));
-        } else {
-          _messages.add(Message(
-            role: 'model',
-            content: e.message,
-            assistant: Assistant(
-              id: assistant.id,
-              model: "dify",
-              name: "AI Assistant",
-            ),
-            isErrored: true,
-          ));
-        }
+      _currentConversationId = response.conversationId;
+      _remainingUsage = response.remainingUsage;
+    } catch (e) {
+      // Xử lý lỗi: thay thế tin nhắn tạm bằng tin nhắn lỗi
+      _messages.removeLast(); // Xóa tin nhắn tạm
+
+      if (e is ChatException) {
+        _messages.add(Message(
+          role: 'model',
+          content: e.statusCode == 500
+              ? 'Đã xảy ra lỗi máy chủ. Vui lòng thử lại sau hoặc liên hệ hỗ trợ.'
+              : e.message,
+          assistant: Assistant(
+            id: assistant.id,
+            model: "dify",
+            name: "AI Assistant",
+          ),
+          isErrored: true,
+        ));
       } else {
-        print('Unexpected error: $e');
         _messages.add(Message(
           role: 'model',
           content: 'Lỗi không xác định khi gửi tin nhắn: ${e.toString()}',
@@ -179,21 +194,34 @@ class MessageModel extends ChangeNotifier {
     }
   }
 
-  Future<void> fetchAllConversations(
-      String assistantId, String assistantModel) async {
+  Future<void> fetchAllConversations(String assistantId, String assistantModel,
+      {bool isLoadMore = false}) async {
+    if (isLoadMore && _hasMoreConversation == false) {
+      return;
+    }
+
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
 
-    final response =
-        await _chatService.getAllConversations(assistantId, assistantModel);
+    if (isLoadMore == false) {
+      _cursorConversation = null;
+      _hasMoreConversation = true;
+    }
+
+    final response = await _chatService.getAllConversations(
+        assistantId, assistantModel, _cursorConversation);
 
     if (response.success && response.data != null) {
-      _conversations.clear();
+      if (isLoadMore == false) {
+        _conversations.clear();
+      }
       _conversations.addAll(
         (response.data['items'] as List<dynamic>)
             .map((item) => Conversation.fromJson(item)),
       );
+      _cursorConversation = response.data['cursor'];
+      _hasMoreConversation = response.data['has_more'];
       _isLoading = false;
       notifyListeners();
     } else {
@@ -201,7 +229,7 @@ class MessageModel extends ChangeNotifier {
       _errorMessage = response.message;
       notifyListeners();
       // logout();
-      throw response;
+      // throw response;
     }
   }
 

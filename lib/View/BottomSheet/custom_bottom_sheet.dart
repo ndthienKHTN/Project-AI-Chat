@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:project_ai_chat/View/BottomSheet/Widgets/SegmentedControl/segmented_control.dart';
-import 'package:project_ai_chat/viewmodels/prompt-list-view-model.dart';
-import 'package:project_ai_chat/viewmodels/prompt-list.dart';
+import 'package:project_ai_chat/viewmodels/prompt_list_view_model.dart';
+import 'package:project_ai_chat/viewmodels/prompt_list.dart';
 import 'package:provider/provider.dart';
 
 import '../../services/prompt_service.dart';
@@ -131,11 +131,10 @@ class CustomBottomSheet {
                   // Row 5: Prompt List
                   Expanded(
                     child: PromptListWidget(
-                      category: selectedCategory,
-                      isFavorite: isFavorite,
-                      query: query,
-                      isPublic: isPublic
-                    ),
+                        category: selectedCategory,
+                        isFavorite: isFavorite,
+                        query: query,
+                        isPublic: isPublic),
                   ),
                 ],
               );

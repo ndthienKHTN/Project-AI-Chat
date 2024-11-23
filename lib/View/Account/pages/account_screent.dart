@@ -1,6 +1,4 @@
 import 'dart:convert';
-import 'dart:developer';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:project_ai_chat/View/Login/login_screen.dart';
@@ -18,25 +16,26 @@ class AccountScreent extends StatefulWidget {
 }
 
 class _AccountScreentState extends State<AccountScreent> {
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _loadUserInfo();
-    });
-  }
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   WidgetsBinding.instance.addPostFrameCallback((_) {
+  //     _loadUserInfo();
+  //   });
+  //   log("account screen render");
+  // }
 
-  Future<void> _loadUserInfo() async {
-    try {
-      await Provider.of<AuthViewModel>(context, listen: false).fetchUserInfo();
-    } catch (e) {
-      if (e is ApiResponse<dynamic>) {
-        if (e.statusCode == 401) {
-          // await _logout();
-        }
-      }
-    }
-  }
+  // Future<void> _loadUserInfo() async {
+  //   try {
+  //     await Provider.of<AuthViewModel>(context, listen: false).fetchUserInfo();
+  //   } catch (e) {
+  //     if (e is ApiResponse<dynamic>) {
+  //       if (e.statusCode == 401) {
+  //         // await _logout();
+  //       }
+  //     }
+  //   }
+  // }
 
   Future<void> _logout() async {
     await Provider.of<AuthViewModel>(context, listen: false).logout();
@@ -73,12 +72,10 @@ class _AccountScreentState extends State<AccountScreent> {
                   const CircleAvatar(
                     radius: 40,
                     backgroundColor: Colors.purple,
-                    child: Text(
-                      'Đ',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 40,
-                      ),
+                    child: Icon(
+                      Icons.person, // Thay thế bằng bất kỳ icon nào bạn muốn
+                      size: 40, // Kích thước của icon
+                      color: Colors.white, // Màu của icon
                     ),
                   ),
                   const SizedBox(width: 16),
