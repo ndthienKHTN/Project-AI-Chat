@@ -21,6 +21,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _usernameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
 
   String? _validateEmail(String? value) {
     return validateEmail(value);
@@ -28,6 +29,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   String? _validatePassword(String? value) {
     return validatePassword(value);
+  }
+
+  String? _validateConfirmPassword(String? confirmPassword) {
+    return validateConfirmPassword(confirmPassword, _passwordController.text);
   }
 
   void _register() async {
@@ -125,6 +130,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       label: Text('Password'),
                     ),
                     validator: _validatePassword,
+                  ),
+                  const SizedBox(height: tFormHeight - 20),
+                  TextFormField(
+                    controller: _confirmPasswordController,
+                    obscureText: true,
+                    decoration: const InputDecoration(
+                      prefixIcon: Icon(Icons.password),
+                      label: Text('Confirm Password'),
+                    ),
+                    validator: _validateConfirmPassword,
                   ),
                   const SizedBox(height: tFormHeight - 10),
                   SizedBox(
