@@ -17,6 +17,7 @@ class CustomBottomSheet {
     String query = ''; // Giá trị query từ SearchBar
     bool isFavorite = false; // Trạng thái starred
     bool isPublic = false;
+    bool isCreated = false;
 
     showModalBottomSheet(
       context: context,
@@ -63,7 +64,16 @@ class CustomBottomSheet {
                               ),
                               child: GestureDetector(
                                 onTap: () {
-                                  CustomDialog.show(context);
+                                  CustomDialog.show(
+                                    context,
+                                    onPromptCreated: () {
+                                      // Cập nhật trạng thái sau khi prompt được tạo
+                                      setState(() {
+                                        isCreated = true;
+
+                                      });
+                                    },
+                                  );
                                 },
                                 child: Icon(
                                   Icons.add,
@@ -135,7 +145,8 @@ class CustomBottomSheet {
                         category: selectedCategory,
                         isFavorite: isFavorite,
                         query: query,
-                        isPublic: isPublic),
+                        isPublic: isPublic,
+                        isCreated: isCreated),
                   ),
                 ],
               );

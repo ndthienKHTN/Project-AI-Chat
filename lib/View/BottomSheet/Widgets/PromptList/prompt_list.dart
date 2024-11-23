@@ -18,12 +18,14 @@ class PromptListWidget extends StatefulWidget {
   final String query;
   final bool isFavorite;
   final bool isPublic;
+  final bool isCreated;
 
   const PromptListWidget({
     Key? key,
     required this.category,
     this.query = '',
     this.isFavorite = false,
+    this.isCreated = false,
     required this.isPublic,
   }) : super(key: key);
 
@@ -44,7 +46,8 @@ class _PromptListWidgetState extends State<PromptListWidget> {
     if (oldWidget.category != widget.category ||
         oldWidget.query != widget.query ||
         oldWidget.isFavorite != widget.isFavorite ||
-        oldWidget.isPublic != widget.isPublic) {
+        oldWidget.isPublic != widget.isPublic ||
+        widget.isCreated == true) {
       setState(() {
         _prompts = _fetchPrompts(
           category: widget.category,
