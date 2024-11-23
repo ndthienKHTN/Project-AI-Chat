@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../View/HomeChat/model/ai_logo.dart';
+import '../../models/ai_logo.dart';
 
 class AIDropdown extends StatelessWidget {
   final List<AIItem> listAIItems;

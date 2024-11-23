@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:project_ai_chat/viewmodels/prompt.dart';
+import 'package:project_ai_chat/models/prompt.dart';
 
 // Model cho PromptList
 class PromptList {

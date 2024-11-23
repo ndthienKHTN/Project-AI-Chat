@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:project_ai_chat/View/HomeChat/model/ai_logo.dart';
+import 'package:project_ai_chat/models/ai_logo.dart';
 import 'package:project_ai_chat/View/Knowledge/page/knowledge_screen.dart';
 import 'package:provider/provider.dart';
-import '../../../../viewmodels/message_homechat.dart';
+import '../../../../viewmodels/homechat_view_model.dart';
 import '../../../UpgradeVersion/upgrade_version.dart';
-import '../../../../viewmodels/aichat_list.dart';
+import '../../../../viewmodels/aichat_list_view_model.dart';
 
 class Menu extends StatefulWidget {
   const Menu({Key? key}) : super(key: key);
@@ -157,8 +157,7 @@ class _MenuState extends State<Menu> {
                     }
                     final conversation = messageModel.conversations[index];
                     return ListTile(
-                      title: Text("Conversation ${index + 1}"),
-                      subtitle: Column(
+                      title: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(

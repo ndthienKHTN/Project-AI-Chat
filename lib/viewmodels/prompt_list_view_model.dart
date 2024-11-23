@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:project_ai_chat/models/prompt_model.dart';
-import 'package:project_ai_chat/viewmodels/prompt_list.dart';
-import 'package:provider/provider.dart';
-
+import 'package:project_ai_chat/models/prompt_list.dart';
 import '../services/prompt_service.dart';
 
 class PromptListViewModel extends ChangeNotifier {
