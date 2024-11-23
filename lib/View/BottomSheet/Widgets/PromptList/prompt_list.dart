@@ -255,6 +255,7 @@ class _PromptListWidgetState extends State<PromptListWidget> {
     bool isLoading = false;
     final viewModel = PromptListViewModel();
 
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -284,6 +285,7 @@ class _PromptListWidgetState extends State<PromptListWidget> {
         }
 
         List<String> placeholders = extractPlaceholders(prompt.content);
+        List<String> inputs = List.filled(placeholders.length, '');
 
         return StatefulBuilder(
             builder: (BuildContext context, StateSetter setState) {
@@ -375,7 +377,6 @@ class _PromptListWidgetState extends State<PromptListWidget> {
                                     setState(() {
                                       isLoading = true;
                                     });
-
                                     try {
                                       PromptRequest newPrompt = PromptRequest(
                                         language: selectedLanguage.value,
@@ -460,7 +461,6 @@ class _PromptListWidgetState extends State<PromptListWidget> {
                 ),
 
                 SizedBox(height: 16),
-
                 // Row 5: Output Language Dropdown
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -490,18 +490,21 @@ class _PromptListWidgetState extends State<PromptListWidget> {
                 ),
 
                 SizedBox(height: 16),
-
                 // Row 6: Input Field
-                for (String placeholder in placeholders)
+                for (int i = 0; i < placeholders.length; i++)
                   Padding(
                     padding: const EdgeInsets.only(bottom: 8.0),
                     child: TextField(
+                      onChanged: (value) {
+                        // Cập nhật giá trị khi người dùng nhập
+                        inputs[i] = value;
+                      },
                       decoration: InputDecoration(
                         filled: true,
                         fillColor: Colors.blueGrey[50],
                         contentPadding:
-                            EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                        hintText: placeholder,
+                        EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        hintText: placeholders[i],
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                           borderSide: BorderSide.none,
@@ -509,42 +512,39 @@ class _PromptListWidgetState extends State<PromptListWidget> {
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                           borderSide: BorderSide.none,
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(
-                            color: Colors.blue,
-                            width: 1.5,
-                          ),
-                        ),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(
+                        color: Colors.blue,
+                        width: 1.5,
                       ),
                     ),
                   ),
+                ),
+              ),
 
                 SizedBox(height: 16),
 
                 // Row 7: Send Button
-                ElevatedButton.icon(
-                  onPressed: () async {
-                    AIItem ai =
-                        await Provider.of<AIChatList>(context, listen: false)
-                            .selectedAIItem;
-                    await Provider.of<MessageModel>(context, listen: false)
-                        .sendMessage(prompt.content, ai);
-                    Navigator.pop(context);
-                  },
-                  icon: Icon(Icons.send),
-                  label: Text('Send'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue, // Background màu xanh
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          );
+                 ElevatedButton.icon(
+                      onPressed: () async {
+                        String content = prompt.content;
+                        // Thay thế các placeholder bằng input người dùng
+                        final regex = RegExp(r'\[(.+?)\]');
+                        int index = 0;
+                        String updatedContent = content.replaceAllMapped(regex, (match) {
+                          // Nếu người dùng đã nhập giá trị thay thế, sử dụng giá trị đó
+                          if (index < inputs.length && inputs[index].isNotEmpty) {
+                            return inputs[index++];
+                          }
+                          // Nếu không có giá trị thay thế, giữ nguyên placeholder
+                          return match.group(0)!;
+                        });
+                        updatedContent += "\nRespond in " + selectedLanguage.value;
+                        AIItem ai = await Provider.of<AIChatList>(context, listen: false).selectedAIItem;
+                        await Provider.of<MessageModel>(context, listen: false).sendMessage(updatedContent, ai);
+                        Navigator.pop(context);
         });
       },
     );
