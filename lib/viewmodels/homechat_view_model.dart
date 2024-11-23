@@ -64,6 +64,7 @@ class MessageModel extends ChangeNotifier {
 
       _currentConversationId = response.conversationId;
       _remainingUsage = response.remainingUsage;
+      _isFirstMessageSent = true;
       notifyListeners();
     } catch (e) {
       print('❌ Error in initializing chat:');
