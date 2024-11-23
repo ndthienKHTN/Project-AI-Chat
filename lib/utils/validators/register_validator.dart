@@ -21,3 +21,13 @@ String? validatePassword(String? value) {
   }
   return null;
 }
+
+String? validateConfirmPassword(String? confirmPassword, String? password) {
+  if (confirmPassword == null || confirmPassword.isEmpty) {
+    return 'Vui lòng xác nhận mật khẩu';
+  }
+  if (confirmPassword != password) {
+    return 'Mật khẩu xác nhận không khớp';
+  }
+  return null;
+}
