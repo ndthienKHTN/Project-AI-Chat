@@ -10,6 +10,7 @@ import 'package:project_ai_chat/viewmodels/prompt_list_view_model.dart';
 import '../../core/Widget/dropdown-button.dart';
 import '../../viewmodels/aichat_list.dart';
 import '../../viewmodels/message_homechat.dart';
+import '../BottomSheet/Widgets/PromptDetailsBottomSheet/prompt_details_bottom_sheet.dart';
 import '../BottomSheet/custom_bottom_sheet.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
@@ -422,10 +423,11 @@ class _HomeChatState extends State<HomeChat> {
                                                     .items[index]
                                                     .title),
                                                 onTap: () {
-                                                  _controller.text = promptList
+                                                  _controller.text = ""; // Chọn prompt
+                                                  _showSlash = false;
+                                                  PromptDetailsBottomSheet.show(context, promptList
                                                       .allprompts
-                                                      .items[index]
-                                                      .title; // Chọn prompt
+                                                      .items[index]);
                                                 },
                                               );
                                             },

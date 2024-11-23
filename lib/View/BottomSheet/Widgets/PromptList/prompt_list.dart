@@ -11,6 +11,7 @@ import 'package:provider/provider.dart';
 
 import '../../../../models/prompt_model.dart';
 import '../../enums.dart';
+import '../PromptDetailsBottomSheet/prompt_details_bottom_sheet.dart';
 
 class PromptListWidget extends StatefulWidget {
   final String category;
@@ -107,7 +108,7 @@ class _PromptListWidgetState extends State<PromptListWidget> {
 
             return Expanded(
               child: ListView.builder(
-                itemCount: prompts.total,
+                itemCount: prompts.items.length,
                 itemBuilder: (context, index) {
                   final prompt = prompts.items[index];
                   final isFavorite = _favoriteStates[prompt.id] ?? false;
@@ -115,7 +116,8 @@ class _PromptListWidgetState extends State<PromptListWidget> {
                   return GestureDetector(
                     onTap: () {
                       Navigator.pop(context);
-                      _showPromptDetailsBottomSheet(context, prompt);
+                      //_showPromptDetailsBottomSheet(context, prompt);
+                      PromptDetailsBottomSheet.show(context, prompt);
                     },
                     child: Padding(
                       padding: const EdgeInsets.symmetric(vertical: 10.0),
@@ -129,8 +131,8 @@ class _PromptListWidgetState extends State<PromptListWidget> {
                                 child: GestureDetector(
                                   onTap: () {
                                     Navigator.pop(context);
-                                    _showPromptDetailsBottomSheet(
-                                        context, prompt);
+                                    //_showPromptDetailsBottomSheet(context, prompt);
+                                    PromptDetailsBottomSheet.show(context, prompt);
                                   },
                                   child: Text(
                                     prompt.title,
@@ -209,8 +211,8 @@ class _PromptListWidgetState extends State<PromptListWidget> {
                                   GestureDetector(
                                     onTap: () {
                                       Navigator.pop(context);
-                                      _showPromptDetailsBottomSheet(
-                                          context, prompt);
+                                      //_showPromptDetailsBottomSheet(context, prompt);
+                                      PromptDetailsBottomSheet.show(context, prompt);
                                     },
                                     child: Icon(Icons.arrow_right,
                                         color: Colors.grey),
