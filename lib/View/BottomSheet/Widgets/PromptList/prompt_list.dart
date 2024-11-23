@@ -527,25 +527,39 @@ class _PromptListWidgetState extends State<PromptListWidget> {
                 SizedBox(height: 16),
 
                 // Row 7: Send Button
-                 ElevatedButton.icon(
-                      onPressed: () async {
-                        String content = prompt.content;
-                        // Thay thế các placeholder bằng input người dùng
-                        final regex = RegExp(r'\[(.+?)\]');
-                        int index = 0;
-                        String updatedContent = content.replaceAllMapped(regex, (match) {
-                          // Nếu người dùng đã nhập giá trị thay thế, sử dụng giá trị đó
-                          if (index < inputs.length && inputs[index].isNotEmpty) {
-                            return inputs[index++];
-                          }
-                          // Nếu không có giá trị thay thế, giữ nguyên placeholder
-                          return match.group(0)!;
-                        });
-                        updatedContent += "\nRespond in " + selectedLanguage.value;
-                        AIItem ai = await Provider.of<AIChatList>(context, listen: false).selectedAIItem;
-                        await Provider.of<MessageModel>(context, listen: false).sendMessage(updatedContent, ai);
-                        Navigator.pop(context);
-        });
+                ElevatedButton.icon(
+                  onPressed: () async {
+                    String content = prompt.content;
+                    // Thay thế các placeholder bằng input người dùng
+                    final regex = RegExp(r'\[(.+?)\]');
+                    int index = 0;
+                    String updatedContent = content.replaceAllMapped(regex, (match) {
+                      // Nếu người dùng đã nhập giá trị thay thế, sử dụng giá trị đó
+                      if (index < inputs.length && inputs[index].isNotEmpty) {
+                        return inputs[index++];
+                      }
+                      // Nếu không có giá trị thay thế, giữ nguyên placeholder
+                      return match.group(0)!;
+                    });
+                    updatedContent += "\nRespond in " + selectedLanguage.value;
+                    AIItem ai = await Provider.of<AIChatList>(context, listen: false).selectedAIItem;
+                    await Provider.of<MessageModel>(context, listen: false).sendMessage(updatedContent, ai);
+                    Navigator.pop(context);
+                  },
+                  icon: Icon(Icons.send),
+                  label: Text('Send'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue, // Background màu xanh
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+            }
+        );
       },
     );
   }

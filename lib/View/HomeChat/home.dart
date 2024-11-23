@@ -19,6 +19,7 @@ import 'Widgets/Menu/menu.dart';
 import 'model/ai_logo.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:project_ai_chat/View/BottomSheet/Widgets/PromptList/prompt_list.dart';
 
 class HomeChat extends StatefulWidget {
   const HomeChat({super.key});
@@ -157,7 +158,7 @@ class _HomeChatState extends State<HomeChat> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            e is ChatException ? e.message : 'Có lỗi xảy ra khi gửi tin nhắn',
+            e is ChatException ? e.message : 'Có lỗi xảy ra khi g��i tin nhắn',
           ),
           backgroundColor: Colors.red,
         ),
