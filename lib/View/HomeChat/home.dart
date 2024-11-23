@@ -45,7 +45,7 @@ class _HomeChatState extends State<HomeChat> {
   @override
   void initState() {
     super.initState();
-
+    //Lắng nghe ô nhập dữ liệu
     _controller.addListener(() {
       setState(() {
         _hasText = _controller.text.isNotEmpty;
@@ -54,7 +54,7 @@ class _HomeChatState extends State<HomeChat> {
         }
       });
     });
-
+    //Bắt sự lắng nghe khi focus vào ô nhập dữ liệu
     _focusNode.addListener(() {
       if (_focusNode.hasFocus) {
         setState(() {
@@ -72,23 +72,19 @@ class _HomeChatState extends State<HomeChat> {
     _listAIItem = aiChatList.aiItems;
     selectedAIItem = aiChatList.selectedAIItem.name;
     // Khởi tạo chat với AIItem được chọn
-    createAiChat(selectedAIItem);
+    final aiItem =
+        _listAIItem.firstWhere((aiItem) => aiItem.name == selectedAIItem);
+    // Lấy danh sách conversation và load conversation gần nhất
+    Provider.of<MessageModel>(context, listen: false)
+        .fetchAllConversations(aiItem.id, 'dify')
+        .then((_) async {
+      await Provider.of<MessageModel>(context, listen: false)
+          .checkCurrentConversation(aiItem.id);
+    });
+    // Lấy danh sách prompts
     Provider.of<PromptListViewModel>(context, listen: false).fetchAllPrompts();
     prompts =
         Provider.of<PromptListViewModel>(context, listen: false).allprompts;
-  }
-
-  void createAiChat(String aiItemName) async {
-    // Khởi tạo chat
-    final aiItem =
-        _listAIItem.firstWhere((aiItem) => aiItem.name == aiItemName);
-    Provider.of<MessageModel>(context, listen: false)
-        .initializeChat(aiItem.id)
-        .then((_) async {
-      // Cập nhật danh sách conversations
-      await Provider.of<MessageModel>(context, listen: false)
-          .fetchAllConversations(aiItem.id, 'dify');
-    });
   }
 
   Future<void> _loadUserInfo() async {
@@ -205,7 +201,7 @@ class _HomeChatState extends State<HomeChat> {
         decoration: BoxDecoration(
           color: isError
               ? Colors.red[100]
-              : (isUser ? Colors.blue[100] : Colors.grey[300]),
+              : (isUser ? Colors.blue[100] : Colors.grey[200]),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Consumer<MessageModel>(builder: (context, messageModel, child) {
@@ -222,7 +218,7 @@ class _HomeChatState extends State<HomeChat> {
                     valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
                   ),
                 ),
-                SizedBox(width: 8),
+                const SizedBox(width: 8),
                 Text(
                   'Đang xử lý...',
                   style: TextStyle(
@@ -325,7 +321,7 @@ class _HomeChatState extends State<HomeChat> {
                     Container(
                       padding: EdgeInsets.all(5),
                       decoration: BoxDecoration(
-                        color: const Color.fromARGB(255, 238, 245, 247),
+                        color: const Color.fromARGB(255, 238, 240, 243),
                         borderRadius: BorderRadius.circular(12.0),
                       ),
                       child: Consumer<MessageModel>(
@@ -334,7 +330,7 @@ class _HomeChatState extends State<HomeChat> {
                             children: [
                               const Icon(
                                 Icons.flash_on,
-                                color: Colors.greenAccent,
+                                color: Colors.blueAccent,
                               ),
                               Text(
                                 '${messageModel.remainingUsage ?? 0}',
@@ -349,7 +345,8 @@ class _HomeChatState extends State<HomeChat> {
                     IconButton(
                         icon: const Icon(Icons.add_circle_outline),
                         onPressed: () {
-                          createAiChat(selectedAIItem);
+                          Provider.of<MessageModel>(context, listen: false)
+                              .clearMessage();
                         }),
                   ],
                 ),
@@ -431,7 +428,6 @@ class _HomeChatState extends State<HomeChat> {
                                                   PromptDetailsBottomSheet.show(context, promptList
                                                       .allprompts
                                                       .items[index]);
-                                                  //Navigator.of(context).pop();
                                                 },
                                               );
                                             },
@@ -474,9 +470,9 @@ class _HomeChatState extends State<HomeChat> {
                                   Expanded(
                                     child: Container(
                                       decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(12),
+                                        borderRadius: BorderRadius.circular(20),
                                         color: const Color.fromARGB(
-                                            255, 241, 247, 252),
+                                            255, 238, 240, 243),
                                         border: Border.all(
                                           color: Colors.grey.withOpacity(0.5),
                                           width: 0.5,
@@ -516,7 +512,36 @@ class _HomeChatState extends State<HomeChat> {
                                                     color: Colors.grey[500],
                                                     fontSize: 14,
                                                   ),
-                                                  border: InputBorder.none,
+                                                  border: OutlineInputBorder(
+                                                    borderSide: BorderSide(
+                                                        color: Colors.grey,
+                                                        width:
+                                                            1), // Viền bình thường
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            20), // Bo cong góc
+                                                  ),
+                                                  enabledBorder:
+                                                      OutlineInputBorder(
+                                                    borderSide: BorderSide(
+                                                      color: Colors.grey
+                                                          .withOpacity(0.5),
+                                                      width: 0.5,
+                                                    ),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            20),
+                                                  ),
+                                                  focusedBorder:
+                                                      OutlineInputBorder(
+                                                    borderSide: BorderSide(
+                                                      color: Colors.blue,
+                                                      width: 0.5,
+                                                    ),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            20),
+                                                  ),
                                                 ),
                                               ),
                                               if (_selectedImagePath != null)

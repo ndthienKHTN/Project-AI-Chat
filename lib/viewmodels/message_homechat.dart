@@ -21,6 +21,9 @@ class MessageModel extends ChangeNotifier {
   String? _cursorConversation;
   bool _hasMoreConversation = true;
 
+  // Thêm biến để theo dõi trạng thái gửi tin nhắn đầu tiên
+  bool _isFirstMessageSent = false;
+
   int? get remainingUsage => _remainingUsage;
   List<Message> get messages => _messages;
   List<Conversation> get conversations => _conversations;
@@ -88,12 +91,108 @@ class MessageModel extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  Future<void> checkCurrentConversation(String assistantId) async {
+    if (conversations.isEmpty)
+      initializeChat(assistantId);
+    else {
+      loadConversationHistory(assistantId, conversations.first.id);
+    }
+  }
+
+  Future<void> createNewChat(String assistantId, String content) async {
+    try {
+      _isLoading = true;
+      notifyListeners();
+
+      _currentConversationId = null;
+
+      final response = await _chatService.fetchAIChat(
+        content: content,
+        assistantId: assistantId,
+      );
+
+      print('✅ Create new chat response:');
+      print('Message: ${response.message}');
+      print('Remaining Usage: ${response.remainingUsage}');
+      _messages.removeLast();
+      _messages.add(Message(
+        role: 'model',
+        content: response.message,
+        assistant: Assistant(
+          id: assistantId,
+          model: "dify",
+          name: "AI Assistant",
+        ),
+        isErrored: false,
+      ));
+
+      _currentConversationId = response.conversationId;
+      _remainingUsage = response.remainingUsage;
+      notifyListeners();
+    } catch (e) {
+      print('❌ Error in initializing chat:');
+      if (e is ChatException) {
+        print('Status: ${e.statusCode}');
+        print('Message: ${e.message}');
+      } else {
+        print('Unexpected error: $e');
+      }
+
+      _messages.add(Message(
+        role: 'model',
+        content: e is ChatException
+            ? e.message
+            : 'Lỗi không xác định khi khởi tạo chat: ${e.toString()}',
+        assistant: Assistant(
+          id: assistantId,
+          model: "dify",
+          name: "AI Assistant",
+        ),
+        isErrored: true,
+      ));
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
   String _removeHttpPrefix(String url) {
     return url.replaceAll(RegExp(r'^(https?:\/\/)?(www\.)?'), '');
   }
+
   Future<void> sendMessage(String content, AIItem assistant) async {
     try {
       _isSending = true;
+
+      // Nếu đây là tin nhắn đầu tiên, gọi createNewChat
+      if (!_isFirstMessageSent) {
+        _messages.clear();
+        _messages.add(Message(
+          role: 'user',
+          content: content,
+          assistant: Assistant(
+            id: assistant.id,
+            model: "dify",
+            name: assistant.name,
+          ),
+          isErrored: false,
+        ));
+        _messages.add(Message(
+          role: 'model',
+          content: '', // Nội dung rỗng
+          assistant: Assistant(
+            id: assistant.id,
+            model: "dify",
+            name: assistant.name,
+          ),
+          isErrored: false,
+        ));
+        notifyListeners();
+        await createNewChat(assistant.id, content);
+        _isFirstMessageSent = true; // Đánh dấu đã gửi tin nhắn đầu tiên
+        return; // Kết thúc phương thức
+      }
 
       // Thêm tin nhắn của user
       _messages.add(Message(
@@ -278,5 +377,12 @@ class MessageModel extends ChangeNotifier {
       _isLoading = false;
       notifyListeners();
     }
+  }
+
+  // Phương thức để xử lý khi chọn biểu tượng thêm
+  void clearMessage() {
+    _messages.clear(); // Xóa tất cả tin nhắn
+    _isFirstMessageSent = false; // Đặt lại trạng thái gửi tin nhắn đầu tiên
+    notifyListeners(); // Cập nhật giao diện
   }
 }

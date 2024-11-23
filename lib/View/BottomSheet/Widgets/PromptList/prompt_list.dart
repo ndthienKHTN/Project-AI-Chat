@@ -257,7 +257,6 @@ class _PromptListWidgetState extends State<PromptListWidget> {
     bool isLoading = false;
     final viewModel = PromptListViewModel();
 
-
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -505,7 +504,7 @@ class _PromptListWidgetState extends State<PromptListWidget> {
                         filled: true,
                         fillColor: Colors.blueGrey[50],
                         contentPadding:
-                        EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                            EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                         hintText: placeholders[i],
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
@@ -514,17 +513,17 @@ class _PromptListWidgetState extends State<PromptListWidget> {
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                           borderSide: BorderSide.none,
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(
-                        color: Colors.blue,
-                        width: 1.5,
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(
+                            color: Colors.blue,
+                            width: 1.5,
+                          ),
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ),
 
                 SizedBox(height: 16),
 
@@ -535,7 +534,8 @@ class _PromptListWidgetState extends State<PromptListWidget> {
                     // Thay thế các placeholder bằng input người dùng
                     final regex = RegExp(r'\[(.+?)\]');
                     int index = 0;
-                    String updatedContent = content.replaceAllMapped(regex, (match) {
+                    String updatedContent =
+                        content.replaceAllMapped(regex, (match) {
                       // Nếu người dùng đã nhập giá trị thay thế, sử dụng giá trị đó
                       if (index < inputs.length && inputs[index].isNotEmpty) {
                         return inputs[index++];
@@ -544,8 +544,11 @@ class _PromptListWidgetState extends State<PromptListWidget> {
                       return match.group(0)!;
                     });
                     updatedContent += "\nRespond in " + selectedLanguage.value;
-                    AIItem ai = await Provider.of<AIChatList>(context, listen: false).selectedAIItem;
-                    await Provider.of<MessageModel>(context, listen: false).sendMessage(updatedContent, ai);
+                    AIItem ai =
+                        await Provider.of<AIChatList>(context, listen: false)
+                            .selectedAIItem;
+                    await Provider.of<MessageModel>(context, listen: false)
+                        .sendMessage(updatedContent, ai);
                     Navigator.pop(context);
                   },
                   icon: Icon(Icons.send),
@@ -560,8 +563,7 @@ class _PromptListWidgetState extends State<PromptListWidget> {
               ],
             ),
           );
-            }
-        );
+        });
       },
     );
   }
