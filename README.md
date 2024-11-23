@@ -6,7 +6,7 @@
 - 21120561 - Bùi Đức Thịnh
 
 ## Link Youtube: 
-- Link video demo UI: [tại đây](https://youtu.be/fnXSZV_mmTc)
+- Link video demo UI: [tại đây](https://youtu.be/1RXktz2OdO0)
 
 ## Các chức năng đã thực hiện (Milestone 2)
 
