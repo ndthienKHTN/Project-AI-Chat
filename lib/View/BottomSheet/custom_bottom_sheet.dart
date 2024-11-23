@@ -46,6 +46,7 @@ class CustomBottomSheet {
                       ),
                       Row(
                         children: [
+                          if(!isPublic)
                           Container(
                             width: 35,
                             // Đảm bảo kích thước bằng với IconButton khác
