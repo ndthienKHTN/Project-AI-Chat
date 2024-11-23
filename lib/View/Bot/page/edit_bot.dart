@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:project_ai_chat/ViewModel/KnowledgeBaseProvider.dart';
+import 'package:project_ai_chat/viewmodels/knowledge_base_view_model.dart';
 import 'package:project_ai_chat/View/Bot/model/bot.dart';
 import 'package:project_ai_chat/View/Bot/page/new_bot_knowledge.dart';
 import 'package:project_ai_chat/View/Knowledge/model/knowledge.dart';
@@ -276,7 +276,8 @@ class _NewBotState extends State<EditBot> {
                                   Icons.add,
                                   color: Colors.blue,
                                 ),
-                                SizedBox(width: 8), // Khoảng cách giữa icon và text
+                                SizedBox(
+                                    width: 8), // Khoảng cách giữa icon và text
                                 Text(
                                   'Add Knowledge',
                                   style: TextStyle(color: Colors.blue),

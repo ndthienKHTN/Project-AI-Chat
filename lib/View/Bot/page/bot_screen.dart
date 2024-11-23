@@ -8,7 +8,7 @@ import 'package:project_ai_chat/View/Bot/page/public_bot.dart';
 import 'package:project_ai_chat/View/Bot/widgets/bot_card.dart';
 import 'package:project_ai_chat/View/Bot/widgets/filter_button.dart';
 import 'package:project_ai_chat/View/Bot/model/bot.dart';
-import 'package:project_ai_chat/View/HomeChat/Widgets/BottomNavigatorBarCustom/custom-bottom-navigator-bar.dart';
+import 'package:project_ai_chat/View/HomeChat/Widgets/BottomNavigatorBarCustom/bottom_navigation.dart';
 import 'package:project_ai_chat/View/HomeChat/home.dart';
 
 import '../../Account/pages/account_screent.dart';

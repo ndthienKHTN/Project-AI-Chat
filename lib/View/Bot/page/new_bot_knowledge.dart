@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:project_ai_chat/ViewModel/KnowledgeBaseProvider.dart';
+import 'package:project_ai_chat/viewmodels/knowledge_base_view_model.dart';
 import 'package:provider/provider.dart';
 
 class NewBotKnowledge extends StatelessWidget {

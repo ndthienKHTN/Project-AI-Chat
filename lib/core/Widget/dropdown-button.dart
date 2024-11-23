@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../View/HomeChat/model/ai-logo-list.dart';
+import '../../models/ai_logo.dart';
 
 class AIDropdown extends StatelessWidget {
   final List<AIItem> listAIItems;
@@ -18,51 +18,42 @@ class AIDropdown extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20),
-          color: Colors.grey[50],
+          color: const Color.fromARGB(255, 238, 240, 243),
         ),
-        height: 38,
+        height: 30,
         child: DropdownButtonFormField<String>(
           value: listAIItems.first.name,
           isExpanded: true,
           onChanged: onChanged,
-          items:  listAIItems.map<DropdownMenuItem<String>>((AIItem item) {
+          items: listAIItems.map<DropdownMenuItem<String>>((AIItem item) {
             return DropdownMenuItem<String>(
               value: item.name,
               child: Row(
                 children: [
-                  Image.asset(
-                    fit: BoxFit.cover,
-                    item.logoPath,
-                    width: 25,
-                    height: 25,
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: Image.asset(
+                      fit: BoxFit.cover,
+                      item.logoPath,
+                      width: 20,
+                      height: 20,
+                    ),
+                  ),
+                  const SizedBox(
+                    width: 5,
                   ),
                   Expanded(
                     child: Text(
                       item.name,
-                      style: const TextStyle(fontSize: 12),
+                      style: const TextStyle(
+                          fontSize: 12, overflow: TextOverflow.ellipsis),
+                      maxLines: 1,
                     ),
                   ),
-                  //Spacer(),
-                  const Icon(Icons.flash_on, color: Colors.greenAccent, size: 12),
-                  Text(item.tokenCount.toString(), style: TextStyle(fontSize: 12)),
                 ],
               ),
             );
           }).toList(),
-          selectedItemBuilder: (BuildContext context) {
-            return listAIItems.map<Widget>((AIItem item) {
-              // return Text(
-              //   value,
-              //   style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-              // );
-              return Image.asset(
-                fit: BoxFit.cover,
-                item.logoPath,
-                width: 25,
-                height: 25,
-              );
-            }).toList();
-          },
           decoration: InputDecoration(
             contentPadding: EdgeInsets.only(left: 10, right: 10),
             enabledBorder: OutlineInputBorder(

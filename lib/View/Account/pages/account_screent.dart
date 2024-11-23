@@ -1,8 +1,52 @@
+import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:project_ai_chat/View/Login/login_screen.dart';
+import 'package:project_ai_chat/models/response/api_response.dart';
+import 'package:project_ai_chat/models/user_model.dart';
+import 'package:project_ai_chat/viewmodels/auth_view_model.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class AccountScreent extends StatelessWidget {
+class AccountScreent extends StatefulWidget {
   const AccountScreent({super.key});
+
+  @override
+  State<AccountScreent> createState() => _AccountScreentState();
+}
+
+class _AccountScreentState extends State<AccountScreent> {
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   WidgetsBinding.instance.addPostFrameCallback((_) {
+  //     _loadUserInfo();
+  //   });
+  //   log("account screen render");
+  // }
+
+  // Future<void> _loadUserInfo() async {
+  //   try {
+  //     await Provider.of<AuthViewModel>(context, listen: false).fetchUserInfo();
+  //   } catch (e) {
+  //     if (e is ApiResponse<dynamic>) {
+  //       if (e.statusCode == 401) {
+  //         // await _logout();
+  //       }
+  //     }
+  //   }
+  // }
+
+  Future<void> _logout() async {
+    await Provider.of<AuthViewModel>(context, listen: false).logout();
+    if (mounted) {
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => const LoginScreen()),
+        (Route<dynamic> route) => false,
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,34 +72,36 @@ class AccountScreent extends StatelessWidget {
                   const CircleAvatar(
                     radius: 40,
                     backgroundColor: Colors.purple,
-                    child: Text(
-                      'Đ',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 40,
-                      ),
+                    child: Icon(
+                      Icons.person, // Thay thế bằng bất kỳ icon nào bạn muốn
+                      size: 40, // Kích thước của icon
+                      color: Colors.white, // Màu của icon
                     ),
                   ),
                   const SizedBox(width: 16),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Đức Thịnh Bùi',
-                        style: TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        'ducthinh12tn137@gmail.com',
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.grey[600],
-                        ),
-                      ),
-                    ],
+                  Consumer<AuthViewModel>(
+                    builder: (context, authViewModel, child) {
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            authViewModel.user?.username ?? '',
+                            style: const TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            authViewModel.user?.email ?? '',
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                        ],
+                      );
+                    },
                   ),
                 ],
               ),
@@ -90,7 +136,7 @@ class AccountScreent extends StatelessWidget {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'Truy vấn 1/40',
+                          'Basic version',
                           style: TextStyle(
                             color: Colors.grey[600],
                           ),
@@ -118,23 +164,24 @@ class AccountScreent extends StatelessWidget {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    const Card(
-                      color: Colors.white, // Màu nền sáng
-                      child: ListTile(
-                        leading: Icon(Icons.account_circle),
-                        title: Text('ducthinh12tn137'),
-                      ),
+                    Consumer<AuthViewModel>(
+                      builder: (context, authViewModel, child) {
+                        return Card(
+                          color: Colors.white, // Màu nền sáng
+                          child: ListTile(
+                            leading: const Icon(Icons.account_circle),
+                            title: Text(authViewModel.user?.username ?? ''),
+                          ),
+                        );
+                      },
                     ),
                     const SizedBox(height: 10),
                     Card(
                       color: Colors.red[100], // Màu nền nút đăng xuất
                       child: ListTile(
-                        leading: Icon(Icons.logout, color: Colors.red),
-                        title: Text('Log out'),
-                        onTap: () {
-                          // Hàm đăng xuất
-                        },
-                      ),
+                          leading: Icon(Icons.logout, color: Colors.red),
+                          title: Text('Log out'),
+                          onTap: _logout),
                     ),
                     const SizedBox(height: 20),
                     // Support Section

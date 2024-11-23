@@ -1,33 +1,45 @@
 import 'package:flutter/material.dart';
+import 'package:project_ai_chat/View/BottomSheet/enums.dart';
+import 'package:provider/provider.dart';
+
+import '../../../models/prompt_model.dart';
+import '../../../services/prompt_service.dart';
+import '../../../viewmodels/prompt_list_view_model.dart';
 
 class CustomDialog {
-  static void show(BuildContext context) {
+  static void show(BuildContext context, {required VoidCallback onPromptCreated}) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return _CustomDialogContent();
+        return _CustomDialogContent(onPromptCreated: onPromptCreated);
       },
     );
   }
 }
 
 class _CustomDialogContent extends StatefulWidget {
+  final VoidCallback onPromptCreated;
+
+  _CustomDialogContent({required this.onPromptCreated});
+
   @override
   _CustomDialogContentState createState() => _CustomDialogContentState();
 }
 
 class _CustomDialogContentState extends State<_CustomDialogContent> {
-  int selectedRadio = 0; // 0: Private Prompt, 1: Public Prompt
-  String selectedLanguage = 'Auto';
-  String selectedCategory = 'Other';
+  String selectedLanguage = Language.English.value;
+  String selectedCategory = Category.other.value;
 
+  final TextEditingController titleController = TextEditingController();
+  final TextEditingController contentController = TextEditingController();
+  final TextEditingController descriptionController = TextEditingController();
+  final viewModel = PromptListViewModel();
   @override
   Widget build(BuildContext context) {
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       child: FractionallySizedBox(
-        heightFactor: selectedRadio == 1 ? 0.9 : 0.7,
-        // Điều chỉnh chiều cao dialog
+        heightFactor: 0.9,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -40,12 +52,8 @@ class _CustomDialogContentState extends State<_CustomDialogContent> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Row 2: Radio buttons
-                    _buildRadioOptions(),
-                    SizedBox(height: 10),
-                    // Hiển thị nội dung dựa trên sự lựa chọn (Private / Public)
-                    selectedRadio == 0
-                        ? _buildPrivateForm()
-                        : _buildPublicForm(),
+
+                    _buildPrivateForm(),
                   ],
                 ),
               ),
@@ -80,87 +88,22 @@ class _CustomDialogContentState extends State<_CustomDialogContent> {
     );
   }
 
-  // Row 2: Radio buttons for Private and Public
-  Widget _buildRadioOptions() {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Expanded(
-          child: RadioListTile<int>(
-            contentPadding: EdgeInsets.zero,
-            title: Text('Private Prompt'),
-            value: 0,
-            groupValue: selectedRadio,
-            onChanged: (value) {
-              setState(() {
-                selectedRadio = value!;
-              });
-            },
-          ),
-        ),
-        Expanded(
-          child: RadioListTile<int>(
-            contentPadding: EdgeInsets.zero,
-            title: Text('Public Prompt'),
-            value: 1,
-            groupValue: selectedRadio,
-            onChanged: (value) {
-              setState(() {
-                selectedRadio = value!;
-              });
-            },
-          ),
-        ),
-      ],
-    );
-  }
-
   // Form cho Private Prompt
   Widget _buildPrivateForm() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Row 3: Name
-        _buildLabeledField(
-          label: 'Name',
-          isRequired: true,
-          hint: 'Name of the prompt',
-        ),
-        SizedBox(height: 10),
-        // Row 4: Prompt
-        _buildLabeledFieldWithInfo(
-          label: 'Prompt',
-          isRequired: true,
-          hint:
-              'e.g: Write an article about [TOPIC], make sure to include these keywords: [KEYWORDS]',
-          infoText: 'Use square brackets [ ] to specify user input',
-        ),
-      ],
-    );
-  }
-
-  // Form cho Public Prompt
-  Widget _buildPublicForm() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
         // Row 3: Prompt Language
-        _buildLabeledDropdown(
+        _buildLabeledDropdown<Language>(
           label: 'Prompt Language',
           isRequired: true,
           value: selectedLanguage,
+          items: Language.values, // Truyền toàn bộ các giá trị enum
           onChanged: (newValue) {
             setState(() {
-              selectedLanguage = newValue!;
+              selectedLanguage = newValue! as String;
             });
           },
-          items: [
-            'Auto',
-            'English',
-            'Spanish',
-            'French',
-            'German'
-          ], // Các giá trị mẫu
         ),
         SizedBox(height: 10),
         // Row 4: Name
@@ -168,25 +111,20 @@ class _CustomDialogContentState extends State<_CustomDialogContent> {
           label: 'Name',
           isRequired: true,
           hint: 'Name of the prompt',
+          controller: titleController,
         ),
         SizedBox(height: 10),
         // Row 5: Category
-        _buildLabeledDropdown(
+        _buildLabeledDropdown<Category>(
           label: 'Category',
           isRequired: true,
           value: selectedCategory,
+          items: Category.values, // Truyền toàn bộ các giá trị enum
           onChanged: (newValue) {
             setState(() {
-              selectedCategory = newValue!;
+              selectedCategory = newValue! as String;
             });
           },
-          items: [
-            'Other',
-            'Business',
-            'Education',
-            'Health',
-            'Entertainment'
-          ], // Các giá trị mẫu
         ),
         SizedBox(height: 10),
         // Row 6: Description
@@ -194,6 +132,7 @@ class _CustomDialogContentState extends State<_CustomDialogContent> {
           label: 'Description',
           hint:
               'Describe your prompt so others can have a better understanding',
+          controller: descriptionController,
         ),
         SizedBox(height: 10),
         // Row 7: Prompt
@@ -203,6 +142,7 @@ class _CustomDialogContentState extends State<_CustomDialogContent> {
           hint:
               'e.g: Write an article about [TOPIC], make sure to include these keywords: [KEYWORDS]',
           infoText: 'Use square brackets [ ] to specify user input',
+          controller: contentController,
         ),
       ],
     );
@@ -212,6 +152,7 @@ class _CustomDialogContentState extends State<_CustomDialogContent> {
   Widget _buildLabeledField({
     required String label,
     required String hint,
+    required TextEditingController controller,
     bool isRequired = false,
   }) {
     return Column(
@@ -229,6 +170,7 @@ class _CustomDialogContentState extends State<_CustomDialogContent> {
         ),
         SizedBox(height: 5),
         TextField(
+          controller: controller,
           decoration: InputDecoration(
             hintText: hint,
             border: OutlineInputBorder(
@@ -248,6 +190,7 @@ class _CustomDialogContentState extends State<_CustomDialogContent> {
     required String label,
     required String hint,
     required String infoText,
+    required TextEditingController controller,
     bool isRequired = false,
   }) {
     return Column(
@@ -277,6 +220,7 @@ class _CustomDialogContentState extends State<_CustomDialogContent> {
         ),
         SizedBox(height: 5),
         TextField(
+          controller: controller,
           decoration: InputDecoration(
             hintText: hint,
             border: OutlineInputBorder(
@@ -292,10 +236,12 @@ class _CustomDialogContentState extends State<_CustomDialogContent> {
   }
 
   // Dropdown với label
-  Widget _buildLabeledDropdown({
+  //
+
+  Widget _buildLabeledDropdown<T extends Enum>({
     required String label,
     required String value,
-    required List<String> items,
+    required List<T> items,
     required ValueChanged<String?> onChanged,
     bool isRequired = false,
   }) {
@@ -317,7 +263,13 @@ class _CustomDialogContentState extends State<_CustomDialogContent> {
           value: value,
           onChanged: onChanged,
           items: items.map((item) {
-            return DropdownMenuItem(value: item, child: Text(item));
+            final label = (item as dynamic).label; // Tên hiển thị
+            final itemValue =
+                item.toString().split('.').last; // Giá trị lưu trữ
+            return DropdownMenuItem(
+              value: itemValue, // Giá trị lưu trữ
+              child: Text(label), // Tên hiển thị
+            );
           }).toList(),
           decoration: InputDecoration(
             border: OutlineInputBorder(
@@ -383,8 +335,50 @@ class _CustomDialogContentState extends State<_CustomDialogContent> {
               borderRadius: BorderRadius.circular(8),
             ),
             child: ElevatedButton(
-              onPressed: () {
-                // Xử lý khi bấm nút Create
+              onPressed: () async {
+                // Kiểm tra tính hợp lệ của các trường
+                if (selectedLanguage.isEmpty ||
+                    selectedCategory.isEmpty ||
+                    titleController.text.trim().isEmpty ||
+                    contentController.text.trim().isEmpty) {
+                  print("Title: ${titleController.text.trim()}");
+                  print("Content: ${contentController.text.trim()}");
+                  showDialog(
+                    context: context,
+                    builder: (context) {
+                      return AlertDialog(
+                        title: Text("Error"),
+                        content: Text("Please fill in all required fields!"),
+                        actions: [
+                          TextButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            child: Text("OK"),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                  return;
+                }
+
+                // Tạo đối tượng RequestPrompt từ các giá trị đã nhập
+                PromptRequest newPrompt = PromptRequest(
+                  language: selectedLanguage,
+                  title: titleController.text,
+                  category: selectedCategory.toLowerCase(),
+                  description: descriptionController.text,
+                  content: contentController.text,
+                  isPublic: false,
+                );
+
+                await viewModel.createPrompt(newPrompt);
+
+                widget.onPromptCreated();
+
+                // Đóng dialog
+                Navigator.pop(context);
               },
               style: ElevatedButton.styleFrom(
                 padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),

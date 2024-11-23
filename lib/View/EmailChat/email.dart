@@ -1,10 +1,9 @@
-
 import 'package:flutter/material.dart';
 import 'package:project_ai_chat/core/Widget/dropdown-button.dart';
 import 'package:provider/provider.dart';
 
-import '../../ViewModel/ai-chat-list.dart';
-import '../HomeChat/model/ai-logo-list.dart';
+import '../../viewmodels/aichat_list_view_model.dart';
+import '../../models/ai_logo.dart';
 
 class EmailComposer extends StatefulWidget {
   @override
@@ -12,16 +11,18 @@ class EmailComposer extends StatefulWidget {
 }
 
 class _EmailComposerState extends State<EmailComposer> {
-  final TextEditingController _emailReceivedController = TextEditingController();
+  final TextEditingController _emailReceivedController =
+      TextEditingController();
   final TextEditingController _emailReplyController = TextEditingController();
-  late int _countToken ;
+  late int _countToken;
   late List<AIItem> _listAIItems;
   @override
   void initState() {
-    _listAIItems = Provider.of<AIChatList>(context,listen: false).aiItems;
-    _countToken = _listAIItems.first.tokenCount;
+    _listAIItems = Provider.of<AIChatList>(context, listen: false).aiItems;
+    _countToken = 25;
     super.initState();
   }
+
   void _createDraft(String action) {
     String draft;
     switch (action) {
@@ -50,6 +51,7 @@ class _EmailComposerState extends State<EmailComposer> {
       _emailReplyController.text = draft;
     });
   }
+
   Widget _buildTextField(String label, TextEditingController controller) {
     return Expanded(
       child: TextField(
@@ -77,7 +79,9 @@ class _EmailComposerState extends State<EmailComposer> {
       ),
     );
   }
-  Widget _buildButton(IconData icon, String label,Color color, VoidCallback onPressed) {
+
+  Widget _buildButton(
+      IconData icon, String label, Color color, VoidCallback onPressed) {
     return ElevatedButton(
       onPressed: onPressed,
       style: ElevatedButton.styleFrom(
@@ -89,10 +93,10 @@ class _EmailComposerState extends State<EmailComposer> {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon,color: color),
+          Icon(icon, color: color),
           const SizedBox(width: 5),
           Text(
-              label,
+            label,
             style: TextStyle(
               color: Colors.black,
               fontWeight: FontWeight.bold,
@@ -103,12 +107,13 @@ class _EmailComposerState extends State<EmailComposer> {
       ),
     );
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          icon: Icon(Icons.arrow_back,size: 30),
+          icon: Icon(Icons.arrow_back, size: 30),
           onPressed: () {
             Navigator.pop(context);
           },
@@ -119,11 +124,13 @@ class _EmailComposerState extends State<EmailComposer> {
             listAIItems: _listAIItems,
             onChanged: (value) {
               setState(() {
-                _countToken = _listAIItems.firstWhere((element) => element.name == value).tokenCount;
+                _countToken = 24;
               });
             },
           ),
-          SizedBox(width: 10,),
+          SizedBox(
+            width: 10,
+          ),
           Container(
             padding: EdgeInsets.only(left: 10, right: 10, top: 5, bottom: 5),
             decoration: BoxDecoration(
@@ -148,7 +155,9 @@ class _EmailComposerState extends State<EmailComposer> {
               ],
             ),
           ),
-          SizedBox(width: 10,)
+          SizedBox(
+            width: 10,
+          )
         ],
       ),
       body: Padding(
@@ -162,12 +171,21 @@ class _EmailComposerState extends State<EmailComposer> {
             Wrap(
               spacing: 10,
               children: [
-                _buildButton(Icons.tag_faces, 'Thanks',Colors.redAccent ,() => _createDraft('Thanks')),
-                _buildButton(Icons.tag_faces_rounded, 'Sorry',Colors.orange , () => _createDraft('Sorry')),
-                _buildButton(Icons.thumb_up, 'Yes',Colors.yellow , () => _createDraft('Yes')),
-                _buildButton(Icons.thumb_down, 'No',Colors.yellow , () => _createDraft('No')),
-                _buildButton(Icons.schedule, 'Follow Up',Colors.blue , () => _createDraft('Follow Up')),
-                _buildButton(Icons.question_answer, 'Request for more information',Colors.pinkAccent , () => _createDraft('Request for more information')),
+                _buildButton(Icons.tag_faces, 'Thanks', Colors.redAccent,
+                    () => _createDraft('Thanks')),
+                _buildButton(Icons.tag_faces_rounded, 'Sorry', Colors.orange,
+                    () => _createDraft('Sorry')),
+                _buildButton(Icons.thumb_up, 'Yes', Colors.yellow,
+                    () => _createDraft('Yes')),
+                _buildButton(Icons.thumb_down, 'No', Colors.yellow,
+                    () => _createDraft('No')),
+                _buildButton(Icons.schedule, 'Follow Up', Colors.blue,
+                    () => _createDraft('Follow Up')),
+                _buildButton(
+                    Icons.question_answer,
+                    'Request for more information',
+                    Colors.pinkAccent,
+                    () => _createDraft('Request for more information')),
               ],
             ),
             const SizedBox(height: 20),
