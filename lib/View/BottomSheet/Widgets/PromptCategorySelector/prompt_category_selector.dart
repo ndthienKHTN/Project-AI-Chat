@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
-class PromptCategorySelector extends StatefulWidget {
-  final Function(String) onCategorySelected; // Hàm callback để gửi giá trị category đã chọn
-  final String initialCategory; // Category mặc định ban đầu
+import '../../../../viewmodels/prompt_list_view_model.dart';
+
+class PromptCategorySelector extends StatefulWidget {// Category mặc định ban đầu
 
   const PromptCategorySelector({
-    Key? key,
-    required this.onCategorySelected,
-    this.initialCategory = 'all', // Mặc định là 'all'
+    Key? key
   }) : super(key: key);
 
   @override
@@ -15,17 +14,11 @@ class PromptCategorySelector extends StatefulWidget {
 }
 
 class _PromptCategorySelectorState extends State<PromptCategorySelector> {
-  late String _selectedCategory;
   bool _isExpanded = false; // Biến để theo dõi trạng thái mở rộng
 
   @override
-  void initState() {
-    super.initState();
-    _selectedCategory = widget.initialCategory; // Gán giá trị mặc định
-  }
-
-  @override
   Widget build(BuildContext context) {
+    final viewModel = context.watch<PromptListViewModel>();
     // Danh sách các category
     final categories = {
       'all': 'All',
@@ -69,10 +62,7 @@ class _PromptCategorySelectorState extends State<PromptCategorySelector> {
 
                   return GestureDetector(
                     onTap: () {
-                      setState(() {
-                        _selectedCategory = category; // Cập nhật category đã chọn
-                      });
-                      widget.onCategorySelected(category); // Gọi hàm callback
+                      viewModel.selectedCategory = category;
                     },
                     child: Chip(
                       label: Text(
@@ -80,12 +70,12 @@ class _PromptCategorySelectorState extends State<PromptCategorySelector> {
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
-                          color: _selectedCategory == category
+                          color: viewModel.selectedCategory == category
                               ? Colors.white
                               : Colors.blue.shade900,
                         ),
                       ),
-                      backgroundColor: _selectedCategory == category
+                      backgroundColor: viewModel.selectedCategory == category
                           ? Colors.blue
                           : Colors.blue.shade100,
                       shape: RoundedRectangleBorder(
