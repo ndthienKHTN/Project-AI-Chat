@@ -1,51 +1,32 @@
 import 'package:flutter/material.dart';
+import 'package:project_ai_chat/viewmodels/prompt_list_view_model.dart';
+import 'package:provider/provider.dart';
 
-class SegmentedControl extends StatefulWidget {
-  final Function(bool) onSelectionChanged;
-
-  const SegmentedControl({Key? key, required this.onSelectionChanged})
-      : super(key: key);
-
-  @override
-  _SegmentedControlState createState() => _SegmentedControlState();
-}
-
-class _SegmentedControlState extends State<SegmentedControl> {
-  bool isSelected = false; // Trạng thái của option (My Prompts / Public Prompts)
-
+class SegmentedControl extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final viewModel = context.watch<PromptListViewModel>();
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
         _buildOption(
           context,
           'My Prompts',
-          isSelected == false,
-              () {
-            setState(() {
-              isSelected = false;
-            });
-            widget.onSelectionChanged(false); // Truyền giá trị false khi chọn My Prompts
-          },
+          viewModel.isPublic == false,
+              () => viewModel.isPublic = false,
         ),
         _buildOption(
           context,
           'Public Prompts',
-          isSelected == true,
-              () {
-            setState(() {
-              isSelected = true;
-            });
-            widget.onSelectionChanged(true); // Truyền giá trị true khi chọn Public Prompts
-          },
+          viewModel.isPublic == true,
+              () => viewModel.isPublic = true,
         ),
       ],
     );
   }
 
-  Widget _buildOption(
-      BuildContext context, String label, bool isSelected, VoidCallback onTap) {
+  Widget _buildOption(BuildContext context, String label, bool isSelected, VoidCallback onTap) {
     return GestureDetector(
       onTap: onTap,
       child: Container(

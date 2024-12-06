@@ -1,18 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:project_ai_chat/viewmodels/prompt_list_view_model.dart';
+import 'package:provider/provider.dart';
 
 class PromptSearchBar extends StatefulWidget {
-  final Function(String)
-      onQueryChanged; // Hàm callback nhận query từ người dùng
-  final bool isFavorite; // Trạng thái starred mặc định
-  final Function(bool) onStarToggled; // Hàm callback khi toggle starred
-  final bool isPublic;
 
   const PromptSearchBar({
-    Key? key,
-    required this.onQueryChanged,
-    this.isFavorite = false,
-    required this.onStarToggled,
-    required this.isPublic,
+    Key? key
   }) : super(key: key);
 
   @override
@@ -20,27 +13,26 @@ class PromptSearchBar extends StatefulWidget {
 }
 
 class _SearchBarState extends State<PromptSearchBar> {
-  late bool _isStarred;
   late TextEditingController _controller;
 
-  get isPublic => widget.isPublic;
 
   @override
   void initState() {
     super.initState();
-    _isStarred = widget.isFavorite;
     _controller = TextEditingController();
   }
 
   @override
   Widget build(BuildContext context) {
+    final viewModel = context.watch<PromptListViewModel>();
+
     return Row(
       children: [
         Expanded(
           child: TextField(
             controller: _controller,
             onChanged: (value) {
-              widget.onQueryChanged(value); // Gửi query qua callback
+              viewModel.query = value; // Gửi query qua callback
             },
             decoration: InputDecoration(
               filled: true,
@@ -63,11 +55,7 @@ class _SearchBarState extends State<PromptSearchBar> {
         // if (isPublic)
           GestureDetector(
             onTap: () {
-              setState(() {
-                _isStarred = !_isStarred; // Toggle trạng thái
-              });
-              widget.onStarToggled(
-                  _isStarred); // Gửi trạng thái starred qua callback
+              viewModel.isFavorite = !viewModel.isFavorite; // Gửi trạng thái starred qua callback
             },
             child: Container(
               padding: EdgeInsets.all(6),
@@ -77,8 +65,8 @@ class _SearchBarState extends State<PromptSearchBar> {
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(
-                _isStarred ? Icons.star : Icons.star_border,
-                color: _isStarred ? Colors.yellow : Colors.grey.shade600,
+                viewModel.isFavorite ? Icons.star : Icons.star_border,
+                color: viewModel.isFavorite ? Colors.yellow : Colors.grey.shade600,
               ),
             ),
           ),
