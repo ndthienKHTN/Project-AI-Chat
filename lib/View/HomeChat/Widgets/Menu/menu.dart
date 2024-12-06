@@ -46,15 +46,6 @@ class _MenuState extends State<Menu> {
     return DateFormat('dd/MM/yyyy HH:mm').format(dateTime);
   }
 
-  // Future<void> _loadConversations() async {
-  //   try {
-  //     await Provider.of<MessageModel>(context, listen: false)
-  //         .fetchAllConversations(currentAI.id, 'dify');
-  //   } catch (e) {
-  //     print("error: $e");
-  //   }
-  // }
-
   void _logout() async {}
   @override
   Widget build(BuildContext context) {
@@ -62,15 +53,13 @@ class _MenuState extends State<Menu> {
       child: Column(
         children: [
           SizedBox(
+            height: 100,
             child: DrawerHeader(
               decoration: BoxDecoration(
                 color: Colors.blue[100],
               ),
               child: Column(
                 children: [
-                  const SizedBox(
-                    height: 15,
-                  ),
                   Row(
                     children: [
                       Image.asset(
@@ -85,7 +74,7 @@ class _MenuState extends State<Menu> {
                         style: TextStyle(
                           color: Colors.black,
                           fontWeight: FontWeight.bold,
-                          fontSize: 25,
+                          fontSize: 20,
                         ),
                       ),
                     ],
@@ -94,7 +83,6 @@ class _MenuState extends State<Menu> {
               ),
             ),
           ),
-          _buildWidgetItem(Icons.smart_button, "Prompt Management", 0),
           _buildWidgetItem(Icons.play_lesson, "Knowledge Management", 1),
           _buildWidgetItem(Icons.verified_sharp, "Upgrade Version", 2),
           const Divider(
@@ -216,31 +204,12 @@ class _MenuState extends State<Menu> {
         color: (index == (_selectedIndex)) ? Colors.grey[400] : null,
         child: ListTile(
           leading: Icon(icon),
-          title: Text(title),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildButtonItem({
-    required String title,
-    required VoidCallback onPressed,
-  }) {
-    return Expanded(
-      child: ElevatedButton(
-        onPressed: onPressed,
-        style: ElevatedButton.styleFrom(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
+          title: Text(
+            title,
+            style: TextStyle(
+              fontSize: 13,
             ),
-            backgroundColor: const Color.fromRGBO(69, 37, 229, 1.0),
-            side: const BorderSide(
-              width: 0.5,
-              color: Colors.grey,
-            )),
-        child: Text(
-          title,
-          style: const TextStyle(color: Colors.white),
+          ),
         ),
       ),
     );

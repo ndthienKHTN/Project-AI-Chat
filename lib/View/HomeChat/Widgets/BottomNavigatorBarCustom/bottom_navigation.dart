@@ -29,6 +29,10 @@ class CustomBottomNavigationBar extends StatelessWidget {
           label: 'Bot AI',
         ),
         BottomNavigationBarItem(
+          icon: Icon(Icons.email),
+          label: 'Email',
+        ),
+        BottomNavigationBarItem(
           icon: Icon(Icons.person),
           label: 'Information',
         ),

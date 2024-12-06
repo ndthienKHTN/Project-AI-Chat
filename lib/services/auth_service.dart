@@ -1,5 +1,7 @@
 import 'dart:developer';
+import 'package:project_ai_chat/models/response/subscription_response.dart';
 import 'package:project_ai_chat/utils/dio/dio_client.dart';
+import 'package:project_ai_chat/utils/exceptions/chat_exception.dart';
 import '../models/user_model.dart';
 import '../models/response/api_response.dart';
 import 'package:dio/dio.dart';
@@ -195,6 +197,28 @@ class AuthService {
       return ApiResponse(
         success: false,
         message: errorMessage,
+        statusCode: e.response?.statusCode ?? 500,
+      );
+    }
+  }
+
+  Future<SubscriptionResponse> fetchSubscriptionDetails() async {
+    try {
+      final response = await dio.get('/subscriptions/me');
+      print('✅ RESPONSE DATA SUBSCRIPTION: ${response.data}');
+      if (response.statusCode == 200) {
+        return SubscriptionResponse.fromJson(response.data);
+      } else {
+        throw ChatException(
+          message: 'Lỗi không xác định từ server',
+          statusCode: response.statusCode ?? 500,
+        );
+      }
+    } on DioException catch (e) {
+      throw ChatException(
+        message: e.response?.data?['message'] ??
+            e.message ??
+            'Lỗi kết nối tới server',
         statusCode: e.response?.statusCode ?? 500,
       );
     }
