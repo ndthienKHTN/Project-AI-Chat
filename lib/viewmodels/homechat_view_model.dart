@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:project_ai_chat/models/ai_logo.dart';
 import 'package:project_ai_chat/models/response/assistant_response.dart';
+import 'package:project_ai_chat/models/response/chat_response.dart';
 import 'package:project_ai_chat/utils/exceptions/chat_exception.dart';
 import 'package:project_ai_chat/models/conversation_model.dart';
 import 'package:project_ai_chat/models/response/message_response.dart';
@@ -11,7 +12,7 @@ class MessageModel extends ChangeNotifier {
   final List<Conversation> _conversations = [];
   final ChatService _chatService;
   String? _currentConversationId;
-  int? _remainingUsage;
+  int _remainingUsage = 30; // Gía trị bất kì
   bool _isLoading = false;
   String? _errorMessage;
   bool _isSending = false;
@@ -162,7 +163,8 @@ class MessageModel extends ChangeNotifier {
     return url.replaceAll(RegExp(r'^(https?:\/\/)?(www\.)?'), '');
   }
 
-  Future<void> sendMessage(String content, AIItem assistant) async {
+  Future<void> sendMessage(String content, AIItem assistant,
+      {List<String>? imagePaths}) async {
     try {
       _isSending = true;
 
@@ -200,6 +202,7 @@ class MessageModel extends ChangeNotifier {
       _messages.add(Message(
         role: 'user',
         content: content,
+        imagePaths: imagePaths,
         assistant: Assistant(
           id: assistant.id,
           model: "dify",
@@ -220,14 +223,24 @@ class MessageModel extends ChangeNotifier {
         isErrored: false,
       ));
       notifyListeners();
-
-      final response = await _chatService.sendMessage(
-        content: content,
-        assistantId: assistant.id,
-        conversationId: _currentConversationId,
-        previousMessages: _messages,
-      );
-
+      ChatResponse response;
+      // Gửi tin nhắn hoặc hình ảnh
+      if (imagePaths != null && imagePaths.isNotEmpty) {
+        response = await _chatService.sendImageMessages(
+          content: content,
+          imagePaths: imagePaths,
+          assistantId: assistant.id,
+          conversationId: _currentConversationId,
+          previousMessages: _messages,
+        );
+      } else {
+        response = await _chatService.sendMessage(
+          content: content,
+          assistantId: assistant.id,
+          conversationId: _currentConversationId,
+          previousMessages: _messages,
+        );
+      }
       // Xử lý response.message để thêm bullet points và format markdown
       String processedMessage = response.message;
 
@@ -345,7 +358,7 @@ class MessageModel extends ChangeNotifier {
         assistantId: assistantId,
       );
 
-      _messages.clear(); // Xóa tin nh���n cũ trước khi thêm lịch sử mới
+      _messages.clear(); // Xóa tin nhn cũ trước khi thêm lịch sử mới
       _currentConversationId =
           conversationId; // Cập nhật ID cuộc hội thoại hiện tại
 
@@ -391,7 +404,10 @@ class MessageModel extends ChangeNotifier {
   Future<void> updateRemainingUsage() async {
     try {
       final tokenUsageResponse = await _chatService.fetchTokenUsage();
-      if (tokenUsageResponse.availableTokens >= 0) {
+      if (tokenUsageResponse.unlimited) {
+        _remainingUsage = 99999;
+        return;
+      } else if (tokenUsageResponse.availableTokens >= 0) {
         _remainingUsage = tokenUsageResponse.availableTokens;
         print('✅ Token usage fetched successfully: $_remainingUsage');
       } else {

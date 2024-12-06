@@ -14,6 +14,10 @@ class AuthViewModel extends ChangeNotifier {
   bool get isLoggedIn => _isLoggedIn;
   User? get user => _user;
 
+  //Version
+  String _versionName = " ";
+  String get versionName => _versionName;
+
   Future<bool> register({
     required String username,
     required String email,
@@ -138,5 +142,15 @@ class AuthViewModel extends ChangeNotifier {
     _isLoggedIn = false;
     _user = null;
     notifyListeners();
+  }
+
+  Future<void> loadSubscriptionDetails() async {
+    try {
+      final subscriptionDetails = await _authService.fetchSubscriptionDetails();
+      _versionName = subscriptionDetails.name;
+      notifyListeners();
+    } catch (e) {
+      print('Lỗi khi lấy thông tin subscription: $e');
+    }
   }
 }
