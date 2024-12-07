@@ -1,15 +1,16 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:project_ai_chat/models/bot_request.dart';
 import 'package:project_ai_chat/viewmodels/knowledge_base_view_model.dart';
-import 'package:project_ai_chat/View/Bot/model/bot.dart';
+
 import 'package:project_ai_chat/View/Bot/page/new_bot_knowledge.dart';
 import 'package:project_ai_chat/View/Knowledge/model/knowledge.dart';
 import 'package:provider/provider.dart';
 
 class EditBot extends StatefulWidget {
   const EditBot({super.key, required this.editBot, required this.bot});
-  final void Function(Bot newBot) editBot;
-  final Bot bot;
+  final void Function(BotRequest newBot) editBot;
+  final BotRequest bot;
 
   @override
   State<EditBot> createState() => _NewBotState();
@@ -18,11 +19,11 @@ class EditBot extends StatefulWidget {
 class _NewBotState extends State<EditBot> {
   final _formKey = GlobalKey<FormState>();
   List<String> _arrKnowledge = [];
-  int _accessOption = 1;
 
   //TextFormField
   String _enteredName = "";
   String _enteredPrompt = "";
+  String _enteredDescription = "";
 
   void _openAddKnowledgeDialog(BuildContext context) async {
     final result = await showModalBottomSheet(
@@ -50,10 +51,9 @@ class _NewBotState extends State<EditBot> {
   @override
   void initState() {
     super.initState();
-    _enteredName = widget.bot.name;
-    _enteredPrompt = widget.bot.prompt;
-    _accessOption = widget.bot.isPublish ? 1 : 2;
-    _arrKnowledge = List.from(widget.bot.listKnowledge);
+    _enteredName = widget.bot.assistantName;
+    _enteredPrompt = widget.bot.instructions!;
+    _enteredDescription = widget.bot.description!;
   }
 
   void _saveBot() {
@@ -62,13 +62,11 @@ class _NewBotState extends State<EditBot> {
 
       // information edit bot
       widget.editBot(
-        Bot(
-            name: _enteredName,
-            prompt: _enteredPrompt,
-            team: widget.bot.team,
-            imageUrl: widget.bot.imageUrl,
-            isPublish: _accessOption == 1 ? true : false,
-            listKnowledge: _arrKnowledge),
+          BotRequest(
+            assistantName: _enteredName,
+            instructions: _enteredPrompt,
+            description: _enteredDescription,
+          )
       );
       Navigator.pop(context);
     }
@@ -129,13 +127,13 @@ class _NewBotState extends State<EditBot> {
                         // controller: nameController,
                         initialValue: _enteredName,
                         decoration: const InputDecoration(
-                          labelText: 'Tên',
-                          hintText: 'Nhập tên',
+                          labelText: 'Name',
+                          hintText: 'Enter a AI Bot\'s Name...',
                           suffixIcon: Icon(Icons.edit),
                         ),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Vui lòng nhập tên';
+                            return 'Please enter a name';
                           }
                           return null;
                         },
@@ -143,56 +141,39 @@ class _NewBotState extends State<EditBot> {
                           _enteredName = value!;
                         },
                       ),
-                      const SizedBox(height: 10),
                       const Text(
-                        'Ví dụ: Dịch giả chuyên nghiệp | Chuyên gia viết lách | Trợ lý mã',
+                        'Example: Professional Translator | Writing Expert | Code Assistant',
                         style: TextStyle(color: Colors.grey, fontSize: 12),
+                      ),
+                      const SizedBox(height: 10),
+                      TextFormField(
+                        initialValue: _enteredDescription,
+                        decoration: const InputDecoration(
+                          labelText: 'Description',
+                          hintText: 'Enter a description...',
+                          suffixIcon: Icon(Icons.description),
+                        ),
+                        onSaved: (value) {
+                          _enteredDescription = value ?? "";
+                        },
                       ),
                       const SizedBox(height: 15),
                       TextFormField(
                         initialValue: _enteredPrompt,
                         maxLines: 4,
                         decoration: const InputDecoration(
-                          // labelText: 'Prompt',
-                          hintText: 'Nhập nội dung prompt...',
+                          labelText: 'Prompt',
+                          hintText: 'Enter a AI Bot\'s Prompt Content...',
                           border: OutlineInputBorder(),
                         ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Vui lòng nhập prompt';
-                          }
-                          return null;
-                        },
                         onSaved: (value) {
-                          _enteredPrompt = value!;
+                          _enteredPrompt = value ?? "";
                         },
                       ),
                       const SizedBox(height: 10),
                       const Text(
-                        'Ví dụ: Bạn là một dịch giả có kinh nghiệm với kỹ năng trong nhiều ngôn ngữ trên thế giới.',
+                        'Example: You are an experienced translator with skills in multiple languages worldwide.',
                         style: TextStyle(color: Colors.grey, fontSize: 12),
-                      ),
-                      const SizedBox(height: 20),
-                      DropdownButtonFormField<int>(
-                        value: _accessOption,
-                        items: const [
-                          DropdownMenuItem(
-                            value: 1,
-                            child: Text('Publish'),
-                          ),
-                          DropdownMenuItem(
-                            value: 2,
-                            child: Text('Private'),
-                          ),
-                        ],
-                        onChanged: (int? newValue) {
-                          setState(() {
-                            _accessOption = newValue!;
-                          });
-                        },
-                        decoration: const InputDecoration(
-                          labelText: 'Quyền truy cập',
-                        ),
                       ),
                       const SizedBox(height: 16),
                       const Text("Bộ dữ liệu tri thức"),

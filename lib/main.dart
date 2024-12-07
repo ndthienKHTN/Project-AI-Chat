@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:project_ai_chat/View/Login/login_screen.dart';
 import 'package:project_ai_chat/View/SplashScreen/splash_screen.dart';
+import 'package:project_ai_chat/services/bot_service.dart';
 import 'package:project_ai_chat/services/chat_service.dart';
 import 'package:project_ai_chat/utils/theme/theme.dart';
+import 'package:project_ai_chat/viewmodels/bot_view_model.dart';
 import 'package:project_ai_chat/viewmodels/knowledge_base_view_model.dart';
 import 'package:project_ai_chat/viewmodels/aichat_list_view_model.dart';
 import 'package:project_ai_chat/viewmodels/auth_view_model.dart';
@@ -32,12 +34,19 @@ void main() async {
               // prefs: prefs,
               ),
         ),
+        Provider<BotService>(
+          create: (_) => BotService(
+            // dio: dio,
+            // prefs: prefs,
+          ),
+        ),
         ChangeNotifierProvider(
           create: (context) => MessageModel(
             context.read<ChatService>(),
           ),
         ),
         ChangeNotifierProvider(create: (context) => PromptListViewModel()),
+        ChangeNotifierProvider(create: (context) => BotViewModel()),
         ChangeNotifierProvider(create: (context) => KnowledgeBaseProvider()),
         ChangeNotifierProvider(create: (context) => AIChatList()),
         ChangeNotifierProvider(create: (_) => AuthViewModel()),
