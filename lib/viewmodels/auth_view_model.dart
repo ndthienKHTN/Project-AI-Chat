@@ -18,6 +18,23 @@ class AuthViewModel extends ChangeNotifier {
   String _versionName = " ";
   String get versionName => _versionName;
 
+  //Remaining tokens
+  int? _remainingTokens;
+  int? get remainingTokens => _remainingTokens;
+  set remainingTokens(int? value) {
+    _remainingTokens = value;
+    notifyListeners();
+  }
+
+  //Max tokens
+  int? _maxTokens;
+  int? get maxTokens => _maxTokens;
+  set maxTokens(int? value) {
+    _maxTokens = value;
+    notifyListeners();
+  }
+
+  final int unlimited = 99999;
   Future<bool> register({
     required String username,
     required String email,
@@ -151,6 +168,22 @@ class AuthViewModel extends ChangeNotifier {
       notifyListeners();
     } catch (e) {
       print('Lỗi khi lấy thông tin subscription: $e');
+    }
+  }
+
+  Future<void> fetchTokens() async {
+    try {
+      final tokenUsageResponse = await _authService.fetchTokenUsage();
+      if (tokenUsageResponse.unlimited) {
+        maxTokens = unlimited;
+        return;
+      } else {
+        maxTokens = tokenUsageResponse.totalTokens;
+        _remainingTokens = tokenUsageResponse.availableTokens;
+      }
+      notifyListeners();
+    } catch (e) {
+      print('❌ Error fetching token usage: $e');
     }
   }
 }
