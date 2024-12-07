@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:project_ai_chat/View/Login/login_screen.dart';
 import 'package:project_ai_chat/viewmodels/auth_view_model.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class AccountScreent extends StatefulWidget {
   const AccountScreent({super.key});
@@ -15,6 +17,7 @@ class _AccountScreentState extends State<AccountScreent> {
   void initState() {
     super.initState();
     _loadSubscriptionDetails();
+    _loadTokenUsage();
   }
 
   Future<void> _loadSubscriptionDetails() async {
@@ -22,17 +25,9 @@ class _AccountScreentState extends State<AccountScreent> {
         .loadSubscriptionDetails();
   }
 
-  // Future<void> _loadUserInfo() async {
-  //   try {
-  //     await Provider.of<AuthViewModel>(context, listen: false).fetchUserInfo();
-  //   } catch (e) {
-  //     if (e is ApiResponse<dynamic>) {
-  //       if (e.statusCode == 401) {
-  //         // await _logout();
-  //       }
-  //     }
-  //   }
-  // }
+  Future<void> _loadTokenUsage() async {
+    await Provider.of<AuthViewModel>(context, listen: false).fetchTokens();
+  }
 
   Future<void> _logout() async {
     await Provider.of<AuthViewModel>(context, listen: false).logout();
@@ -141,12 +136,95 @@ class _AccountScreentState extends State<AccountScreent> {
                           ],
                         ),
                         ElevatedButton(
-                          onPressed: () {},
-                          child: const Text('Nâng cấp'),
+                          onPressed: () async {
+                            final Uri url = Uri.parse(
+                                'https://admin.dev.jarvis.cx/pricing/overview');
+                            if (await canLaunchUrl(url)) {
+                              await launchUrl(url);
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                    content: Text('Cannot open link!')),
+                              );
+                            }
+                          },
+                          child: const Text(
+                            'Upgrade',
+                            style: TextStyle(color: Colors.black),
+                          ),
                         ),
                       ],
                     ),
                   ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  // Progress Bar Section
+                  const Row(
+                    children: [
+                      Text(
+                        'Today',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Spacer(),
+                      Text(
+                        'Total',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                  Consumer<AuthViewModel>(
+                      builder: (context, authViewModel, child) {
+                    return Column(
+                      children: [
+                        LinearProgressIndicator(
+                          value: authViewModel.maxTokens == 99999
+                              ? 1.0
+                              : authViewModel.maxTokens != null &&
+                                      authViewModel.remainingTokens != null
+                                  ? (authViewModel.remainingTokens! /
+                                          authViewModel.maxTokens!)
+                                      .toDouble()
+                                  : 0.0,
+                          backgroundColor: Colors.grey[300],
+                          color: Colors.blue,
+                        ),
+                        Row(
+                          children: [
+                            Text(
+                              authViewModel.maxTokens == 99999
+                                  ? '0'
+                                  : authViewModel.remainingTokens?.toString() ??
+                                      '0',
+                              style: TextStyle(
+                                fontSize: 16,
+                              ),
+                            ),
+                            Spacer(),
+                            authViewModel.maxTokens == 99999
+                                ? FaIcon(
+                                    FontAwesomeIcons
+                                        .infinity, // FontAwesome Infinity Icon
+                                    size: 16.0,
+                                    color: Colors.blue,
+                                  )
+                                : Text(
+                                    authViewModel.maxTokens?.toString() ?? '0',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                          ],
+                        ),
+                      ],
+                    );
+                  }),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Column(
@@ -256,6 +334,7 @@ class _AccountScreentState extends State<AccountScreent> {
                             trailing: Text('3.1.0'),
                           ),
                         ),
+                        const SizedBox(height: 20),
                       ],
                     ),
                   ),

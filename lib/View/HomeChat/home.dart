@@ -92,9 +92,6 @@ class _HomeChatState extends State<HomeChat> {
         .then((_) {
       Provider.of<PromptListViewModel>(context, listen: false).allprompts;
     });
-    // //Load thông tin version
-    // Provider.of<AuthViewModel>(context, listen: false)
-    //     .loadSubscriptionDetails();
   }
 
   Future<void> _loadUserInfo() async {
@@ -426,7 +423,8 @@ class _HomeChatState extends State<HomeChat> {
                               Icons.flash_on,
                               color: Colors.blueAccent,
                             ),
-                            messageModel.remainingUsage == 99999
+                            messageModel.maxTokens == 99999 &&
+                                    messageModel.maxTokens != null
                                 ? const Text(
                                     "Unlimited",
                                     style: TextStyle(

@@ -12,7 +12,9 @@ class MessageModel extends ChangeNotifier {
   final List<Conversation> _conversations = [];
   final ChatService _chatService;
   String? _currentConversationId;
-  int _remainingUsage = 30; // Gía trị bất kì
+  int _remainingUsage = 30;
+  int? _maxTokens;
+  int? get maxTokens => _maxTokens;
   bool _isLoading = false;
   String? _errorMessage;
   bool _isSending = false;
@@ -34,6 +36,9 @@ class MessageModel extends ChangeNotifier {
 
   // load more conversations
   bool get hasMoreConversation => _hasMoreConversation;
+
+  //Định nghĩa cho tối đa tokens
+  final int unlimitedTokens = 99999;
 
   Future<void> initializeChat(String assistantId) async {
     try {
@@ -405,21 +410,18 @@ class MessageModel extends ChangeNotifier {
     try {
       final tokenUsageResponse = await _chatService.fetchTokenUsage();
       if (tokenUsageResponse.unlimited) {
-        _remainingUsage = 99999;
+        _maxTokens = unlimitedTokens;
         return;
-      } else if (tokenUsageResponse.availableTokens >= 0) {
-        _remainingUsage = tokenUsageResponse.availableTokens;
-        print('✅ Token usage fetched successfully: $_remainingUsage');
       } else {
-        print(
-            '❌ Token usage is invalid: ${tokenUsageResponse.availableTokens}');
-        _errorMessage = 'Số lượng token không hợp lệ';
+        _remainingUsage = tokenUsageResponse.availableTokens;
+        _maxTokens = null;
+        print('✅ Token usage fetched successfully: $_remainingUsage');
       }
       notifyListeners();
     } catch (e) {
       print('❌ Error fetching token usage: $e');
       if (e is ChatException) {
-        _errorMessage = e.message;
+        //_errorMessage = e.message;
         notifyListeners();
       }
     }
