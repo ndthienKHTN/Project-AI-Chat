@@ -1,11 +1,12 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:project_ai_chat/View/Account/pages/account_screent.dart';
 import 'package:project_ai_chat/View/Bot/page/bot_screen.dart';
 import 'package:project_ai_chat/utils/exceptions/chat_exception.dart';
 import 'package:project_ai_chat/models/response/message_response.dart';
 import 'package:project_ai_chat/viewmodels/auth_view_model.dart';
-import 'package:project_ai_chat/models/prompt_list.dart';
 import 'package:project_ai_chat/viewmodels/prompt_list_view_model.dart';
 import '../../core/Widget/dropdown-button.dart';
 import '../../viewmodels/aichat_list_view_model.dart';
@@ -20,7 +21,8 @@ import 'Widgets/Menu/menu.dart';
 import '../../models/ai_logo.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:project_ai_chat/View/BottomSheet/Widgets/PromptList/prompt_list.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:screenshot/screenshot.dart';
 
 class HomeChat extends StatefulWidget {
   const HomeChat({super.key});
@@ -36,11 +38,13 @@ class _HomeChatState extends State<HomeChat> {
   final FocusNode _focusNode = FocusNode();
   bool _isOpenDeviceWidget = false;
   int _selectedBottomItemIndex = 0;
-  String? _selectedImagePath;
+  List<String>? _imagePaths;
   late List<AIItem> _listAIItem;
   late String selectedAIItem;
   bool _hasText = false;
   bool _showSlash = false;
+  final ScreenshotController _screenshotController = ScreenshotController();
+
   @override
   void initState() {
     super.initState();
@@ -121,6 +125,11 @@ class _HomeChatState extends State<HomeChat> {
     } else if (index == 3) {
       Navigator.push(
         context,
+        MaterialPageRoute(builder: (context) => EmailComposer()),
+      );
+    } else if (index == 4) {
+      Navigator.push(
+        context,
         MaterialPageRoute(builder: (context) => const AccountScreent()),
       );
     }
@@ -133,32 +142,30 @@ class _HomeChatState extends State<HomeChat> {
   }
 
   void _sendMessage() async {
-    if (_controller.text.isEmpty && _selectedImagePath == null) return;
+    if (_imagePaths == null && _controller.text.isEmpty) return;
 
     try {
       final aiItem =
           _listAIItem.firstWhere((aiItem) => aiItem.name == selectedAIItem);
 
-      // Gọi sendMessage từ MessageModel
       await Provider.of<MessageModel>(context, listen: false).sendMessage(
-        _controller.text,
+        _controller.text.isEmpty ? '' : _controller.text,
         aiItem,
+        imagePaths: _imagePaths ?? null,
       );
-      // Xóa nội dung input
+
       _controller.clear();
 
-      // Xóa hình ảnh đã chọn (nếu có)
-      if (_selectedImagePath != null) {
-        setState(() {
-          _selectedImagePath = null;
-        });
-      }
+      // if (_imagePaths != null) {
+      //   setState(() {
+      //     _imagePaths = null;
+      //   });
+      // }
     } catch (e) {
-      // Hiển thị thông báo lỗi
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            e is ChatException ? e.message : 'Có lỗi xảy ra khi g��i tin nhắn',
+            e is ChatException ? e.message : 'Có lỗi xảy ra khi gửi tin nhắn',
           ),
           backgroundColor: Colors.red,
         ),
@@ -223,7 +230,7 @@ class _HomeChatState extends State<HomeChat> {
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  'Đang xử lý...',
+                  'Loading...',
                   style: TextStyle(
                     color: isError ? Colors.red : Colors.black,
                   ),
@@ -233,29 +240,60 @@ class _HomeChatState extends State<HomeChat> {
           }
 
           // Sử dụng Markdown widget cho tin nhắn model
-          return isUser
-              ? Text(
-                  message.content,
-                  style: TextStyle(color: isError ? Colors.red : Colors.black),
-                )
-              : MarkdownBody(
-                  data: message.content,
-                  styleSheet: MarkdownStyleSheet(
-                    p: TextStyle(color: isError ? Colors.red : Colors.black),
-                    a: const TextStyle(
-                      color: Colors.blue,
-                      decoration: TextDecoration.underline,
-                    ),
-                    listBullet:
-                        TextStyle(color: isError ? Colors.red : Colors.black),
-                  ),
-                  selectable: true,
-                  onTapLink: (text, href, title) {
-                    if (href != null) {
-                      _launchURL(href);
-                    }
-                  },
-                );
+          return Column(
+            children: [
+              isUser
+                  ? Column(
+                      children: [
+                        if (message.imagePaths != null &&
+                            message.imagePaths!.isNotEmpty) ...[
+                          SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: _imagePaths!.map((path) {
+                                return ClipRRect(
+                                  borderRadius: BorderRadius.circular(8),
+                                  child: Image.file(
+                                    File(path),
+                                    width: 100,
+                                    height: 100,
+                                    fit: BoxFit.cover,
+                                  ),
+                                );
+                              }).toList(),
+                            ),
+                          ),
+                        ],
+                        Text(
+                          message.content,
+                          style: TextStyle(
+                              color: isError ? Colors.red : Colors.black),
+                        ),
+                      ],
+                    )
+                  : MarkdownBody(
+                      data: message.content,
+                      styleSheet: MarkdownStyleSheet(
+                        p: TextStyle(
+                            color: isError ? Colors.red : Colors.black),
+                        a: const TextStyle(
+                          color: Colors.blue,
+                          decoration: TextDecoration.underline,
+                        ),
+                        listBullet: TextStyle(
+                            color: isError ? Colors.red : Colors.black),
+                      ),
+                      selectable: true,
+                      onTapLink: (text, href, title) {
+                        if (href != null) {
+                          _launchURL(href);
+                        }
+                      },
+                    )
+            ],
+          );
         }),
       ),
     );
@@ -263,21 +301,30 @@ class _HomeChatState extends State<HomeChat> {
 
   Future<void> _openGallery() async {
     final ImagePicker _picker = ImagePicker();
-    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
-    if (image != null) {
+    final List<XFile>? images = await _picker.pickMultiImage();
+    if (images != null && images.isNotEmpty) {
       setState(() {
-        _selectedImagePath = image.path;
+        _imagePaths = images.map((e) => e.path).toList();
         _isOpenDeviceWidget = false;
       });
     }
   }
 
+  Future<void> _requestCameraPermission() async {
+    var status = await Permission.camera.status;
+    if (!status.isGranted) {
+      // Nếu chưa được cấp quyền, yêu cầu quyền
+      await Permission.camera.request();
+    }
+  }
+
   Future<void> _openCamera() async {
+    await _requestCameraPermission(); // Yêu cầu quyền trước khi mở camera
     final ImagePicker _picker = ImagePicker();
     final XFile? image = await _picker.pickImage(source: ImageSource.camera);
     if (image != null) {
       setState(() {
-        _selectedImagePath = image.path;
+        _imagePaths = [image.path];
         _isOpenDeviceWidget = false;
       });
     }
@@ -291,357 +338,406 @@ class _HomeChatState extends State<HomeChat> {
     }
   }
 
+  void _takeScreenshot() async {
+    final image = await _screenshotController.capture();
+    if (image != null) {
+      // Lưu ảnh chụp màn hình vào một đường dẫn tạm thời
+      final directory = await getTemporaryDirectory();
+      final file = File('${directory.path}/screenshot.png');
+      await file.writeAsBytes(image);
+      setState(() {
+        _isOpenDeviceWidget = false;
+        _imagePaths = [file.path];
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      key: _scaffoldKey,
-      drawer: Menu(),
-      body: Consumer<MessageModel>(
-        builder: (context, messageModel, child) {
-          return Column(
-            children: [
-              SafeArea(
-                  child: Padding(
-                padding: EdgeInsets.all(10.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    IconButton(
-                        onPressed: () {
-                          //Open menu
-                          _scaffoldKey.currentState?.openDrawer();
-                        },
-                        icon: const Icon(Icons.menu)),
-                    AIDropdown(
-                      listAIItems: _listAIItem,
-                      onChanged: (String? newValue) {
-                        if (newValue != null) {
-                          _updateSelectedAIItem(newValue);
-                        }
-                      },
-                    ),
-                    Spacer(),
-                    Container(
-                      padding: EdgeInsets.all(5),
-                      decoration: BoxDecoration(
-                        color: const Color.fromARGB(255, 238, 240, 243),
-                        borderRadius: BorderRadius.circular(12.0),
-                      ),
-                      child: Consumer<MessageModel>(
-                        builder: (context, messageModel, child) {
-                          return Row(
-                            children: [
-                              const Icon(
-                                Icons.flash_on,
-                                color: Colors.blueAccent,
-                              ),
-                              Text(
-                                '${messageModel.remainingUsage ?? 0}',
-                                style: const TextStyle(
-                                    color: Color.fromRGBO(119, 117, 117, 1.0)),
-                              )
-                            ],
-                          );
-                        },
-                      ),
-                    ),
-                    IconButton(
-                        icon: const Icon(Icons.add_circle_outline),
-                        onPressed: () {
-                          Provider.of<MessageModel>(context, listen: false)
-                              .clearMessage();
-                        }),
-                  ],
-                ),
-              )),
-              Expanded(
-                child: GestureDetector(
-                  onTap: () {
-                    FocusScope.of(context).unfocus();
-                    if (_isOpenDeviceWidget) {
-                      _toggleDeviceVisibility();
-                    }
-                  },
+    return Screenshot(
+      controller: _screenshotController,
+      child: Scaffold(
+        key: _scaffoldKey,
+        drawer: Menu(),
+        body: Consumer<MessageModel>(
+          builder: (context, messageModel, child) {
+            return Column(
+              children: [
+                SafeArea(
+                    child: Padding(
+                  padding: EdgeInsets.all(10.0),
                   child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
                     children: [
-                      Expanded(
-                        child: Padding(
-                          padding:
-                              EdgeInsets.only(left: 10, bottom: 10, right: 10),
-                          child: Column(
-                            children: [
-                              Expanded(
-                                child: ListView.builder(
-                                  controller: _scrollController,
-                                  itemCount: messageModel.messages.length,
-                                  itemBuilder: (context, index) {
-                                    final message =
-                                        messageModel.messages[index];
-                                    return _buildMessage(message);
-                                  },
-                                ),
-                              ),
-                              const SizedBox(height: 10),
-                              if (_showSlash)
-                                Consumer<PromptListViewModel>(
-                                  builder: (context, promptList, child) {
-                                    if (promptList.isLoading) {
-                                      return const CircularProgressIndicator(); // Hoặc một widget khác để hiển thị khi đang tải
-                                    } else if (promptList.hasError) {
-                                      return Text(
-                                          'Có lỗi xảy ra: ${promptList.error}'); // Hiển thị lỗi
-                                    } else {
-                                      return Padding(
-                                        padding: const EdgeInsets.all(5),
-                                        child: Container(
-                                          width: MediaQuery.of(context)
-                                                  .size
-                                                  .width /
-                                              3 *
-                                              2,
-                                          decoration: BoxDecoration(
-                                            border: Border.all(
-                                              color: const Color.fromARGB(
-                                                  255,
-                                                  158,
-                                                  198,
-                                                  232), // Color of the border
-                                              width: 1.0, // Width of the border
-                                            ),
-                                            borderRadius: BorderRadius.circular(
-                                                20.0), // Border radius
-                                          ),
-                                          constraints: BoxConstraints(
-                                              maxHeight: MediaQuery.of(context)
-                                                      .size
-                                                      .height /
-                                                  3),
-                                          child: ListView.builder(
-                                            itemCount: promptList
-                                                .allprompts.items.length,
-                                            itemBuilder: (context, index) {
-                                              return ListTile(
-                                                title: Text(promptList
-                                                    .allprompts
-                                                    .items[index]
-                                                    .title),
-                                                onTap: () {
-                                                  _controller.text =
-                                                      ""; // Chọn prompt
-                                                  _showSlash = false;
-                                                  PromptDetailsBottomSheet.show(
-                                                      context,
-                                                      promptList.allprompts
-                                                          .items[index]);
-                                                },
-                                              );
-                                            },
-                                          ),
-                                        ),
-                                      );
-                                    }
-                                  },
-                                ),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: [
-                                  IconButton(
-                                    icon: _isOpenDeviceWidget
-                                        ? const Icon(Icons.arrow_back_ios_new)
-                                        : const Icon(Icons.arrow_forward_ios),
-                                    onPressed: _toggleDeviceVisibility,
-                                  ),
-                                  if (_isOpenDeviceWidget) ...[
-                                    IconButton(
-                                      icon: const Icon(Icons.image_rounded),
-                                      onPressed: _openGallery,
-                                    ),
-                                    IconButton(
-                                      icon: const Icon(Icons.camera_alt),
-                                      onPressed: _openCamera,
-                                    ),
-                                    IconButton(
-                                      icon: const Icon(Icons.email),
-                                      onPressed: () {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (context) =>
-                                                  EmailComposer()),
-                                        );
-                                      },
-                                    ),
-                                  ],
-                                  Expanded(
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(20),
-                                        color: const Color.fromARGB(
-                                            255, 238, 240, 243),
-                                        border: Border.all(
-                                          color: Colors.grey.withOpacity(0.5),
-                                          width: 0.5,
-                                        ),
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color: Colors.grey.withOpacity(0.2),
-                                            spreadRadius: 1,
-                                            blurRadius: 2,
-                                            offset: Offset(0, 1),
-                                          ),
-                                        ],
-                                      ),
-                                      child: Column(
-                                        children: [
-                                          Stack(
-                                            alignment: Alignment.centerLeft,
-                                            children: [
-                                              TextField(
-                                                focusNode: _focusNode,
-                                                controller: _controller,
-                                                onChanged: _onTextChanged,
-                                                maxLines: null,
-                                                decoration: InputDecoration(
-                                                  contentPadding:
-                                                      const EdgeInsets
-                                                          .symmetric(
-                                                    horizontal: 12,
-                                                    vertical: 8,
-                                                  ),
-                                                  hintText:
-                                                      (_selectedImagePath ==
-                                                              null)
-                                                          ? 'Nhập tin nhắn...'
-                                                          : null,
-                                                  hintStyle: TextStyle(
-                                                    color: Colors.grey[500],
-                                                    fontSize: 14,
-                                                  ),
-                                                  border: OutlineInputBorder(
-                                                    borderSide: BorderSide(
-                                                        color: Colors.grey,
-                                                        width:
-                                                            1), // Viền bình thường
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            20), // Bo cong góc
-                                                  ),
-                                                  enabledBorder:
-                                                      OutlineInputBorder(
-                                                    borderSide: BorderSide(
-                                                      color: Colors.grey
-                                                          .withOpacity(0.5),
-                                                      width: 0.5,
-                                                    ),
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            20),
-                                                  ),
-                                                  focusedBorder:
-                                                      OutlineInputBorder(
-                                                    borderSide: BorderSide(
-                                                      color: Colors.blue,
-                                                      width: 0.5,
-                                                    ),
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            20),
-                                                  ),
-                                                ),
-                                              ),
-                                              if (_selectedImagePath != null)
-                                                Padding(
-                                                  padding:
-                                                      const EdgeInsets.all(4),
-                                                  child: Container(
-                                                    decoration: BoxDecoration(
-                                                      border: Border.all(
-                                                        color: Colors.grey
-                                                            .withOpacity(0.5),
-                                                        width: 1,
-                                                      ),
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              8),
-                                                      boxShadow: [
-                                                        BoxShadow(
-                                                          color: Colors.grey
-                                                              .withOpacity(0.1),
-                                                          spreadRadius: 1,
-                                                          blurRadius: 1,
-                                                        ),
-                                                      ],
-                                                    ),
-                                                    child: Stack(
-                                                      children: [
-                                                        ClipRRect(
-                                                          borderRadius:
-                                                              BorderRadius
-                                                                  .circular(8),
-                                                          child: Image.file(
-                                                            File(
-                                                                _selectedImagePath!),
-                                                            width: 60,
-                                                            height: 60,
-                                                            fit: BoxFit.cover,
-                                                          ),
-                                                        ),
-                                                        Positioned(
-                                                          top: -15,
-                                                          right: -15,
-                                                          child: IconButton(
-                                                            icon: const Icon(
-                                                              Icons.close,
-                                                              size: 20,
-                                                              color: Colors
-                                                                  .black54,
-                                                            ),
-                                                            onPressed: () {
-                                                              setState(() {
-                                                                _selectedImagePath =
-                                                                    null;
-                                                              });
-                                                            },
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                ),
-                                            ],
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                  IconButton(
-                                    icon: const Icon(Icons.send),
-                                    onPressed: _hasText ? _sendMessage : null,
-                                    style: IconButton.styleFrom(
-                                      foregroundColor:
-                                          _hasText ? Colors.black : Colors.grey,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(
-                                height: 5,
-                              ),
-                            ],
-                          ),
+                      IconButton(
+                          onPressed: () {
+                            //Open menu
+                            _scaffoldKey.currentState?.openDrawer();
+                          },
+                          icon: const Icon(Icons.menu)),
+                      AIDropdown(
+                        listAIItems: _listAIItem,
+                        onChanged: (String? newValue) {
+                          if (newValue != null) {
+                            _updateSelectedAIItem(newValue);
+                          }
+                        },
+                      ),
+                      //const Spacer(),
+                      TextButton(
+                        onPressed: () async {
+                          final Uri url = Uri.parse(
+                              'https://admin.dev.jarvis.cx/pricing/overview');
+                          if (await canLaunchUrl(url)) {
+                            await launchUrl(url);
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                  content: Text('Cannot open link!')),
+                            );
+                          }
+                        },
+                        child: const Row(
+                          children: [
+                            Text(
+                              'Upgrade',
+                              style:
+                                  TextStyle(color: Colors.blue, fontSize: 12),
+                            ),
+                            Icon(
+                              Icons.rocket,
+                              color: Colors.blueAccent,
+                            )
+                          ],
                         ),
                       ),
+                      Container(
+                        padding: EdgeInsets.all(5),
+                        decoration: BoxDecoration(
+                          color: const Color.fromARGB(255, 238, 240, 243),
+                          borderRadius: BorderRadius.circular(12.0),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(
+                              Icons.flash_on,
+                              color: Colors.blueAccent,
+                            ),
+                            messageModel.maxTokens == 99999 &&
+                                    messageModel.maxTokens != null
+                                ? const Text(
+                                    "Unlimited",
+                                    style: TextStyle(
+                                      fontSize: 10,
+                                      color: Colors.blueAccent,
+                                    ),
+                                  )
+                                : Text(
+                                    '${messageModel.remainingUsage}',
+                                    style: const TextStyle(
+                                        color:
+                                            Color.fromRGBO(119, 117, 117, 1.0)),
+                                  ),
+                          ],
+                        ),
+                      ),
+                      IconButton(
+                          icon: const Icon(Icons.add_circle_outline),
+                          onPressed: () {
+                            Provider.of<MessageModel>(context, listen: false)
+                                .clearMessage();
+                          }),
                     ],
                   ),
+                )),
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () {
+                      FocusScope.of(context).unfocus();
+                      if (_isOpenDeviceWidget) {
+                        _toggleDeviceVisibility();
+                      }
+                    },
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Padding(
+                            padding: EdgeInsets.only(
+                                left: 10, bottom: 10, right: 10),
+                            child: Column(
+                              children: [
+                                Expanded(
+                                  child: ListView.builder(
+                                    controller: _scrollController,
+                                    itemCount: messageModel.messages.length,
+                                    itemBuilder: (context, index) {
+                                      final message =
+                                          messageModel.messages[index];
+                                      return _buildMessage(message);
+                                    },
+                                  ),
+                                ),
+                                const SizedBox(height: 10),
+                                if (_showSlash)
+                                  Consumer<PromptListViewModel>(
+                                    builder: (context, promptList, child) {
+                                      if (promptList.isLoading) {
+                                        return const CircularProgressIndicator(); // Hoặc một widget khác để hiển thị khi đang tải
+                                      } else if (promptList.hasError) {
+                                        return Text(
+                                            'Có lỗi xảy ra: ${promptList.error}'); // Hiển thị lỗi
+                                      } else {
+                                        return Padding(
+                                          padding: const EdgeInsets.all(5),
+                                          child: Container(
+                                            width: MediaQuery.of(context)
+                                                    .size
+                                                    .width /
+                                                3 *
+                                                2,
+                                            decoration: BoxDecoration(
+                                              border: Border.all(
+                                                color: const Color.fromARGB(
+                                                    255,
+                                                    158,
+                                                    198,
+                                                    232), // Color of the border
+                                                width:
+                                                    1.0, // Width of the border
+                                              ),
+                                              borderRadius:
+                                                  BorderRadius.circular(
+                                                      20.0), // Border radius
+                                            ),
+                                            constraints: BoxConstraints(
+                                                maxHeight:
+                                                    MediaQuery.of(context)
+                                                            .size
+                                                            .height /
+                                                        3),
+                                            child: ListView.builder(
+                                              itemCount: promptList
+                                                  .allprompts.items.length,
+                                              itemBuilder: (context, index) {
+                                                return ListTile(
+                                                  title: Text(promptList
+                                                      .allprompts
+                                                      .items[index]
+                                                      .title),
+                                                  onTap: () {
+                                                    _controller.text =
+                                                        ""; // Chọn prompt
+                                                    _showSlash = false;
+                                                    PromptDetailsBottomSheet
+                                                        .show(
+                                                            context,
+                                                            promptList
+                                                                .allprompts
+                                                                .items[index]);
+                                                  },
+                                                );
+                                              },
+                                            ),
+                                          ),
+                                        );
+                                      }
+                                    },
+                                  ),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                  children: [
+                                    IconButton(
+                                      icon: _isOpenDeviceWidget
+                                          ? const Icon(Icons.arrow_back_ios_new)
+                                          : const Icon(Icons.arrow_forward_ios),
+                                      onPressed: _toggleDeviceVisibility,
+                                    ),
+                                    if (_isOpenDeviceWidget) ...[
+                                      IconButton(
+                                        icon: const Icon(Icons.image_rounded),
+                                        onPressed: _openGallery,
+                                      ),
+                                      IconButton(
+                                        icon: const Icon(Icons.camera_alt),
+                                        onPressed: _openCamera,
+                                      ),
+                                      IconButton(
+                                        icon: const Icon(Icons.screenshot),
+                                        onPressed: _takeScreenshot,
+                                      ),
+                                    ],
+                                    Expanded(
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(20),
+                                          color: const Color.fromARGB(
+                                              255, 238, 240, 243),
+                                          border: Border.all(
+                                            color: Colors.grey.withOpacity(0.5),
+                                            width: 0.5,
+                                          ),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color:
+                                                  Colors.grey.withOpacity(0.2),
+                                              spreadRadius: 1,
+                                              blurRadius: 2,
+                                              offset: Offset(0, 1),
+                                            ),
+                                          ],
+                                        ),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            if (_imagePaths != null) ...[
+                                              SingleChildScrollView(
+                                                scrollDirection:
+                                                    Axis.horizontal,
+                                                child: Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.start,
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children:
+                                                      _imagePaths!.map((path) {
+                                                    return Padding(
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              4),
+                                                      child: Stack(
+                                                        children: [
+                                                          ClipRRect(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        8),
+                                                            child: Image.file(
+                                                              File(path),
+                                                              width: 60,
+                                                              height: 60,
+                                                              fit: BoxFit.cover,
+                                                            ),
+                                                          ),
+                                                          Positioned(
+                                                            top: -15,
+                                                            right: -15,
+                                                            child: IconButton(
+                                                              icon: const Icon(
+                                                                Icons.close,
+                                                                size: 20,
+                                                                color: Color
+                                                                    .fromARGB(
+                                                                        136,
+                                                                        245,
+                                                                        237,
+                                                                        237),
+                                                              ),
+                                                              onPressed: () {
+                                                                setState(() {
+                                                                  _imagePaths = _imagePaths!
+                                                                      .where((element) =>
+                                                                          element !=
+                                                                          path)
+                                                                      .toList();
+                                                                });
+                                                              },
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    );
+                                                  }).toList(),
+                                                ),
+                                              ),
+                                            ],
+                                            TextField(
+                                              focusNode: _focusNode,
+                                              controller: _controller,
+                                              onChanged: _onTextChanged,
+                                              maxLines: null,
+                                              decoration: InputDecoration(
+                                                contentPadding:
+                                                    const EdgeInsets.symmetric(
+                                                  horizontal: 12,
+                                                  vertical: 8,
+                                                ),
+                                                hintText: (_imagePaths == null)
+                                                    ? 'Nhập tin nhắn...'
+                                                    : null,
+                                                hintStyle: TextStyle(
+                                                  color: Colors.grey[500],
+                                                  fontSize: 14,
+                                                ),
+                                                border: OutlineInputBorder(
+                                                  borderSide: BorderSide(
+                                                      color: Colors.grey,
+                                                      width:
+                                                          1), // Viền bình thường
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          20), // Bo cong góc
+                                                ),
+                                                enabledBorder:
+                                                    OutlineInputBorder(
+                                                  borderSide: BorderSide(
+                                                    color: Colors.grey
+                                                        .withOpacity(0.5),
+                                                    width: 0.5,
+                                                  ),
+                                                  borderRadius:
+                                                      BorderRadius.circular(20),
+                                                ),
+                                                focusedBorder:
+                                                    OutlineInputBorder(
+                                                  borderSide: BorderSide(
+                                                    color: Colors.blue,
+                                                    width: 0.5,
+                                                  ),
+                                                  borderRadius:
+                                                      BorderRadius.circular(20),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                    IconButton(
+                                      icon: const Icon(Icons.send),
+                                      onPressed: _hasText || _imagePaths != null
+                                          ? _sendMessage
+                                          : null,
+                                      style: IconButton.styleFrom(
+                                        foregroundColor:
+                                            _hasText || _imagePaths != null
+                                                ? Colors.black
+                                                : Colors.grey,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(
+                                  height: 5,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
-              ),
-            ],
-          );
-        },
-      ),
-      bottomNavigationBar: CustomBottomNavigationBar(
-        currentIndex: _selectedBottomItemIndex,
-        onTap: _onTappedBottomItem,
+              ],
+            );
+          },
+        ),
+        bottomNavigationBar: CustomBottomNavigationBar(
+          currentIndex: _selectedBottomItemIndex,
+          onTap: _onTappedBottomItem,
+        ),
       ),
     );
   }

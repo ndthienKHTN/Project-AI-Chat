@@ -44,7 +44,6 @@ class _PromptDetailsBottomSheetState extends State<PromptDetailsBottomSheet> {
   late List<String> placeholders;
   late List<String> inputs;
   bool isLoading = false;
-  final viewModel = PromptListViewModel();
 
   @override
   void initState() {
@@ -83,6 +82,7 @@ class _PromptDetailsBottomSheetState extends State<PromptDetailsBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final viewModel = context.watch<PromptListViewModel>();
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       child: ConstrainedBox(
@@ -189,10 +189,30 @@ class _PromptDetailsBottomSheetState extends State<PromptDetailsBottomSheet> {
                                       isPublic: false,
                                     );
 
-                                    await viewModel.updatePrompt(
+                                    final success = await viewModel.updatePrompt(
                                         newPrompt, widget.prompt.id);
+                                    if (!success){
+                                      showDialog(
+                                        context: context,
+                                        builder: (context) {
+                                          return AlertDialog(
+                                            title: Text("Error"),
+                                            content: Text("Failed at save Prompt"),
+                                            actions: [
+                                              TextButton(
+                                                onPressed: () {
+                                                  Navigator.pop(context);
+                                                },
+                                                child: Text("OK"),
+                                              ),
+                                            ],
+                                          );
+                                        },
+                                      );
+                                    } else{
+                                      viewModel.fetchPrompts();
 
-                                    //Navigator.pop(context);
+                                    }
                                   } catch (error) {
                                     print("Error: $error");
                                   } finally {
