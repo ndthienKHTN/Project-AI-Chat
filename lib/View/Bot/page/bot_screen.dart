@@ -1,18 +1,18 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:project_ai_chat/View/Bot/data/bots_data.dart';
 import 'package:project_ai_chat/View/Bot/page/edit_bot.dart';
 import 'package:project_ai_chat/View/Bot/page/new_bot.dart';
 import 'package:project_ai_chat/View/Bot/page/public_bot.dart';
 import 'package:project_ai_chat/View/Bot/widgets/bot_card.dart';
+import 'package:project_ai_chat/View/Bot/widgets/bot_list.dart';
 import 'package:project_ai_chat/View/Bot/widgets/filter_button.dart';
-import 'package:project_ai_chat/View/Bot/model/bot.dart';
-import 'package:project_ai_chat/View/HomeChat/Widgets/BottomNavigatorBarCustom/bottom_navigation.dart';
 import 'package:project_ai_chat/View/HomeChat/home.dart';
+import 'package:project_ai_chat/models/bot.dart';
+import 'package:provider/provider.dart';
 
-import '../../Account/pages/account_screent.dart';
-import '../../BottomSheet/custom_bottom_sheet.dart';
+import '../../../models/bot_request.dart';
+import '../../../viewmodels/bot_view_model.dart';
 
 class BotScreen extends StatefulWidget {
   const BotScreen({super.key});
@@ -22,41 +22,35 @@ class BotScreen extends StatefulWidget {
 }
 
 class _BotScreenState extends State<BotScreen> {
-  final List<Bot> _listBots = bots;
-  void _addBot(Bot newBot) {
-    setState(() {
-      _listBots.add(newBot);
-    });
+  final viewModel = BotViewModel();
+  late TextEditingController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController();
   }
 
-  void _editBot(Bot newEditBot, indexEditBox) {
-    setState(() {
-      _listBots[indexEditBox] = newEditBot;
-    });
-  }
+  Future<void> _addBot(BotRequest newBot) async {
+    final viewModel = context.read<BotViewModel>();
+    bool isCreated = await viewModel.createBot(newBot);
+    if (isCreated) {
+      viewModel.fetchBots();
 
-  void _removeBot(Bot bot) {
-    final botDeleteIndex = _listBots.indexOf(bot);
-
-    setState(() {
-      _listBots.remove(bot);
-    });
-    ScaffoldMessenger.of(context).clearSnackBars();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        duration: const Duration(seconds: 3),
-        content: const Text("Bot has been Deleted!"),
-        action: SnackBarAction(
-          label: 'Undo',
-          onPressed: () {
-            setState(() {
-              _listBots.insert(botDeleteIndex, bot);
-            });
-          },
+    } else {
+      // Hiển thị thông báo lỗi nếu tạo bot không thành công
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Create bot failed',
+            style: TextStyle(color: Colors.white), // Màu chữ trắng
+          ),
+          backgroundColor: Colors.blue[600], // Màu nền xanh dương nhạt
         ),
-      ),
-    );
+      );
+    }
   }
+
 
   void _openAddBotDialog(BuildContext context) {
     showDialog(
@@ -68,41 +62,9 @@ class _BotScreenState extends State<BotScreen> {
             ));
   }
 
-  void _openEditBotDialog(BuildContext context, Bot bot, int index) {
-    // showDialog(
-    //     context: context,
-    //     builder: (context) => EditBot(
-    //           editBot: (bot) {
-    //             _editBot(bot, index);
-    //           },
-    //           bot: bot,
-    //         ));
-
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => EditBot(
-          editBot: (bot) {
-            _editBot(bot, index);
-          },
-          bot: bot,
-        ),
-      ),
-    );
-  }
-
-  void _openPublishBotDialog(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
-      builder: (context) => const PublicBot(),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
+    final viewModel = context.watch<BotViewModel>();
     return Scaffold(
       appBar: AppBar(
         title: const Text(
@@ -127,11 +89,23 @@ class _BotScreenState extends State<BotScreen> {
         child: Column(
           children: [
             TextField(
+              controller: _controller,
+              onChanged: (value) {
+                viewModel.query = value; // Gửi query qua callback
+              },
               decoration: InputDecoration(
-                prefixIcon: const Icon(Icons.search),
-                hintText: 'Tìm kiếm',
+                filled: true,
+                fillColor: Colors.grey.shade200,
+                prefixIcon: Icon(Icons.search, color: Colors.grey.shade600),
+                hintText: 'Search...',
+                hintStyle: TextStyle(color: Colors.grey.shade600),
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8.0),
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: BorderSide.none,
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: BorderSide(color: Colors.blue, width: 1),
                 ),
               ),
             ),
@@ -151,54 +125,10 @@ class _BotScreenState extends State<BotScreen> {
             // ),
             const SizedBox(height: 10),
             Expanded(
-              child: ListView.builder(
-                itemCount: _listBots.length,
-                itemBuilder: (context, index) {
-                  return Slidable(
-                    endActionPane: ActionPane(
-                      motion: const StretchMotion(),
-                      children: [
-                        SlidableAction(
-                          onPressed: (context) {
-                            _openEditBotDialog(
-                                context, _listBots[index], index);
-                          },
-                          icon: Icons.edit,
-                          backgroundColor: Colors.green,
-                        ),
-                        SlidableAction(
-                          onPressed: (context) {
-                            _removeBot(_listBots[index]);
-                          },
-                          icon: Icons.delete,
-                          backgroundColor: Colors.red,
-                        ),
-                        SlidableAction(
-                          onPressed: (context) {
-                            _openPublishBotDialog(context);
-                          },
-                          icon: Icons.publish,
-                          backgroundColor: Colors.blue,
-                        ),
-                      ],
-                    ),
-                    child: InkWell(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const HomeChat(),
-                          ),
-                        );
-                      },
-                      child: BotCard(
-                        bot: bots[index],
-                      ),
-                    ),
-                  );
-                },
-              ),
+              child: BotListWidget(),
             ),
+
+
           ],
         ),
       ),

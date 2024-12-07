@@ -1,10 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:project_ai_chat/View/Bot/model/bot.dart';
+import 'package:project_ai_chat/models/bot_request.dart';
 
 class NewBot extends StatefulWidget {
   const NewBot({super.key, required this.addBot});
-  final void Function(Bot newBot) addBot;
+  final void Function(BotRequest newBot) addBot;
 
   @override
   State<NewBot> createState() => _NewBotState();
@@ -12,26 +12,22 @@ class NewBot extends StatefulWidget {
 
 class _NewBotState extends State<NewBot> {
   final _formKey = GlobalKey<FormState>();
-  int _accessOption = 1;
 
   //TextFormField
   String _enteredName = "";
   String _enteredPrompt = "";
+  String _enteredDescription = "";
 
   void _saveBot() {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
 
       widget.addBot(
-        Bot(
-            name: _enteredName,
-            prompt: _enteredPrompt,
-            team: "Ami Team",
-            imageUrl:
-                "https://cdn-icons-png.flaticon.com/512/13330/13330989.png",
-            isPublish: _accessOption == 1 ? true : false,
-            listKnowledge: []),
-      );
+        BotRequest(
+            assistantName: _enteredName,
+            instructions: _enteredPrompt,
+            description: _enteredDescription,
+      ));
       Navigator.pop(context);
     }
   }
@@ -77,13 +73,13 @@ class _NewBotState extends State<NewBot> {
               TextFormField(
                 // controller: nameController,
                 decoration: const InputDecoration(
-                  labelText: 'Tên',
-                  hintText: 'Nhập tên',
+                  labelText: 'Name',
+                  hintText: 'Enter a AI Bot\'s Name...',
                   suffixIcon: Icon(Icons.edit),
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Vui lòng nhập tên';
+                    return 'Please enter a name';
                   }
                   return null;
                 },
@@ -91,55 +87,37 @@ class _NewBotState extends State<NewBot> {
                   _enteredName = value!;
                 },
               ),
-              const SizedBox(height: 10),
               const Text(
-                'Ví dụ: Dịch giả chuyên nghiệp | Chuyên gia viết lách | Trợ lý mã',
+                'Example: Professional Translator | Writing Expert | Code Assistant',
                 style: TextStyle(color: Colors.grey, fontSize: 12),
+              ),
+              const SizedBox(height: 10),
+              TextFormField(
+                decoration: const InputDecoration(
+                  labelText: 'Description',
+                  hintText: 'Enter a description...',
+                  suffixIcon: Icon(Icons.description),
+                ),
+                onSaved: (value) {
+                  _enteredDescription = value ?? "";
+                },
               ),
               const SizedBox(height: 15),
               TextFormField(
                 maxLines: 4,
                 decoration: const InputDecoration(
-                  // labelText: 'Prompt',
-                  hintText: 'Nhập nội dung prompt...',
+                  labelText: 'Prompt',
+                  hintText: 'Enter a AI Bot\'s Prompt Content...',
                   border: OutlineInputBorder(),
                 ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Vui lòng nhập prompt';
-                  }
-                  return null;
-                },
                 onSaved: (value) {
-                  _enteredPrompt = value!;
+                  _enteredPrompt = value ?? "";
                 },
               ),
               const SizedBox(height: 10),
               const Text(
-                'Ví dụ: Bạn là một dịch giả có kinh nghiệm với kỹ năng trong nhiều ngôn ngữ trên thế giới.',
+                'Example: You are an experienced translator with skills in multiple languages worldwide.',
                 style: TextStyle(color: Colors.grey, fontSize: 12),
-              ),
-              const SizedBox(height: 20),
-              DropdownButtonFormField<int>(
-                value: _accessOption,
-                items: const [
-                  DropdownMenuItem(
-                    value: 1,
-                    child: Text('Publish'),
-                  ),
-                  DropdownMenuItem(
-                    value: 2,
-                    child: Text('Private'),
-                  ),
-                ],
-                onChanged: (int? newValue) {
-                  setState(() {
-                    _accessOption = newValue!;
-                  });
-                },
-                decoration: const InputDecoration(
-                  labelText: 'Quyền truy cập',
-                ),
               ),
             ],
           ),
