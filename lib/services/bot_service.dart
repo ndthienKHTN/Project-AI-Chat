@@ -3,21 +3,13 @@ import 'package:project_ai_chat/models/bot_request.dart';
 import 'package:project_ai_chat/models/prompt_model.dart';
 import 'package:project_ai_chat/utils/dio/dio_client.dart';
 import 'package:project_ai_chat/models/prompt_list.dart';
+import 'package:project_ai_chat/utils/dio/dio_knowledge_base.dart';
 
 import '../models/bot_list.dart';
 
-const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjU5YWY1NWRjLTNlOWMtNDNhYi1hMWIyLTA5NTY4ZjQ0OTBjMyIsImVtYWlsIjoiYWxleGllOTkxMUBnbWFpbC5jb20iLCJpYXQiOjE3MzM1NDEwMTYsImV4cCI6MTczMzYyNzQxNn0.RZJ8Co8BQHwksZLCGb_8YPWi57S3hzcmzgbtdFXR7gs";
-
 class BotService {
 
-
-  final dio = Dio(BaseOptions(
-    baseUrl: "https://knowledge-api.jarvis.cx/kb-core/v1",
-    headers: {
-      'Authorization': 'Bearer $token',
-      'Content-Type': 'application/json',
-    },
-  ));
+  final dioKB = DioKnowledgeBase().dio;
 
   Future<BotList> fetchBots({String? query, required int limit, required int offset}) async {
     try {
@@ -25,7 +17,7 @@ class BotService {
       print('🚀 REQUEST PARAM: q=${query}&offset=${offset}&limit=${limit}');
 
       final response;
-      response = await dio.get(
+      response = await dioKB.get(
             '/ai-assistant?q=${query}&order=DESC&offset=${offset}&limit=${limit}&is_favorite&is_published');
 
       print('✅ RESPONSE BOTS DATA: ${response.data}');
@@ -46,7 +38,7 @@ class BotService {
 
   Future<bool> deleteBot(String id) async {
     try {
-      final response = await dio.delete('/ai-assistant/${id}');
+      final response = await dioKB.delete('/ai-assistant/${id}');
 
       print('✅ DELETE PROMPT RESPONSE CODE: ${response.statusCode}');
 
@@ -72,7 +64,7 @@ class BotService {
 
       print('🚀 REQUEST DATA: $requestData');
 
-      final response = await dio.post(
+      final response = await dioKB.post(
         '/ai-assistant',
         data: requestData,
       );
@@ -102,7 +94,7 @@ class BotService {
 
       print('🚀 REQUEST DATA: $requestData');
 
-      final response = await dio.patch(
+      final response = await dioKB.patch(
         '/ai-assistant/${id}',
         data: requestData,
       );

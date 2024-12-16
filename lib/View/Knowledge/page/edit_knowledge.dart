@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:project_ai_chat/View/Knowledge/model/knowledge.dart';
+import 'package:project_ai_chat/models/knowledge.dart';
 import 'package:project_ai_chat/View/Knowledge/widgets/load_data_knowledge.dart';
 
 class EditKnowledge extends StatefulWidget {
@@ -45,6 +45,7 @@ class _NewKnowledgeState extends State<EditKnowledge> {
         Knowledge(
           name: _enteredName,
           description: _enteredPrompt,
+          id: widget.knowledge.id,
           imageUrl:
               "https://img.freepik.com/premium-photo/green-white-graphic-stack-barrels-with-green-top_1103290-132885.jpg",
           listFiles: _listFiles,
