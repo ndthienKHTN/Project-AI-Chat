@@ -7,6 +7,7 @@ import 'package:project_ai_chat/View/Bot/page/bot_screen.dart';
 import 'package:project_ai_chat/utils/exceptions/chat_exception.dart';
 import 'package:project_ai_chat/models/response/message_response.dart';
 import 'package:project_ai_chat/viewmodels/auth_view_model.dart';
+import 'package:project_ai_chat/viewmodels/knowledge_base_view_model.dart';
 import 'package:project_ai_chat/viewmodels/prompt_list_view_model.dart';
 import '../../core/Widget/dropdown-button.dart';
 import '../../viewmodels/aichat_list_view_model.dart';
@@ -91,6 +92,12 @@ class _HomeChatState extends State<HomeChat> {
         .fetchAllPrompts()
         .then((_) {
       Provider.of<PromptListViewModel>(context, listen: false).allprompts;
+    });
+
+    // Load all Knowledgebase
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<KnowledgeBaseProvider>(context, listen: false)
+          .fetchAllKnowledgeBases(isLoadMore: false);
     });
   }
 
