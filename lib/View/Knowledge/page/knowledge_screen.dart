@@ -23,10 +23,6 @@ class _KnowledgeScreenState extends State<KnowledgeScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<KnowledgeBaseProvider>(context, listen: false)
-          .fetchAllKnowledgeBases(isLoadMore: false);
-    });
 
     _scrollController = ScrollController()
       ..addListener(() {
@@ -175,7 +171,7 @@ class _KnowledgeScreenState extends State<KnowledgeScreen> {
                   return ListView.builder(
                     controller: _scrollController,
                     shrinkWrap: true,
-                    itemCount: kbProvider.knowledgeBases.length,
+                    itemCount: kbProvider.knowledgeBases.length + 1,
                     itemBuilder: (context, index) {
                       if (index == kbProvider.knowledgeBases.length) {
                         // Loader khi đang tải thêm

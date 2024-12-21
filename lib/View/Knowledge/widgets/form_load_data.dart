@@ -1,24 +1,50 @@
+import 'dart:io';
+
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:project_ai_chat/viewmodels/knowledge_base_view_model.dart';
+import 'package:provider/provider.dart';
 
 class FormLoadData extends StatefulWidget {
-  const FormLoadData({super.key, required this.addNewData});
+  const FormLoadData(
+      {super.key, required this.addNewData, required this.knowledgeId});
   final void Function(String newData) addNewData;
+  final String knowledgeId;
 
   @override
   State<FormLoadData> createState() => _FormLoadDataState();
 }
 
 class _FormLoadDataState extends State<FormLoadData> {
-  final _formKey = GlobalKey<FormState>();
-  String _enteredName = "";
+  String _fileName = "";
+  File? _selectedFile;
 
-  void _saveFile() {
-    if (_formKey.currentState!.validate()) {
-      _formKey.currentState!.save();
+  void _saveFile() async {
+    if (_selectedFile == null || _fileName == "") {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please choose file before upload')),
+      );
+      return;
+    }
+    await Provider.of<KnowledgeBaseProvider>(context, listen: false)
+        .uploadLocalFile(_selectedFile!, widget.knowledgeId);
+    widget.addNewData(_fileName);
+    Navigator.pop(context);
+  }
 
-      widget.addNewData(_enteredName);
-      Navigator.pop(context);
+  Future<void> _pickFile() async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.any, // Cho phép tất cả loại file
+    );
+
+    if (result != null && result.files.single.path != null) {
+      setState(() {
+        _selectedFile = File(result.files.single.path!);
+        _fileName = result.files.single.name;
+      });
+    } else {
+      // Người dùng hủy chọn file
     }
   }
 
@@ -33,25 +59,6 @@ class _FormLoadDataState extends State<FormLoadData> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Form(
-              key: _formKey,
-              child: TextFormField(
-                decoration: const InputDecoration(
-                  labelText: 'Tên',
-                  hintText: 'Nhập tên',
-                  suffixIcon: Icon(Icons.edit),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Vui lòng nhập tên';
-                  }
-                  return null;
-                },
-                onSaved: (value) {
-                  _enteredName = value!;
-                },
-              ),
-            ),
             Padding(
               padding: const EdgeInsets.only(top: 10),
               child: Container(
@@ -62,20 +69,23 @@ class _FormLoadDataState extends State<FormLoadData> {
                   ),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: const Center(
+                child: Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(
-                        Icons.cloud_upload,
-                        size: 80,
-                        color: Colors.blueAccent,
+                      IconButton(
+                        onPressed: _pickFile,
+                        icon: const Icon(
+                          Icons.cloud_upload,
+                          size: 80,
+                          color: Colors.blueAccent,
+                        ),
                       ),
-                      SizedBox(height: 10),
-                      Padding(
+                      const SizedBox(height: 10),
+                      const Padding(
                         padding: EdgeInsets.all(8.0),
                         child: Text(
-                          'Click or drag file to this area to upload',
+                          'Click to this area to upload file',
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             color: Colors.black54,
@@ -87,6 +97,8 @@ class _FormLoadDataState extends State<FormLoadData> {
                 ),
               ),
             ),
+            if (_selectedFile != null) Text('File đã chọn: $_fileName'),
+            const SizedBox(height: 16),
           ],
         ),
       ),

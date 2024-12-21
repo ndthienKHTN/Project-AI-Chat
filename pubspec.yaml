@@ -49,6 +49,7 @@ dependencies:
   permission_handler: ^10.2.0
   screenshot: ^3.0.0
   path_provider: ^2.1.5
+  file_picker: ^8.1.6
 
 dev_dependencies:
   flutter_test:
