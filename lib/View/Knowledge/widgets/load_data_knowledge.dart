@@ -27,27 +27,31 @@ class _LoadDataKnowledgeState extends State<LoadDataKnowledge> {
     {
       'title': 'Local files',
       'subtitle': 'Upload pdf, docx, ...',
-      'icon': Icons.folder
+      'image':
+          'https://icon-library.com/images/files-icon-png/files-icon-png-10.jpg'
     },
     {
       'title': 'Google drive',
       'subtitle': 'Connect Google drive to get data',
-      'icon': Icons.drive_folder_upload
+      'image':
+          'https://static-00.iconduck.com/assets.00/google-drive-icon-1024x1024-h7igbgsr.png'
     },
     {
       'title': 'Website',
       'subtitle': 'Connect Website to get data',
-      'icon': Icons.public
+      'image': 'https://cdn-icons-png.flaticon.com/512/5339/5339181.png'
     },
     {
       'title': 'Slack',
       'subtitle': 'Connect Slack to get data',
-      'icon': Icons.chat
+      'image':
+          'https://static-00.iconduck.com/assets.00/slack-icon-2048x2048-vhdso1nk.png'
     },
     {
       'title': 'Confluence',
       'subtitle': 'Connect Confluence to get data',
-      'icon': Icons.chat
+      'image':
+          'https://static.wixstatic.com/media/f9d4ea_637d021d0e444d07bead34effcb15df1~mv2.png/v1/fill/w_340,h_340,al_c,lg_1,q_85,enc_auto/Apt-website-icon-confluence.png'
     },
   ];
 
@@ -81,18 +85,21 @@ class _LoadDataKnowledgeState extends State<LoadDataKnowledge> {
           context: context,
           builder: (context) => FormLoadDataWeb(
                 addNewData: _addNewFile,
+                knowledgeId: widget.knowledgeId,
               ));
     } else if (_selectedIndex == 3) {
       showDialog(
           context: context,
           builder: (context) => FormLoadDataSlack(
                 addNewData: _addNewFile,
+                knowledgeId: widget.knowledgeId,
               ));
     } else if (_selectedIndex == 4) {
       showDialog(
           context: context,
           builder: (context) => FormLoadDataConfluence(
                 addNewData: _addNewFile,
+                knowledgeId: widget.knowledgeId,
               ));
     }
   }
@@ -122,9 +129,13 @@ class _LoadDataKnowledgeState extends State<LoadDataKnowledge> {
                   ),
                 ),
                 child: ListTile(
-                  leading: Icon(
-                    option['icon'],
-                    color: isSelected ? Colors.blue : Colors.grey,
+                  leading: Image.network(
+                    option['image'],
+                    width: 34,
+                    errorBuilder: (context, error, stackTrace) {
+                      return const Icon(Icons
+                          .storage); // Hiển thị icon lỗi nếu không load được hình
+                    },
                   ),
                   title: Text(
                     option['title'],

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:project_ai_chat/View/HomeChat/home.dart';
 import 'package:project_ai_chat/View/Register/register_screen.dart';
 import 'package:project_ai_chat/constants/colors.dart';
@@ -80,6 +81,22 @@ class _LoginScreenState extends State<LoginScreen> {
         );
       }
     }
+  }
+
+  void _logInGoogle() async {
+    final GoogleSignIn googleSignIn = GoogleSignIn(
+      scopes: <String>[
+        'email',
+        'openid',
+      ],
+    );
+
+    // Get the user after successful sign in
+    final GoogleSignInAccount? googleAccount = await googleSignIn.signIn();
+    final GoogleSignInAuthentication googleAuthentication =
+        await googleAccount!.authentication;
+    print("token1: ${googleAuthentication.accessToken}");
+    print("token2: ${googleAuthentication.idToken}");
   }
 
   @override
@@ -194,7 +211,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           image: AssetImage(tGoogleLogoImage),
                           width: 20.0,
                         ),
-                        onPressed: () {},
+                        onPressed: _logInGoogle,
                         label: tSignInWithGoogle,
                       ),
                     ),

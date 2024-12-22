@@ -344,4 +344,117 @@ class KnowledgeBaseProvider with ChangeNotifier {
       notifyListeners();
     }
   }
+
+  Future<bool> uploadWebUrl(String knowledgeId, String webName, String webUrl) async {
+    isLoading = true;
+    error = null;
+    notifyListeners();
+
+    try {
+      final response =
+          await _kbService.uploadWebUrl(knowledgeId, webName, webUrl);
+
+      if (response.success) {
+        final knowledgeIndex =
+            _knowledgeBases.indexWhere((kb) => kb.id == knowledgeId);
+
+        if (knowledgeIndex != -1) {
+          _knowledgeBases[knowledgeIndex].listUnits.add(
+                Unit(
+                  unitName: response.data['name'],
+                  unitId: response.data['id'],
+                  unitType: response.data['type'],
+                  isActived: true,
+                ),
+              );
+        }
+        return true;
+      } else {
+        error = response.message ?? 'Đăng ký thất bại';
+        return false;
+      }
+    } catch (e) {
+      error = e.toString();
+      return false;
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<bool> uploadSlack(String knowledgeId, String slackName, String slackWorkspace, String slackBotToken) async {
+    isLoading = true;
+    error = null;
+    notifyListeners();
+
+    try {
+      final response =
+          await _kbService.uploadSlack(knowledgeId, slackName, slackWorkspace, slackBotToken);
+
+      if (response.success) {
+        final knowledgeIndex =
+            _knowledgeBases.indexWhere((kb) => kb.id == knowledgeId);
+
+        if (knowledgeIndex != -1) {
+          _knowledgeBases[knowledgeIndex].listUnits.add(
+                Unit(
+                  unitName: response.data['name'],
+                  unitId: response.data['id'],
+                  unitType: response.data['type'],
+                  isActived: true,
+                ),
+              );
+        }
+        return true;
+      } else {
+        error = response.message ?? 'Đăng ký thất bại';
+        return false;
+      }
+    } catch (e) {
+      error = e.toString();
+      return false;
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<bool> uploadConfluence(String knowledgeId, String confluenceName, String wikiPageUrl, String username, String accessToken) async {
+    isLoading = true;
+    error = null;
+    notifyListeners();
+
+    try {
+      final response =
+          await _kbService.uploadConfluence(knowledgeId, confluenceName, wikiPageUrl, username, accessToken);
+
+      if (response.success) {
+        final knowledgeIndex =
+            _knowledgeBases.indexWhere((kb) => kb.id == knowledgeId);
+
+        if (knowledgeIndex != -1) {
+          _knowledgeBases[knowledgeIndex].listUnits.add(
+                Unit(
+                  unitName: response.data['name'],
+                  unitId: response.data['id'],
+                  unitType: response.data['type'],
+                  isActived: true,
+                ),
+              );
+        }
+        return true;
+      } else {
+        error = response.message ?? 'Đăng ký thất bại';
+        return false;
+      }
+    } catch (e) {
+      error = e.toString();
+      return false;
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
+
 }
+

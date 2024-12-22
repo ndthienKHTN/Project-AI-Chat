@@ -67,10 +67,10 @@ class _NewKnowledgeState extends State<EditKnowledge> {
   String getImageByUnitType(String unitType) {
     switch (unitType) {
       case "local_file":
-        return 'https://i0.wp.com/static.vecteezy.com/system/resources/previews/022/086/609/non_2x/file-type-icons-format-and-extension-of-documents-pdf-icon-free-vector.jpg?ssl=1';
+        return 'https://icon-library.com/images/files-icon-png/files-icon-png-10.jpg';
       case "gg_drive":
         return 'https://static-00.iconduck.com/assets.00/google-drive-icon-1024x1024-h7igbgsr.png';
-      case "website":
+      case "web":
         return 'https://cdn-icons-png.flaticon.com/512/5339/5339181.png';
       case "slack":
         return 'https://static-00.iconduck.com/assets.00/slack-icon-2048x2048-vhdso1nk.png';
@@ -349,7 +349,7 @@ class _NewKnowledgeState extends State<EditKnowledge> {
                 ),
               ),
               const SizedBox(
-                height: 10,
+                height: 24,
               ),
               // Row(
               //   mainAxisAlignment: MainAxisAlignment.end,
