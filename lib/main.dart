@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:project_ai_chat/View/EmailChat/email.dart';
+import 'package:project_ai_chat/View/HomeChat/home.dart';
 import 'package:project_ai_chat/View/Login/login_screen.dart';
-import 'package:project_ai_chat/View/SplashScreen/splash_screen.dart';
 import 'package:project_ai_chat/services/bot_service.dart';
 import 'package:project_ai_chat/services/chat_service.dart';
+import 'package:project_ai_chat/services/email_chat_service.dart';
 import 'package:project_ai_chat/utils/theme/theme.dart';
 import 'package:project_ai_chat/viewmodels/bot_view_model.dart';
+import 'package:project_ai_chat/viewmodels/emailchat_view_model.dart';
 import 'package:project_ai_chat/viewmodels/knowledge_base_view_model.dart';
 import 'package:project_ai_chat/viewmodels/aichat_list_view_model.dart';
 import 'package:project_ai_chat/viewmodels/auth_view_model.dart';
@@ -18,6 +22,7 @@ final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  MobileAds.instance.initialize();
   final prefs = await SharedPreferences.getInstance();
 
   runApp(
@@ -28,23 +33,27 @@ void main() async {
             prefs: prefs,
           ),
         ),
+        Provider<EmailChatService>(
+          create: (_) => EmailChatService(),
+        ),
         Provider<PromptService>(
           create: (_) => PromptService(
               // dio: dio,
-              // prefs: prefs,
+              // prefs: pre
               ),
         ),
         Provider<BotService>(
           create: (_) => BotService(
-            // dio: dio,
-            // prefs: prefs,
-          ),
+              // dio: dio,
+              // prefs: prefs,
+              ),
         ),
         ChangeNotifierProvider(
           create: (context) => MessageModel(
             context.read<ChatService>(),
           ),
         ),
+        ChangeNotifierProvider(create: (context) => EmailChatViewModel()),
         ChangeNotifierProvider(create: (context) => PromptListViewModel()),
         ChangeNotifierProvider(create: (context) => BotViewModel()),
         ChangeNotifierProvider(create: (context) => KnowledgeBaseProvider()),
@@ -67,7 +76,7 @@ class MyApp extends StatelessWidget {
       themeMode: ThemeMode.system,
       navigatorKey: navigatorKey,
       routes: {'/login': (context) => const LoginScreen()},
-      home: SplashScreen(),
+      home: HomeChat(),
     );
   }
 }
