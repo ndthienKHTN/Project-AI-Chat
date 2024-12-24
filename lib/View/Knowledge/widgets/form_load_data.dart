@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:project_ai_chat/viewmodels/knowledge_base_view_model.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class FormLoadData extends StatefulWidget {
   const FormLoadData(
@@ -19,6 +20,7 @@ class FormLoadData extends StatefulWidget {
 class _FormLoadDataState extends State<FormLoadData> {
   String _fileName = "";
   File? _selectedFile;
+  final String url = 'https://jarvis.cx/help/knowledge-base/connectors/file/';
 
   void _saveFile() async {
     if (_selectedFile == null || _fileName == "") {
@@ -48,17 +50,66 @@ class _FormLoadDataState extends State<FormLoadData> {
     }
   }
 
+  Future<void> _openLink() async {
+    if (await canLaunchUrl(Uri.parse(url))) {
+      await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+    } else {
+      throw 'Không thể mở liên kết $url';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text(
-        "Add new knowledge",
-        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+      title: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          const Text(
+            "Add Unit",
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+          ),
+          InkWell(
+            onTap: _openLink,
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              decoration: BoxDecoration(
+                color: Colors.blue,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Text(
+                'Docs',
+                style: TextStyle(color: Colors.white, fontSize: 16),
+              ),
+            ),
+          ),
+        ],
       ),
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(0, 0, 0, 14),
+              child: Row(
+                // mainAxisSize: MainAxisSize.max,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Image.network(
+                    "https://icon-library.com/images/files-icon-png/files-icon-png-10.jpg",
+                    width: 34,
+                    errorBuilder: (context, error, stackTrace) {
+                      return const Icon(Icons
+                          .storage); // Hiển thị icon lỗi nếu không load được hình
+                    },
+                  ),
+                  const SizedBox(width: 4),
+                  const Text(
+                    "Local File",
+                    style: TextStyle(fontSize: 16),
+                  ),
+                ],
+              ),
+            ),
             Padding(
               padding: const EdgeInsets.only(top: 10),
               child: Container(

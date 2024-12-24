@@ -395,4 +395,149 @@ class KnowledgebaseService {
       );
     }
   }
+
+  Future<ApiResponse> uploadWebUrl(
+      String knowledgeId, String webName, String webUrl) async {
+    try {
+      final response = await dioKB.post(
+        '/knowledge/$knowledgeId/web',
+        data: {
+          "unitName": webName,
+          "webUrl": webUrl,
+        },
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return ApiResponse(
+          success: true,
+          message: 'Upload web url successfully',
+          data: response.data,
+          statusCode: response.statusCode ?? 200,
+        );
+      } else {
+        return ApiResponse(
+          success: false,
+          message: 'Fail to upload web url: ${response.data}',
+          statusCode: response.statusCode ?? 400,
+        );
+      }
+    } on DioException catch (e) {
+      String errorMessage = 'Fail to upload web url';
+      if (e.response != null) {
+        final errorData = e.response!.data;
+
+        // Check for custom error messages in the response data
+        if (errorData['details'] != null && errorData['details'].isNotEmpty) {
+          // Collect all issues in `details` into a single message
+          List<String> issues = (errorData['details'] as List<dynamic>)
+              .map<String>((detail) => detail['issue'] ?? 'Unknown issue')
+              .toList();
+          errorMessage = issues.join(', ');
+        }
+      }
+      return ApiResponse(
+        success: false,
+        message: errorMessage,
+        statusCode: e.response!.statusCode ?? 400,
+      );
+    }
+  }
+
+  Future<ApiResponse> uploadSlack(
+      String knowledgeId, String slackName, String slackWorkspace, String slackBotToken) async {
+    try {
+      final response = await dioKB.post(
+        '/knowledge/$knowledgeId/slack',
+        data: {
+          "unitName": slackName,
+          "slackWorkspace": slackWorkspace,
+          "slackBotToken": slackBotToken,
+        },
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return ApiResponse(
+          success: true,
+          message: 'Upload slack successfully',
+          data: response.data,
+          statusCode: response.statusCode ?? 200,
+        );
+      } else {
+        return ApiResponse(
+          success: false,
+          message: 'Fail to upload slack: ${response.data}',
+          statusCode: response.statusCode ?? 400,
+        );
+      }
+    } on DioException catch (e) {
+      String errorMessage = 'Fail to upload slack';
+      if (e.response != null) {
+        final errorData = e.response!.data;
+
+        // Check for custom error messages in the response data
+        if (errorData['details'] != null && errorData['details'].isNotEmpty) {
+          // Collect all issues in `details` into a single message
+          List<String> issues = (errorData['details'] as List<dynamic>)
+              .map<String>((detail) => detail['issue'] ?? 'Unknown issue')
+              .toList();
+          errorMessage = issues.join(', ');
+        }
+      }
+      return ApiResponse(
+        success: false,
+        message: errorMessage,
+        statusCode: e.response!.statusCode ?? 400,
+      );
+    }
+  }
+
+  Future<ApiResponse> uploadConfluence(
+      String knowledgeId, String confluenceName, String wikiPageUrl, String username, String accessToken) async {
+    try {
+      final response = await dioKB.post(
+        '/knowledge/$knowledgeId/confluence',
+        data: {
+          "unitName": confluenceName,
+          "wikiPageUrl": wikiPageUrl,
+          "confluenceUsername": username,
+          "confluenceAccessToken": accessToken,
+        },
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return ApiResponse(
+          success: true,
+          message: 'Upload confluence successfully',
+          data: response.data,
+          statusCode: response.statusCode ?? 200,
+        );
+      } else {
+        return ApiResponse(
+          success: false,
+          message: 'Fail to upload confluence: ${response.data}',
+          statusCode: response.statusCode ?? 400,
+        );
+      }
+    } on DioException catch (e) {
+      String errorMessage = 'Fail to upload confluence';
+      if (e.response != null) {
+        final errorData = e.response!.data;
+
+        // Check for custom error messages in the response data
+        if (errorData['details'] != null && errorData['details'].isNotEmpty) {
+          // Collect all issues in `details` into a single message
+          List<String> issues = (errorData['details'] as List<dynamic>)
+              .map<String>((detail) => detail['issue'] ?? 'Unknown issue')
+              .toList();
+          errorMessage = issues.join(', ');
+        }
+      }
+      return ApiResponse(
+        success: false,
+        message: errorMessage,
+        statusCode: e.response!.statusCode ?? 400,
+      );
+    }
+  }
+
 }
