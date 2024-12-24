@@ -1,11 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:project_ai_chat/View/Knowledge/data/knowledges_data.dart';
-import 'package:project_ai_chat/View/Knowledge/model/knowledge.dart';
+import 'package:project_ai_chat/models/knowledge.dart';
 import 'package:project_ai_chat/View/Knowledge/page/edit_knowledge.dart';
 import 'package:project_ai_chat/View/Knowledge/page/new_knowledge.dart';
 import 'package:project_ai_chat/View/Knowledge/widgets/knowledge_card.dart';
+import 'package:project_ai_chat/viewmodels/knowledge_base_view_model.dart';
+import 'package:provider/provider.dart';
 
 class KnowledgeScreen extends StatefulWidget {
   const KnowledgeScreen({super.key});
@@ -15,26 +16,42 @@ class KnowledgeScreen extends StatefulWidget {
 }
 
 class _KnowledgeScreenState extends State<KnowledgeScreen> {
-  final _listKnowledge = knowledges;
+  late ScrollController
+      _scrollController; // variable for load more conversation
+  final TextEditingController _searchController = TextEditingController();
 
-  void _addKnowledge(Knowledge newKnowledge) {
-    setState(() {
-      _listKnowledge.add(newKnowledge);
-    });
+  @override
+  void initState() {
+    super.initState();
+
+    _scrollController = ScrollController()
+      ..addListener(() {
+        // Khi cuộn đến cuối danh sách
+        if (_scrollController.position.pixels ==
+            _scrollController.position.maxScrollExtent) {
+          Provider.of<KnowledgeBaseProvider>(context, listen: false)
+              .fetchAllKnowledgeBases(isLoadMore: true);
+        }
+      });
   }
 
-  void _editKnowledge(Knowledge newEditKnowledge, indexEdit) {
-    setState(() {
-      _listKnowledge[indexEdit] = newEditKnowledge;
-    });
+  void _addKnowledge(String knowledgeName, String description) {
+    Provider.of<KnowledgeBaseProvider>(context, listen: false)
+        .addKnowledgeBase(knowledgeName, description);
+  }
+
+  void _editKnowledge(
+      String id, int index, String knowledgeName, String description) {
+    Provider.of<KnowledgeBaseProvider>(context, listen: false)
+        .editKnowledgeBase(id, index, knowledgeName, description);
   }
 
   void _openAddBotDialog(BuildContext context) {
     showDialog(
       context: context,
       builder: (context) => NewKnowledge(
-        addNewKnowledge: (newKnowledge) {
-          _addKnowledge(newKnowledge);
+        addNewKnowledge: (String knowledgeName, String description) {
+          _addKnowledge(knowledgeName, description);
         },
       ),
     );
@@ -54,8 +71,9 @@ class _KnowledgeScreenState extends State<KnowledgeScreen> {
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => EditKnowledge(
-          editKnowledge: (knowledge) {
-            _editKnowledge(knowledge, index);
+          editKnowledge: (Knowledge knowledge) {
+            _editKnowledge(
+                knowledge.id, index, knowledge.name, knowledge.description);
           },
           knowledge: knowledge,
         ),
@@ -63,29 +81,31 @@ class _KnowledgeScreenState extends State<KnowledgeScreen> {
     );
   }
 
-  void _removeKnowledge(Knowledge knowledge) {
-    final knowledgeDeleteIndex = _listKnowledge.indexOf(knowledge);
-
-    setState(() {
-      _listKnowledge.remove(knowledge);
-    });
+  void _removeKnowledge(String id, int index) {
+    Provider.of<KnowledgeBaseProvider>(context, listen: false)
+        .deleteKnowledgeBase(id, index);
 
     // Undo remove knowledge
-    ScaffoldMessenger.of(context).clearSnackBars();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        duration: const Duration(seconds: 3),
-        content: const Text("Knowledge Base has been Deleted!"),
-        action: SnackBarAction(
-          label: 'Undo',
-          onPressed: () {
-            setState(() {
-              _listKnowledge.insert(knowledgeDeleteIndex, knowledge);
-            });
-          },
-        ),
-      ),
-    );
+    // ScaffoldMessenger.of(context).clearSnackBars();
+    // ScaffoldMessenger.of(context).showSnackBar(
+    //   SnackBar(
+    //     duration: const Duration(seconds: 3),
+    //     content: const Text("Knowledge Base has been Deleted!"),
+    //     action: SnackBarAction(
+    //       label: 'Undo',
+    //       onPressed: () {
+    //         setState(() {
+    //           _listKnowledge.insert(knowledgeDeleteIndex, knowledge);
+    //         });
+    //       },
+    //     ),
+    //   ),
+    // );
+  }
+
+  void _onSearch() {
+    final query = _searchController.text.trim();
+    Provider.of<KnowledgeBaseProvider>(context, listen: false).query(query);
   }
 
   @override
@@ -116,8 +136,12 @@ class _KnowledgeScreenState extends State<KnowledgeScreen> {
         child: Column(
           children: [
             TextField(
+              controller: _searchController,
               decoration: InputDecoration(
-                prefixIcon: const Icon(Icons.search),
+                prefixIcon: IconButton(
+                  icon: const Icon(Icons.search),
+                  onPressed: _onSearch, // Nhấn icon tìm kiếm để gọi API
+                ),
                 hintText: 'Tìm kiếm',
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8.0),
@@ -126,33 +150,69 @@ class _KnowledgeScreenState extends State<KnowledgeScreen> {
             ),
             const SizedBox(height: 8),
             Expanded(
-              child: ListView.builder(
-                itemCount: _listKnowledge.length,
-                itemBuilder: (context, index) {
-                  return Slidable(
-                    endActionPane: ActionPane(
-                      motion: const StretchMotion(),
-                      children: [
-                        SlidableAction(
-                          onPressed: (context) {
-                            _openEditKnowledgeDialog(
-                                context, _listKnowledge[index], index);
-                          },
-                          icon: Icons.edit,
-                          backgroundColor: Colors.green,
+              child: Consumer<KnowledgeBaseProvider>(
+                builder: (context, kbProvider, child) {
+                  if (kbProvider.isLoading &&
+                      kbProvider.knowledgeBases.isEmpty) {
+                    // Display loading indicator while fetching conversations
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  if (kbProvider.error != null &&
+                      kbProvider.knowledgeBases.isEmpty) {
+                    // Display error message if there's an error
+                    return Center(
+                      child: Text(
+                        kbProvider.error ?? 'Server error, please try again',
+                        style: const TextStyle(color: Colors.red, fontSize: 16),
+                      ),
+                    );
+                  }
+
+                  return ListView.builder(
+                    controller: _scrollController,
+                    shrinkWrap: true,
+                    itemCount: kbProvider.knowledgeBases.length + 1,
+                    itemBuilder: (context, index) {
+                      if (index == kbProvider.knowledgeBases.length) {
+                        // Loader khi đang tải thêm
+                        if (kbProvider.hasNext) {
+                          return const Padding(
+                            padding: EdgeInsets.all(16.0),
+                            child: Center(child: CircularProgressIndicator()),
+                          );
+                        } else {
+                          return const SizedBox.shrink(); // Không còn dữ liệu
+                        }
+                      }
+
+                      final _listKnowledges = kbProvider.knowledgeBases;
+                      return Slidable(
+                        endActionPane: ActionPane(
+                          motion: const StretchMotion(),
+                          children: [
+                            SlidableAction(
+                              onPressed: (context) {
+                                _openEditKnowledgeDialog(
+                                    context, _listKnowledges[index], index);
+                              },
+                              icon: Icons.edit,
+                              backgroundColor: Colors.green,
+                            ),
+                            SlidableAction(
+                              onPressed: (context) {
+                                _removeKnowledge(
+                                    _listKnowledges[index].id, index);
+                              },
+                              icon: Icons.delete,
+                              backgroundColor: Colors.red,
+                            ),
+                          ],
                         ),
-                        SlidableAction(
-                          onPressed: (context) {
-                            _removeKnowledge(_listKnowledge[index]);
-                          },
-                          icon: Icons.delete,
-                          backgroundColor: Colors.red,
+                        child: KnowledgeCard(
+                          knowledge: _listKnowledges[index],
                         ),
-                      ],
-                    ),
-                    child: KnowledgeCard(
-                      knowledge: knowledges[index],
-                    ),
+                      );
+                    },
                   );
                 },
               ),

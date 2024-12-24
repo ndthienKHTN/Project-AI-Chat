@@ -1,13 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:project_ai_chat/viewmodels/knowledge_base_view_model.dart';
-import 'package:project_ai_chat/View/Knowledge/model/knowledge.dart';
+import 'package:project_ai_chat/models/knowledge.dart';
 import 'package:project_ai_chat/View/Knowledge/widgets/load_data_knowledge.dart';
 import 'package:provider/provider.dart';
 
 class NewKnowledge extends StatefulWidget {
   const NewKnowledge({super.key, required this.addNewKnowledge});
-  final void Function(Knowledge newKnowledge) addNewKnowledge;
+  final void Function(String knowledgeName, String description) addNewKnowledge;
 
   @override
   State<NewKnowledge> createState() => _NewKnowledgeState();
@@ -23,20 +23,12 @@ class _NewKnowledgeState extends State<NewKnowledge> {
       _formKey.currentState!.save();
 
       widget.addNewKnowledge(
-        Knowledge(
-            name: _enteredName,
-            description: _enteredPrompt,
-            imageUrl:
-                "https://img.freepik.com/premium-photo/green-white-graphic-stack-barrels-with-green-top_1103290-132885.jpg",
-            listFiles: [],
-            listGGDrives: [],
-            listUrlWebsite: [],
-            listConfluenceFiles: [],
-            listSlackFiles: []),
+        _enteredName,
+        _enteredPrompt,
       );
 
-      Provider.of<KnowledgeBaseProvider>(context, listen: false)
-          .addKnowledgeBase(_enteredName);
+      // Provider.of<KnowledgeBaseProvider>(context, listen: false)
+      //     .addKnowledgeBase(_enteredName);
       Navigator.pop(context);
     }
   }

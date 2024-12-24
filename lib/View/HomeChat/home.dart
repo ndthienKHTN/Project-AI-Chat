@@ -7,6 +7,7 @@ import 'package:project_ai_chat/View/Bot/page/bot_screen.dart';
 import 'package:project_ai_chat/utils/exceptions/chat_exception.dart';
 import 'package:project_ai_chat/models/response/message_response.dart';
 import 'package:project_ai_chat/viewmodels/auth_view_model.dart';
+import 'package:project_ai_chat/viewmodels/knowledge_base_view_model.dart';
 import 'package:project_ai_chat/viewmodels/prompt_list_view_model.dart';
 import '../../core/Widget/dropdown-button.dart';
 import '../../utils/helpers/ads_helper.dart';
@@ -84,7 +85,6 @@ class _HomeChatState extends State<HomeChat> {
 
     //Hiển thị token
      Provider.of<MessageModel>(context, listen: false).updateRemainingUsage();
-
   }
 
   void _loadInterstitialAd() {
