@@ -14,7 +14,6 @@ class MessageModel extends ChangeNotifier {
   String? _currentConversationId;
   int _remainingUsage = 30;
   int? _maxTokens;
-  int? get maxTokens => _maxTokens;
   bool _isLoading = false;
   String? _errorMessage;
   bool _isSending = false;
@@ -27,7 +26,8 @@ class MessageModel extends ChangeNotifier {
   // Thêm biến để theo dõi trạng thái gửi tin nhắn đầu tiên
   bool _isFirstMessageSent = false;
 
-  int? get remainingUsage => _remainingUsage;
+  int get remainingUsage => _remainingUsage;
+  int? get maxTokens => _maxTokens;
   List<Message> get messages => _messages;
   List<Conversation> get conversations => _conversations;
   bool get isLoading => _isLoading;
