@@ -12,7 +12,7 @@ class DioKnowledgeBase {
   DioKnowledgeBase._internal() {
     dio = Dio(
       BaseOptions(
-        baseUrl: 'https://knowledge-api.dev.jarvis.cx/kb-core/v1',
+        baseUrl: 'https://knowledge-api.jarvis.cx/kb-core/v1',
         connectTimeout: const Duration(seconds: 30),
         receiveTimeout: const Duration(seconds: 30),
         headers: {

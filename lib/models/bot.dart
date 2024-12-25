@@ -27,6 +27,22 @@ class Bot {
     required this.openAiVectorStoreId,
   });
 
+  factory Bot.empty() {
+    return Bot(
+      createdAt: '',
+      updatedAt: '',
+      createdBy: '',
+      updatedBy: '',
+      id: '',
+      assistantName: '',
+      openAiAssistantId: '',
+      instructions: '',
+      description: '',
+      openAiThreadIdPlay: '',
+      openAiVectorStoreId: '',
+    );
+  }
+
   factory Bot.fromJson(Map<String, dynamic> json) {
     return Bot(
       createdAt: json['createdAt'] ?? '',

@@ -7,6 +7,7 @@ import 'package:project_ai_chat/View/HomeChat/home.dart';
 import 'package:project_ai_chat/models/bot_request.dart';
 import 'package:project_ai_chat/viewmodels/bot_view_model.dart';
 import 'package:project_ai_chat/models/bot.dart';
+import 'package:project_ai_chat/viewmodels/homechat_view_model.dart';
 import 'package:provider/provider.dart';
 
 class BotListWidget extends StatefulWidget {
@@ -129,8 +130,15 @@ class _BotListWidgetState extends State<BotListWidget> {
               ),
               child: InkWell(
                 onTap: () {
-                  _openEditBotDialog(
-                      context, bots.data[index], bots.data[index].id);
+                  Provider.of<BotViewModel>(context, listen: false).isChatWithMyBot = true;
+                  Provider.of<BotViewModel>(context, listen: false).currentBot = bots.data[index];
+                  Provider.of<BotViewModel>(context, listen: false).loadConversationHistory();
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => const HomeChat()),
+                  );
+
+                  //viewModel.chatInHome(bots.data[index].id);
                 },
                 child: BotCard(
                   bot: bots.data[index],
