@@ -84,7 +84,6 @@ class _HomeChatState extends State<HomeChat> {
 
     //Hiển thị token
      Provider.of<MessageModel>(context, listen: false).updateRemainingUsage();
-
   }
 
   void _loadInterstitialAd() {

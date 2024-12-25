@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
-import 'package:project_ai_chat/View/EmailChat/email.dart';
-import 'package:project_ai_chat/View/HomeChat/home.dart';
 import 'package:project_ai_chat/View/Login/login_screen.dart';
 import 'package:project_ai_chat/services/bot_service.dart';
 import 'package:project_ai_chat/services/chat_service.dart';
@@ -17,6 +15,8 @@ import 'package:project_ai_chat/viewmodels/prompt_list_view_model.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:project_ai_chat/services/prompt_service.dart';
+
+import 'View/SplashScreen/splash_screen.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
@@ -76,7 +76,7 @@ class MyApp extends StatelessWidget {
       themeMode: ThemeMode.system,
       navigatorKey: navigatorKey,
       routes: {'/login': (context) => const LoginScreen()},
-      home: HomeChat(),
+      home: SplashScreen(),
     );
   }
 }
