@@ -1,18 +1,7 @@
-import 'dart:ffi';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:project_ai_chat/models/ai_logo.dart';
-import 'package:project_ai_chat/services/prompt_service.dart';
-import 'package:project_ai_chat/viewmodels/aichat_list_view_model.dart';
-import 'package:project_ai_chat/viewmodels/homechat_view_model.dart';
 import 'package:project_ai_chat/viewmodels/prompt_list_view_model.dart';
-import 'package:project_ai_chat/models/prompt_list.dart';
-import 'package:project_ai_chat/models/prompt.dart';
 import 'package:provider/provider.dart';
-
-import '../../../../models/prompt_model.dart';
-import '../../enums.dart';
 import '../PromptDetailsBottomSheet/prompt_details_bottom_sheet.dart';
 
 class PromptListWidget extends StatefulWidget {

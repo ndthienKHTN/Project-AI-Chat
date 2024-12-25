@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:project_ai_chat/View/Account/pages/account_screent.dart';
 import 'package:project_ai_chat/View/Bot/page/bot_screen.dart';
@@ -13,6 +13,7 @@ import 'package:project_ai_chat/viewmodels/bot_view_model.dart';
 import 'package:project_ai_chat/viewmodels/knowledge_base_view_model.dart';
 import 'package:project_ai_chat/viewmodels/prompt_list_view_model.dart';
 import '../../core/Widget/dropdown-button.dart';
+import '../../utils/helpers/ads_helper.dart';
 import '../../viewmodels/aichat_list_view_model.dart';
 import '../../viewmodels/homechat_view_model.dart';
 import '../BottomSheet/Widgets/PromptDetailsBottomSheet/prompt_details_bottom_sheet.dart';
@@ -36,6 +37,8 @@ class HomeChat extends StatefulWidget {
 }
 
 class _HomeChatState extends State<HomeChat> {
+  BannerAd? _bannerAd;
+  InterstitialAd? _interstitialAd;
   final TextEditingController _controller = TextEditingController();
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final ScrollController _scrollController = ScrollController();
@@ -52,7 +55,8 @@ class _HomeChatState extends State<HomeChat> {
   @override
   void initState() {
     super.initState();
-    //Lắng nghe ô nhập dữ liệu
+
+    _loadInterstitialAd();
     _controller.addListener(() {
       setState(() {
         _hasText = _controller.text.isNotEmpty;
@@ -61,6 +65,7 @@ class _HomeChatState extends State<HomeChat> {
         }
       });
     });
+
     //Bắt sự lắng nghe khi focus vào ô nhập dữ liệu
     _focusNode.addListener(() {
       if (_focusNode.hasFocus) {
@@ -73,30 +78,16 @@ class _HomeChatState extends State<HomeChat> {
     // lấy thông tin user
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadUserInfo();
+      _loadConversation();
+      _loadAllPrompt();
     });
 
     final aiChatList = Provider.of<AIChatList>(context, listen: false);
     _listAIItem = aiChatList.aiItems;
     selectedAIItem = aiChatList.selectedAIItem.name;
-    // Khởi tạo chat với AIItem được chọn
-    final aiItem =
-        _listAIItem.firstWhere((aiItem) => aiItem.name == selectedAIItem);
-    // Lấy danh sách conversation và load conversation gần nhất
-    Provider.of<MessageModel>(context, listen: false)
-        .fetchAllConversations(aiItem.id, 'dify')
-        .then((_) async {
-      await Provider.of<MessageModel>(context, listen: false)
-          .checkCurrentConversation(aiItem.id);
-    });
-    //Hiển thị token
-    Provider.of<MessageModel>(context, listen: false).updateRemainingUsage();
-    // Lấy danh sách prompts
-    Provider.of<PromptListViewModel>(context, listen: false)
-        .fetchAllPrompts()
-        .then((_) {
-      Provider.of<PromptListViewModel>(context, listen: false).allprompts;
-    });
 
+    //Hiển thị token
+     Provider.of<MessageModel>(context, listen: false).updateRemainingUsage();
     // Load all Knowledgebase
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<KnowledgeBaseProvider>(context, listen: false)
@@ -104,6 +95,35 @@ class _HomeChatState extends State<HomeChat> {
     });
   }
 
+  void _loadInterstitialAd() {
+    InterstitialAd.load(
+      adUnitId: AdHelper.interstitialAdUnitId,
+      request: AdRequest(),
+      adLoadCallback: InterstitialAdLoadCallback(
+        onAdLoaded: (InterstitialAd ad) {
+          setState(() {
+            _interstitialAd = ad;
+          });
+          _interstitialAd?.show();
+          _interstitialAd?.fullScreenContentCallback =
+              FullScreenContentCallback(
+            onAdDismissedFullScreenContent: (InterstitialAd ad) {
+              ad.dispose();
+              print("Interstitial Ad dismissed.");
+            },
+            onAdFailedToShowFullScreenContent:
+                (InterstitialAd ad, AdError error) {
+              ad.dispose();
+              print("Failed to show Interstitial Ad: ${error.message}");
+            },
+          );
+        },
+        onAdFailedToLoad: (error) {
+          print('Interstitial ad failed to load: $error');
+        },
+      ),
+    );
+  }
   Future<void> _loadUserInfo() async {
     try {
       await Provider.of<AuthViewModel>(context, listen: false).fetchUserInfo();
@@ -111,13 +131,39 @@ class _HomeChatState extends State<HomeChat> {
       return;
     }
   }
-
+  Future<void> _loadConversation() async {
+    final aiItem =
+    _listAIItem.firstWhere((aiItem) => aiItem.name == selectedAIItem);
+    try {
+      Provider.of<MessageModel>(context, listen: false)
+          .fetchAllConversations(aiItem.id, 'dify')
+          .then((_) async {
+        await Provider.of<MessageModel>(context, listen: false)
+            .checkCurrentConversation(aiItem.id);
+      });
+    } catch (e) {
+      return;
+    }
+  }
+  Future<void> _loadAllPrompt() async {
+    try {
+      // Lấy danh sách prompts
+      Provider.of<PromptListViewModel>(context, listen: false)
+          .fetchAllPrompts()
+          .then((_) {
+        Provider.of<PromptListViewModel>(context, listen: false).allprompts;
+      });
+    } catch (e) {
+      return;
+    }
+  }
   @override
   void dispose() {
     _controller.removeListener(() {});
     _controller.dispose();
     _focusNode.dispose();
     _scrollController.dispose();
+    _interstitialAd?.dispose();
     super.dispose();
   }
 
@@ -339,15 +385,6 @@ class _HomeChatState extends State<HomeChat> {
       });
     }
   }
-
-  void _onTextChanged(String input) {
-    if (input.isNotEmpty) {
-      _showSlash = input.startsWith('/');
-    } else {
-      _showSlash = false; // Đặt lại _showSlash khi không có input
-    }
-  }
-
   void _takeScreenshot() async {
     final image = await _screenshotController.capture();
     if (image != null) {
@@ -359,6 +396,13 @@ class _HomeChatState extends State<HomeChat> {
         _isOpenDeviceWidget = false;
         _imagePaths = [file.path];
       });
+    }
+  }
+  void _onTextChanged(String input) {
+    if (input.isNotEmpty) {
+      _showSlash = input.startsWith('/');
+    } else {
+      _showSlash = false; // Đặt lại _showSlash khi không có input
     }
   }
 
@@ -374,6 +418,15 @@ class _HomeChatState extends State<HomeChat> {
           builder: (context, messageModel, child) {
             return Column(
               children: [
+                if (_bannerAd != null)
+                  Align(
+                    alignment: Alignment.topCenter,
+                    child: Container(
+                      width: _bannerAd!.size.width.toDouble(),
+                      height: _bannerAd!.size.height.toDouble(),
+                      child: AdWidget(ad: _bannerAd!),
+                    ),
+                  ),
                 SafeArea(
                     child: Padding(
                   padding: EdgeInsets.all(10.0),
