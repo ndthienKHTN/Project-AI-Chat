@@ -4,7 +4,7 @@ import 'package:project_ai_chat/models/bot_request.dart';
 import 'package:project_ai_chat/viewmodels/knowledge_base_view_model.dart';
 
 import 'package:project_ai_chat/View/Bot/page/new_bot_knowledge.dart';
-import 'package:project_ai_chat/View/Knowledge/model/knowledge.dart';
+import 'package:project_ai_chat/models/knowledge.dart';
 import 'package:provider/provider.dart';
 
 class EditBot extends StatefulWidget {

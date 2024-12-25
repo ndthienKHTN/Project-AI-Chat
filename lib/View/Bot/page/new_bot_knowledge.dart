@@ -16,7 +16,8 @@ class NewBotKnowledge extends StatelessWidget {
     final arrKnowledge =
         Provider.of<KnowledgeBaseProvider>(context, listen: false)
             .knowledgeBases
-            .where((element) => !arrKnowledgeAdded.contains(element));
+            .where((element) => !arrKnowledgeAdded.contains(element.id))
+            .map((element) => element.id).toList();
 
     return Padding(
       padding: const EdgeInsets.all(16.0),

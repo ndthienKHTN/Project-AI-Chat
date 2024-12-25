@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:project_ai_chat/View/Login/login_screen.dart';
+import 'package:project_ai_chat/View/SplashScreen/splash_screen.dart';
 import 'package:project_ai_chat/services/bot_service.dart';
 import 'package:project_ai_chat/services/chat_service.dart';
 import 'package:project_ai_chat/services/email_chat_service.dart';

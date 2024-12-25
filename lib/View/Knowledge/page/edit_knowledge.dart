@@ -1,7 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:project_ai_chat/View/Knowledge/model/knowledge.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:project_ai_chat/View/Knowledge/widgets/load_data_knowledge.dart';
+import 'package:project_ai_chat/models/knowledge.dart';
+import 'package:project_ai_chat/View/Knowledge/widgets/load_data_knowledge.dart';
+import 'package:project_ai_chat/viewmodels/knowledge_base_view_model.dart';
+import 'package:provider/provider.dart';
 
 class EditKnowledge extends StatefulWidget {
   const EditKnowledge(
@@ -15,26 +19,32 @@ class EditKnowledge extends StatefulWidget {
 
 class _NewKnowledgeState extends State<EditKnowledge> {
   final _formKey = GlobalKey<FormState>();
+  late ScrollController
+      _scrollController; // variable for load more conversation
 
   // Text Form Field
   String _enteredName = ""; // name of knowledgbase
   String _enteredPrompt = ""; // description for knowledbase
-  List<String> _listFiles = [];
-  List<String> _listGGDrives = [];
-  List<String> _listUrlWebsite = [];
-  List<String> _listSlackFiles = [];
-  List<String> _listConfluenceFiles = [];
 
   @override
   void initState() {
     super.initState();
     _enteredName = widget.knowledge.name;
     _enteredPrompt = widget.knowledge.description;
-    _listFiles = List.from(widget.knowledge.listFiles);
-    _listGGDrives = List.from(widget.knowledge.listGGDrives);
-    _listUrlWebsite = List.from(widget.knowledge.listUrlWebsite);
-    _listSlackFiles = List.from(widget.knowledge.listSlackFiles);
-    _listConfluenceFiles = List.from(widget.knowledge.listConfluenceFiles);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<KnowledgeBaseProvider>(context, listen: false)
+          .fetchUnitsOfKnowledge(false, widget.knowledge.id);
+    });
+
+    _scrollController = ScrollController()
+      ..addListener(() {
+        // Khi cuộn đến cuối danh sách
+        if (_scrollController.position.pixels ==
+            _scrollController.position.maxScrollExtent) {
+          Provider.of<KnowledgeBaseProvider>(context, listen: false)
+              .fetchUnitsOfKnowledge(true, widget.knowledge.id);
+        }
+      });
   }
 
   void _saveKnowledgeBase() {
@@ -45,79 +55,54 @@ class _NewKnowledgeState extends State<EditKnowledge> {
         Knowledge(
           name: _enteredName,
           description: _enteredPrompt,
+          id: widget.knowledge.id,
           imageUrl:
               "https://img.freepik.com/premium-photo/green-white-graphic-stack-barrels-with-green-top_1103290-132885.jpg",
-          listFiles: _listFiles,
-          listGGDrives: _listGGDrives,
-          listUrlWebsite: _listUrlWebsite,
-          listSlackFiles: _listSlackFiles,
-          listConfluenceFiles: _listConfluenceFiles,
         ),
       );
       Navigator.pop(context);
     }
   }
 
+  String getImageByUnitType(String unitType) {
+    switch (unitType) {
+      case "local_file":
+        return 'https://icon-library.com/images/files-icon-png/files-icon-png-10.jpg';
+      case "gg_drive":
+        return 'https://static-00.iconduck.com/assets.00/google-drive-icon-1024x1024-h7igbgsr.png';
+      case "web":
+        return 'https://cdn-icons-png.flaticon.com/512/5339/5339181.png';
+      case "slack":
+        return 'https://static-00.iconduck.com/assets.00/slack-icon-2048x2048-vhdso1nk.png';
+      case "confluence":
+        return 'https://static.wixstatic.com/media/f9d4ea_637d021d0e444d07bead34effcb15df1~mv2.png/v1/fill/w_340,h_340,al_c,lg_1,q_85,enc_auto/Apt-website-icon-confluence.png';
+      default:
+        return "";
+    }
+  }
+
   // Add File
   void _addNewFile(String newData) {
-    setState(() {
-      _listFiles.add(newData);
-    });
-  }
-
-  void _addGGDrive(String newData) {
-    setState(() {
-      _listGGDrives.add(newData);
-    });
-  }
-
-  void _addUrlWebsite(String newData) {
-    setState(() {
-      _listUrlWebsite.add(newData);
-    });
-  }
-
-  void _addSlackFiles(String newData) {
-    setState(() {
-      _listSlackFiles.add(newData);
-    });
-  }
-
-  void _addConfluenceFiles(String newData) {
-    setState(() {
-      _listConfluenceFiles.add(newData);
-    });
+    // setState(() {
+    //   _listFiles.add(newData);
+    // });
   }
 
   // Remove File
   void _removeFile(String newData) {
-    setState(() {
-      _listFiles.remove(newData);
-    });
+    // setState(() {
+    //   _listFiles.remove(newData);
+    // });
   }
 
-  void _removeGGDrive(String newData) {
-    setState(() {
-      _listGGDrives.remove(newData);
-    });
+  void _removeUnit(String unitId) async {
+    await Provider.of<KnowledgeBaseProvider>(context, listen: false)
+        .deleteUnit(unitId, widget.knowledge.id);
   }
 
-  void _removeUrlWebsite(String newData) {
-    setState(() {
-      _listUrlWebsite.remove(newData);
-    });
-  }
-
-  void _removeSlackFiles(String newData) {
-    setState(() {
-      _listSlackFiles.remove(newData);
-    });
-  }
-
-  void _removeConfluenceFiles(String newData) {
-    setState(() {
-      _listConfluenceFiles.remove(newData);
-    });
+  void _toggleUnitStatus(String unitId, bool isActive) async {
+    await Provider.of<KnowledgeBaseProvider>(context, listen: false)
+        .updateStatusUnit(widget.knowledge.id, unitId, isActive);
   }
 
   @override
@@ -155,9 +140,9 @@ class _NewKnowledgeState extends State<EditKnowledge> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'Tạo Bộ Tri Thức',
+                          'Chỉnh sửa tên & mô tả',
                           style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 18),
+                              fontWeight: FontWeight.bold, fontSize: 14),
                         ),
                       ],
                     ),
@@ -213,97 +198,185 @@ class _NewKnowledgeState extends State<EditKnowledge> {
                       style: TextStyle(color: Colors.grey, fontSize: 12),
                     ),
                     const SizedBox(height: 16),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: _saveKnowledgeBase,
+                            style: ElevatedButton.styleFrom(
+                              padding: EdgeInsets.symmetric(vertical: 16),
+                              backgroundColor: Colors.blue,
+                              shape: const RoundedRectangleBorder(
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(10)),
+                              ),
+                            ),
+                            child: const Text(
+                              "Chỉnh sửa",
+                              style: TextStyle(
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
 
-                    // Load data for knowledge from file
+                    const Text(
+                      'Add Units',
+                      style:
+                          TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                    ),
                     LoadDataKnowledge(
-                      type: 1,
-                      arrFile: _listFiles,
-                      nameTypeData: "Nạp dữ liệu từ File",
-                      imageAddress:
-                          'https://i0.wp.com/static.vecteezy.com/system/resources/previews/022/086/609/non_2x/file-type-icons-format-and-extension-of-documents-pdf-icon-free-vector.jpg?ssl=1',
                       addNewData: _addNewFile,
                       removeData: _removeFile,
+                      knowledgeId: widget.knowledge.id,
                     ),
-                    const SizedBox(height: 16),
-
-                    // Load data for knowledge from google Drive
-                    LoadDataKnowledge(
-                      type: 2,
-                      arrFile: _listGGDrives,
-                      nameTypeData: "Nạp dữ liệu từ Google Drive",
-                      imageAddress:
-                          "https://static-00.iconduck.com/assets.00/google-drive-icon-1024x1024-h7igbgsr.png",
-                      addNewData: _addGGDrive,
-                      removeData: _removeGGDrive,
+                    const SizedBox(height: 20),
+                    const Text(
+                      'List Units',
+                      style:
+                          TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
                     ),
-                    const SizedBox(height: 16),
+                    Consumer<KnowledgeBaseProvider>(
+                      builder: (context, kbProvider, child) {
+                        Knowledge kb =
+                            kbProvider.getKnowledgeById(widget.knowledge.id);
 
-                    // Load data for knowledge from url website
-                    LoadDataKnowledge(
-                      type: 3,
-                      arrFile: _listUrlWebsite,
-                      nameTypeData: "Nạp dữ liệu từ Website",
-                      imageAddress:
-                          "https://cdn-icons-png.flaticon.com/512/5339/5339181.png",
-                      addNewData: _addUrlWebsite,
-                      removeData: _removeUrlWebsite,
-                    ),
-                    const SizedBox(height: 16),
+                        if (kbProvider.isLoading && kb.listUnits.isEmpty) {
+                          // Display loading indicator while fetching conversations
+                          return const Center(
+                              child: CircularProgressIndicator());
+                        }
 
-                    // Load data for knowledge from slack files
-                    LoadDataKnowledge(
-                      type: 4,
-                      arrFile: _listSlackFiles,
-                      nameTypeData: "Nạp dữ liệu từ Slack",
-                      imageAddress:
-                          "https://static-00.iconduck.com/assets.00/slack-icon-2048x2048-vhdso1nk.png",
-                      addNewData: _addSlackFiles,
-                      removeData: _removeSlackFiles,
-                    ),
-                    const SizedBox(height: 16),
+                        if (kbProvider.error != null && kb.listUnits.isEmpty) {
+                          // Display error message if there's an error
+                          return Center(
+                            child: Text(
+                              kbProvider.error ??
+                                  'Server error, please try again',
+                              style: const TextStyle(
+                                  color: Colors.red, fontSize: 16),
+                            ),
+                          );
+                        }
 
-                    // Load data for knowledge from Confluence file
-                    LoadDataKnowledge(
-                      type: 5,
-                      arrFile: _listConfluenceFiles,
-                      nameTypeData: "Nạp dữ liệu từ Confluence",
-                      imageAddress:
-                          "https://static.wixstatic.com/media/f9d4ea_637d021d0e444d07bead34effcb15df1~mv2.png/v1/fill/w_340,h_340,al_c,lg_1,q_85,enc_auto/Apt-website-icon-confluence.png",
-                      addNewData: _addConfluenceFiles,
-                      removeData: _removeConfluenceFiles,
+                        return SizedBox(
+                          height: 300,
+                          child: ListView.builder(
+                            controller: _scrollController,
+                            shrinkWrap: true,
+                            itemCount: kb.listUnits.length + 1,
+                            itemBuilder: (context, index) {
+                              if (index == kb.listUnits.length) {
+                                // Loader khi đang tải thêm
+                                if (kbProvider.hasNextUnit) {
+                                  return const Padding(
+                                    padding: EdgeInsets.all(16.0),
+                                    child: Center(
+                                        child: CircularProgressIndicator()),
+                                  );
+                                } else {
+                                  return const SizedBox
+                                      .shrink(); // Không còn dữ liệu
+                                }
+                              }
+                              return Slidable(
+                                endActionPane: ActionPane(
+                                  motion: const StretchMotion(),
+                                  children: [
+                                    SlidableAction(
+                                      onPressed: (context) {
+                                        _removeUnit(kb.listUnits[index].unitId);
+                                      },
+                                      icon: Icons.delete,
+                                      backgroundColor: Colors.red,
+                                    ),
+                                  ],
+                                ),
+                                child: Card(
+                                  color: Colors.white,
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Row(
+                                      children: [
+                                        // const Icon(Icons.storage,
+                                        //     color: Colors.green, size: 30),
+                                        Image.network(
+                                          getImageByUnitType(
+                                              kb.listUnits[index].unitType),
+                                          width: 34,
+                                          errorBuilder:
+                                              (context, error, stackTrace) {
+                                            return const Icon(Icons
+                                                .storage); // Hiển thị icon lỗi nếu không load được hình
+                                          },
+                                        ),
+                                        const SizedBox(width: 10),
+                                        Expanded(
+                                          child: Text(
+                                            kb.listUnits[index].unitName,
+                                            style:
+                                                const TextStyle(fontSize: 16),
+                                          ),
+                                        ),
+                                        Row(
+                                          children: [
+                                            Switch(
+                                              value: kb.listUnits[index]
+                                                  .isActived, // Giá trị trạng thái hiện tại của unit
+                                              onChanged: (bool value) {
+                                                _toggleUnitStatus(
+                                                    kb.listUnits[index].unitId,
+                                                    value);
+                                              },
+                                            ),
+                                          ],
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        );
+                      },
                     ),
                   ],
                 ),
               ),
               const SizedBox(
-                height: 10,
+                height: 24,
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: _saveKnowledgeBase,
-                      style: ElevatedButton.styleFrom(
-                        padding: EdgeInsets.symmetric(vertical: 16),
-                        backgroundColor: Colors.blue,
-                        shape: const RoundedRectangleBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(10)),
-                        ),
-                      ),
-                      child: const Text(
-                        "Chỉnh sửa",
-                        style: TextStyle(
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(
-                height: 10,
-              ),
+              // Row(
+              //   mainAxisAlignment: MainAxisAlignment.end,
+              //   children: [
+              //     Expanded(
+              //       child: ElevatedButton(
+              //         onPressed: _saveKnowledgeBase,
+              //         style: ElevatedButton.styleFrom(
+              //           padding: EdgeInsets.symmetric(vertical: 16),
+              //           backgroundColor: Colors.blue,
+              //           shape: const RoundedRectangleBorder(
+              //             borderRadius: BorderRadius.all(Radius.circular(10)),
+              //           ),
+              //         ),
+              //         child: const Text(
+              //           "Chỉnh sửa",
+              //           style: TextStyle(
+              //             color: Colors.white,
+              //           ),
+              //         ),
+              //       ),
+              //     ),
+              //   ],
+              // ),
+              // const SizedBox(
+              //   height: 10,
+              // ),
             ],
           ),
         ),

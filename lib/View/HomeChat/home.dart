@@ -84,6 +84,11 @@ class _HomeChatState extends State<HomeChat> {
 
     //Hiển thị token
      Provider.of<MessageModel>(context, listen: false).updateRemainingUsage();
+    // Load all Knowledgebase
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<KnowledgeBaseProvider>(context, listen: false)
+          .fetchAllKnowledgeBases(isLoadMore: false);
+    });
   }
 
   void _loadInterstitialAd() {
@@ -399,6 +404,7 @@ class _HomeChatState extends State<HomeChat> {
 
   @override
   Widget build(BuildContext context) {
+    final botModel = context.watch<BotViewModel>();
     return Screenshot(
       controller: _screenshotController,
       child: Scaffold(
@@ -429,14 +435,37 @@ class _HomeChatState extends State<HomeChat> {
                             _scaffoldKey.currentState?.openDrawer();
                           },
                           icon: const Icon(Icons.menu)),
-                      AIDropdown(
-                        listAIItems: _listAIItem,
-                        onChanged: (String? newValue) {
-                          if (newValue != null) {
-                            _updateSelectedAIItem(newValue);
-                          }
-                        },
-                      ),
+                      !botModel.isChatWithMyBot
+                          ? AIDropdown(
+                              listAIItems: _listAIItem,
+                              onChanged: (String? newValue) {
+                                if (newValue != null) {
+                                  _updateSelectedAIItem(newValue);
+                                }
+                              },
+                            )
+                          : Expanded(
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(20),
+                                  color:
+                                      const Color.fromARGB(255, 238, 240, 243),
+                                ),
+                                height: 30,
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 10),
+                                child: Center(
+                                  child: Text(
+                                    botModel.currentBot.assistantName,
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    maxLines: 1,
+                                  ),
+                                ),
+                              ),
+                            ),
                       //const Spacer(),
                       TextButton(
                         onPressed: () async {
@@ -465,6 +494,7 @@ class _HomeChatState extends State<HomeChat> {
                           ],
                         ),
                       ),
+                      if (!botModel.isChatWithMyBot)
                       Container(
                         padding: EdgeInsets.all(5),
                         decoration: BoxDecoration(
@@ -500,6 +530,7 @@ class _HomeChatState extends State<HomeChat> {
                           onPressed: () {
                             Provider.of<MessageModel>(context, listen: false)
                                 .clearMessage();
+                            botModel.isChatWithMyBot = false;
                           }),
                     ],
                   ),
@@ -518,7 +549,7 @@ class _HomeChatState extends State<HomeChat> {
                           child: Padding(
                             padding: EdgeInsets.only(
                                 left: 10, bottom: 10, right: 10),
-                            child: Column(
+                            child: !botModel.isChatWithMyBot ? Column(
                               children: [
                                 Expanded(
                                   child: ListView.builder(
