@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:project_ai_chat/models/ai_logo.dart';
 import 'package:project_ai_chat/View/Knowledge/page/knowledge_screen.dart';
+import 'package:project_ai_chat/viewmodels/bot_view_model.dart';
 import 'package:provider/provider.dart';
 import '../../../../viewmodels/homechat_view_model.dart';
 import '../../../UpgradeVersion/upgrade_version.dart';
@@ -167,6 +168,7 @@ class _MenuState extends State<Menu> {
                         await Provider.of<MessageModel>(context, listen: false)
                             .loadConversationHistory(
                                 assistantId, conversation.id);
+                        Provider.of<BotViewModel>(context, listen: false).isChatWithMyBot = false;
 
                         Navigator.pop(context); // Đóng drawer
                       },

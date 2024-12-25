@@ -4,9 +4,12 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:project_ai_chat/View/Account/pages/account_screent.dart';
 import 'package:project_ai_chat/View/Bot/page/bot_screen.dart';
+import 'package:project_ai_chat/core/Widget/chat_widget.dart';
+import 'package:project_ai_chat/models/response/my_aibot_message_response.dart';
 import 'package:project_ai_chat/utils/exceptions/chat_exception.dart';
 import 'package:project_ai_chat/models/response/message_response.dart';
 import 'package:project_ai_chat/viewmodels/auth_view_model.dart';
+import 'package:project_ai_chat/viewmodels/bot_view_model.dart';
 import 'package:project_ai_chat/viewmodels/knowledge_base_view_model.dart';
 import 'package:project_ai_chat/viewmodels/prompt_list_view_model.dart';
 import '../../core/Widget/dropdown-button.dart';
@@ -405,6 +408,7 @@ class _HomeChatState extends State<HomeChat> {
 
   @override
   Widget build(BuildContext context) {
+    final botModel = context.watch<BotViewModel>();
     return Screenshot(
       controller: _screenshotController,
       child: Scaffold(
@@ -435,14 +439,37 @@ class _HomeChatState extends State<HomeChat> {
                             _scaffoldKey.currentState?.openDrawer();
                           },
                           icon: const Icon(Icons.menu)),
-                      AIDropdown(
-                        listAIItems: _listAIItem,
-                        onChanged: (String? newValue) {
-                          if (newValue != null) {
-                            _updateSelectedAIItem(newValue);
-                          }
-                        },
-                      ),
+                      !botModel.isChatWithMyBot
+                          ? AIDropdown(
+                              listAIItems: _listAIItem,
+                              onChanged: (String? newValue) {
+                                if (newValue != null) {
+                                  _updateSelectedAIItem(newValue);
+                                }
+                              },
+                            )
+                          : Expanded(
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(20),
+                                  color:
+                                      const Color.fromARGB(255, 238, 240, 243),
+                                ),
+                                height: 30,
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 10),
+                                child: Center(
+                                  child: Text(
+                                    botModel.currentBot.assistantName,
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    maxLines: 1,
+                                  ),
+                                ),
+                              ),
+                            ),
                       //const Spacer(),
                       TextButton(
                         onPressed: () async {
@@ -471,6 +498,7 @@ class _HomeChatState extends State<HomeChat> {
                           ],
                         ),
                       ),
+                      if (!botModel.isChatWithMyBot)
                       Container(
                         padding: EdgeInsets.all(5),
                         decoration: BoxDecoration(
@@ -506,6 +534,7 @@ class _HomeChatState extends State<HomeChat> {
                           onPressed: () {
                             Provider.of<MessageModel>(context, listen: false)
                                 .clearMessage();
+                            botModel.isChatWithMyBot = false;
                           }),
                     ],
                   ),
@@ -524,7 +553,7 @@ class _HomeChatState extends State<HomeChat> {
                           child: Padding(
                             padding: EdgeInsets.only(
                                 left: 10, bottom: 10, right: 10),
-                            child: Column(
+                            child: !botModel.isChatWithMyBot ? Column(
                               children: [
                                 Expanded(
                                   child: ListView.builder(
@@ -783,7 +812,8 @@ class _HomeChatState extends State<HomeChat> {
                                   height: 5,
                                 ),
                               ],
-                            ),
+                            )
+                            : ChatWidget()
                           ),
                         ),
                       ],
