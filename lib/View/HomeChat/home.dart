@@ -85,6 +85,11 @@ class _HomeChatState extends State<HomeChat> {
 
     //Hiển thị token
      Provider.of<MessageModel>(context, listen: false).updateRemainingUsage();
+    // Load all Knowledgebase
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<KnowledgeBaseProvider>(context, listen: false)
+          .fetchAllKnowledgeBases(isLoadMore: false);
+    });
   }
 
   void _loadInterstitialAd() {
