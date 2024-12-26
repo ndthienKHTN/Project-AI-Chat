@@ -5,6 +5,7 @@ import 'package:project_ai_chat/models/knowledge.dart';
 import 'package:project_ai_chat/View/Knowledge/page/edit_knowledge.dart';
 import 'package:project_ai_chat/View/Knowledge/page/new_knowledge.dart';
 import 'package:project_ai_chat/View/Knowledge/widgets/knowledge_card.dart';
+import 'package:project_ai_chat/services/analytics_service.dart';
 import 'package:project_ai_chat/viewmodels/knowledge_base_view_model.dart';
 import 'package:provider/provider.dart';
 
@@ -38,6 +39,14 @@ class _KnowledgeScreenState extends State<KnowledgeScreen> {
   void _addKnowledge(String knowledgeName, String description) {
     Provider.of<KnowledgeBaseProvider>(context, listen: false)
         .addKnowledgeBase(knowledgeName, description);
+
+    AnalyticsService().logEvent(
+      "new_knowledge",
+      {
+        "name": knowledgeName,
+        "description": description,
+      },
+    );
   }
 
   void _editKnowledge(
