@@ -62,14 +62,6 @@ class _NewBotState extends State<NewBot> {
                 ],
               ),
               const SizedBox(height: 10),
-              const Center(
-                child: CircleAvatar(
-                  radius: 30,
-                  backgroundColor: Colors.black12,
-                  child: Icon(Icons.add, size: 30),
-                ),
-              ),
-              const SizedBox(height: 10),
               TextFormField(
                 // controller: nameController,
                 decoration: const InputDecoration(

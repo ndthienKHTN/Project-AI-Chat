@@ -1,23 +1,32 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:project_ai_chat/models/knowledge.dart';
+import 'package:project_ai_chat/viewmodels/bot_view_model.dart';
 import 'package:project_ai_chat/viewmodels/knowledge_base_view_model.dart';
 import 'package:provider/provider.dart';
 
 class NewBotKnowledge extends StatelessWidget {
-  const NewBotKnowledge({super.key, required this.arrKnowledgeAdded});
-  final List<String> arrKnowledgeAdded;
+  const NewBotKnowledge({super.key});
 
-  void _addKnowledge(BuildContext context, String nameKnowledge) {
-    Navigator.of(context).pop(nameKnowledge);
+  void _addKnowledge(BuildContext context, String knowledgeId) {
+    Provider.of<BotViewModel>(context, listen: false).importKnowledge(knowledgeId);
+    Navigator.of(context).pop(knowledgeId);
   }
 
   @override
   Widget build(BuildContext context) {
-    final arrKnowledge =
-        Provider.of<KnowledgeBaseProvider>(context, listen: false)
-            .knowledgeBases
-            .where((element) => !arrKnowledgeAdded.contains(element.id))
-            .map((element) => element.id).toList();
+    final botModel = context.read<BotViewModel>();
+
+    // final arrKnowledge =
+    //     Provider.of<KnowledgeBaseProvider>(context, listen: false)
+    //         .knowledgeBases
+    //         .where((element) => !botModel.knowledgeList.contains(element.id))
+    //         .map((element) => element.id).toList();
+
+    final List<Knowledge> arrKnowledge = Provider.of<KnowledgeBaseProvider>(context, listen: false).knowledgeBases
+        .where((element) => !botModel.knowledgeList.any((item) => item.id == element.id))
+        .toList();
+
 
     return Padding(
       padding: const EdgeInsets.all(16.0),
@@ -66,7 +75,7 @@ class NewBotKnowledge extends StatelessWidget {
                             const SizedBox(width: 10),
                             Expanded(
                               child: Text(
-                                knowledge,
+                                knowledge.name,
                                 style: const TextStyle(fontSize: 16),
                               ),
                             ),
@@ -77,7 +86,7 @@ class NewBotKnowledge extends StatelessWidget {
                                   iconSize: 20,
                                   color: Colors.blue,
                                   onPressed: () {
-                                    _addKnowledge(context, knowledge);
+                                    _addKnowledge(context, knowledge.id);
                                   },
                                 )
                               ],

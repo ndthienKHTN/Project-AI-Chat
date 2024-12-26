@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:project_ai_chat/models/bot.dart';
 import 'package:project_ai_chat/models/bot_request.dart';
+import 'package:project_ai_chat/models/knowledge.dart';
 import 'package:project_ai_chat/models/response/my_aibot_message_response.dart';
 import 'package:project_ai_chat/services/bot_service.dart';
 import 'package:project_ai_chat/utils/exceptions/chat_exception.dart';
@@ -17,13 +18,23 @@ class BotViewModel extends ChangeNotifier {
   Bot _currentBot = Bot.empty();
   String _currentOpenAiThreadId = "";
   bool _isSending = false;
+  List<Knowledge> _knowledgeList = [];
+  bool _isPreview = false;
 
 
 
   bool get isChatWithMyBot => _isChatWithMyBot;
+
   List<MyAiBotMessage> get myAiBotMessages => _myAiBotMessages;
+
   Bot get currentBot => _currentBot;
+
   bool get isSending => _isSending;
+
+  List<Knowledge> get knowledgeList => _knowledgeList;
+
+  bool get isPreview => _isPreview;
+
 
 
   set isChatWithMyBot(bool value) {
@@ -33,6 +44,11 @@ class BotViewModel extends ChangeNotifier {
 
   set currentBot(Bot bot) {
     _currentBot = bot;
+    notifyListeners();
+  }
+
+  set isPreview(bool value) {
+    _isPreview = value;
     notifyListeners();
   }
 
@@ -53,11 +69,17 @@ class BotViewModel extends ChangeNotifier {
 
 
   BotList get botList => _botList;
+
   bool get isLoading => _isLoading;
+
   bool get isLoadingMore => _isLoadingMore;
+
   bool get hasError => error != null;
+
   bool get hasNext => _hasNext;
+
   String get query => _query;
+
   bool get isCreated => _isCreated;
 
 
@@ -123,7 +145,6 @@ class BotViewModel extends ChangeNotifier {
   }
 
 
-
   Future<void> loadMoreBots() async {
     if (_isLoadingMore || !_hasNext) return;
 
@@ -160,17 +181,6 @@ class BotViewModel extends ChangeNotifier {
     return _service.updateBot(newBot, id);
   }
 
-  // Future<bool> createThread(String assistantId){
-  //   return _service.createThread(assistantId);
-  // }
-
-  // Future<bool> askAssistants(String message) async {
-  //   _currentOpenAiThreadId = await _service.getThread(_currentBot.id);
-  //   bool result = await _service.askAssistant(_currentBot.id, _currentOpenAiThreadId, message);
-  //   notifyListeners();
-  //   return result;
-  // }
-
   String _removeHttpPrefix(String url) {
     return url.replaceAll(RegExp(r'^(https?:\/\/)?(www\.)?'), '');
   }
@@ -193,9 +203,14 @@ class BotViewModel extends ChangeNotifier {
         isErrored: false,
       ));
       notifyListeners();
-
-      _currentOpenAiThreadId = await _service.getThread(_currentBot.id);
-      String processedMessage = await _service.askAssistant(_currentBot.id, _currentOpenAiThreadId, message);
+      if (_isPreview){
+        _currentOpenAiThreadId = _currentBot.openAiThreadIdPlay;
+      }
+      else {
+        _currentOpenAiThreadId = await _service.getThread(_currentBot.id);
+      }
+      String processedMessage = await _service.askAssistant(
+          _currentBot.id, _currentOpenAiThreadId, message);
       // Xử lý response.message để thêm bullet points và format markdown
       //String processedMessage = response.message;
 
@@ -220,7 +235,6 @@ class BotViewModel extends ChangeNotifier {
         content: processedMessage,
         isErrored: false,
       ));
-
     } catch (e) {
       // Xử lý lỗi: thay thế tin nhắn tạm bằng tin nhắn lỗi
       _myAiBotMessages.removeLast(); // Xóa tin nhắn tạm
@@ -250,12 +264,18 @@ class BotViewModel extends ChangeNotifier {
     try {
       //_isLoading = true;
       //notifyListeners();
-      _currentOpenAiThreadId = await _service.getThread(_currentBot.id);
-      List<MyAiBotMessage>? response = await _service.retrieveMessageOfThread(_currentOpenAiThreadId);
+      if (_isPreview){
+        _currentOpenAiThreadId = _currentBot.openAiThreadIdPlay;
+      }
+      else {
+        _currentOpenAiThreadId = await _service.getThread(_currentBot.id);
+      }
+      List<MyAiBotMessage>? response = await _service.retrieveMessageOfThread(
+          _currentOpenAiThreadId);
 
-      if (response != null)
-      {
-        _myAiBotMessages.clear(); // Xóa tin nhn cũ trước khi thêm lịch sử mới
+      _myAiBotMessages.clear(); // Xóa tin nhn cũ trước khi thêm lịch sử mới
+
+      if (response != null) {
 
         // Xử lý messages nhận được
         for (int i = response.length - 1; i >= 0; i--) {
@@ -267,7 +287,6 @@ class BotViewModel extends ChangeNotifier {
           ));
         }
       }
-
     } catch (e) {
       print('❌ Error loading conversation history: $e');
       // Xử lý lỗi tương tự như các method khác
@@ -277,7 +296,41 @@ class BotViewModel extends ChangeNotifier {
     }
   }
 
+  Future<bool> importKnowledge(String knowledgeId) async {
+    bool response = await _service.importKnowledgeToAiBot(currentBot.id, knowledgeId);
+    if(response)
+    {
+      getImportedKnowledge(currentBot.id);
+      return true;
+    }
+    return false;
+  }
 
+  Future<void> getImportedKnowledge(String assistantId) async {
+    final response = await _service.getImportedKnowledge(assistantId);
+    _knowledgeList = response;
+    notifyListeners();
+  }
 
+  Future<bool> removeKnowledge(String knowledgeId) async {
+    bool response = await _service.removeKnowledgeFromAiBot(currentBot.id, knowledgeId);
+    if(response)
+    {
+      getImportedKnowledge(currentBot.id);
+      return true;
+    }
+    return false;
+  }
 
+  Future<bool> updateAiBotWithThreadPlayGround() async {
+    Bot response = await _service.updateAiBotWithThreadPlayGround(currentBot.id);
+    if(response.id != '')
+    {
+      currentBot = response;
+      _myAiBotMessages.clear();
+      notifyListeners();
+      return true;
+    }
+    return false;
+  }
 }

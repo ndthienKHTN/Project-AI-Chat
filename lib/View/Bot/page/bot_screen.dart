@@ -109,20 +109,6 @@ class _BotScreenState extends State<BotScreen> {
                 ),
               ),
             ),
-            const SizedBox(height: 8),
-            const Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                FilterButton(label: "Celebrity", isSelected: true),
-                FilterButton(label: "My bots", isSelected: false),
-                FilterButton(label: "Top", isSelected: false),
-                FilterButton(label: "Models", isSelected: false),
-              ],
-            ),
-            // const SizedBox(
-            //   height: 36,
-            //   child: FilterButtonList(),
-            // ),
             const SizedBox(height: 10),
             Expanded(
               child: BotListWidget(),

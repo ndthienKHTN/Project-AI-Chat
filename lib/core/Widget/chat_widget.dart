@@ -13,8 +13,9 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../viewmodels/homechat_view_model.dart';
 
 class ChatWidget extends StatefulWidget {
+  final bool isPreview;
 
-  const ChatWidget({ Key? key }) : super(key: key);
+  const ChatWidget({Key? key, this.isPreview = false}) : super(key: key);
 
   @override
   State<ChatWidget> createState() => _ChatWidgetState();
@@ -31,6 +32,9 @@ class _ChatWidgetState extends State<ChatWidget> {
   @override
   void initState() {
     super.initState();
+
+    //Provider.of<BotViewModel>(context, listen: false).isPreview = widget.isPreview;
+
     //Lắng nghe ô nhập dữ liệu
     _controller.addListener(() {
       setState(() {
@@ -42,6 +46,12 @@ class _ChatWidgetState extends State<ChatWidget> {
     });
 
   }
+
+  // @override
+  // void didChangeDependencies() {
+  //   super.didChangeDependencies();
+  //   Provider.of<BotViewModel>(context, listen: false).isPreview = widget.isPreview;
+  // }
 
   void _onTextChanged(String input) {
     if (input.isNotEmpty) {
