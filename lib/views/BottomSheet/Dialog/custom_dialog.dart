@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:project_ai_chat/views/BottomSheet/enums.dart';
+import 'package:provider/provider.dart';
 import '../../../models/prompt_model.dart';
+import '../../../services/prompt_service.dart';
 import '../../../viewmodels/prompt_list_view_model.dart';
 
 class CustomDialog {

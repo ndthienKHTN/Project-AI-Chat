@@ -129,15 +129,9 @@ class _BotListWidgetState extends State<BotListWidget> {
               ),
               child: InkWell(
                 onTap: () {
-                  Provider.of<BotViewModel>(context, listen: false).isChatWithMyBot = true;
-                  Provider.of<BotViewModel>(context, listen: false).currentBot = bots.data[index];
-                  Provider.of<BotViewModel>(context, listen: false).loadConversationHistory();
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (context) => const HomeChat()),
-                  );
+                  _openEditBotDialog(
+                      context, bots.data[index], bots.data[index].id);
 
-                  //viewModel.chatInHome(bots.data[index].id);
                 },
                 child: BotCard(
                   bot: bots.data[index],

@@ -1,6 +1,12 @@
+
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:project_ai_chat/models/bot_request.dart';
+import 'package:project_ai_chat/viewmodels/knowledge_base_view_model.dart';
+
 import 'package:project_ai_chat/views/Bot/page/new_bot_knowledge.dart';
+import 'package:project_ai_chat/models/knowledge.dart';
+import 'package:provider/provider.dart';
 
 class EditBot extends StatefulWidget {
   const EditBot({super.key, required this.editBot, required this.bot});

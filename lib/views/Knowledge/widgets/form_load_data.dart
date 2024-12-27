@@ -1,8 +1,8 @@
 import 'dart:io';
-
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:project_ai_chat/services/analytics_service.dart';
 import 'package:project_ai_chat/viewmodels/knowledge_base_view_model.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -31,6 +31,12 @@ class _FormLoadDataState extends State<FormLoadData> {
     }
     await Provider.of<KnowledgeBaseProvider>(context, listen: false)
         .uploadLocalFile(_selectedFile!, widget.knowledgeId);
+    AnalyticsService().logEvent(
+      "upload_file",
+      {
+        "name": _fileName,
+      },
+    );
     widget.addNewData(_fileName);
     Navigator.pop(context);
   }

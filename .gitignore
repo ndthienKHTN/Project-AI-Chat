@@ -89,3 +89,7 @@ web/.dart_tool/
 linux/flutter/ephemeral/
 .idx
 
+# Google Analytics
+android/app/google-services.json
+firebase.json
+lib/firebase_options.dart

@@ -1,8 +1,14 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:project_ai_chat/views/Bot/page/edit_bot.dart';
 import 'package:project_ai_chat/views/Bot/page/new_bot.dart';
+import 'package:project_ai_chat/views/Bot/page/public_bot.dart';
+import 'package:project_ai_chat/views/Bot/widgets/bot_card.dart';
 import 'package:project_ai_chat/views/Bot/widgets/bot_list.dart';
 import 'package:project_ai_chat/views/Bot/widgets/filter_button.dart';
+import 'package:project_ai_chat/views/HomeChat/home.dart';
+import 'package:project_ai_chat/models/bot.dart';
 import 'package:provider/provider.dart';
 import '../../../models/bot_request.dart';
 import '../../../viewmodels/bot_view_model.dart';
