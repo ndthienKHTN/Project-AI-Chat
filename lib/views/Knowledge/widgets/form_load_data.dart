@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -32,7 +31,6 @@ class _FormLoadDataState extends State<FormLoadData> {
     }
     await Provider.of<KnowledgeBaseProvider>(context, listen: false)
         .uploadLocalFile(_selectedFile!, widget.knowledgeId);
-
     AnalyticsService().logEvent(
       "upload_file",
       {

@@ -1,9 +1,7 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:project_ai_chat/views/Knowledge/widgets/load_data_knowledge.dart';
 import 'package:project_ai_chat/models/knowledge.dart';
-import 'package:project_ai_chat/views/Knowledge/widgets/load_data_knowledge.dart';
 import 'package:project_ai_chat/viewmodels/knowledge_base_view_model.dart';
 import 'package:provider/provider.dart';
 

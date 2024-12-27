@@ -1,16 +1,13 @@
-import 'dart:io';
-
-class AdHelper{
-    static String get interstitialAdUnitId{
-        if(Platform.isAndroid){
-            return 'ca-app-pub-3940256099942544/1033173712';
-        }else if(Platform.isIOS){
-            return 'ca-app-pub-3940256099942544/2934735716';
-        }else{
-            throw new UnsupportedError('Unsupported platform');
-        }
-    }
-}
+// BannerAd? _bannerAd;
+// if (_bannerAd != null)
+// Align(
+// alignment: Alignment.topCenter,
+// child: Container(
+// width: _bannerAd!.size.width.toDouble(),
+// height: _bannerAd!.size.height.toDouble(),
+// child: AdWidget(ad: _bannerAd!),
+// ),
+// ),
 // BannerAd(
 //   //adUnitId: AdsHelper.getBannerAdUnitId(),
 //   adUnitId: 'ca-app-pub-3940256099942544/6300978111',

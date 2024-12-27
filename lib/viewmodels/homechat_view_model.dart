@@ -103,7 +103,7 @@ class MessageModel extends ChangeNotifier {
     if (conversations.isEmpty)
       initializeChat(assistantId);
     else {
-      loadConversationHistory(assistantId, conversations.first.id);
+      loadConversationHistory(assistantId, conversations.first.id, isClearMessage: false);
     }
   }
 
@@ -175,7 +175,6 @@ class MessageModel extends ChangeNotifier {
 
       // Nếu đây là tin nhắn đầu tiên, gọi createNewChat
       if (!_isFirstMessageSent) {
-        _messages.clear();
         _messages.add(Message(
           role: 'user',
           content: content,
@@ -353,7 +352,7 @@ class MessageModel extends ChangeNotifier {
   }
 
   Future<void> loadConversationHistory(
-      String assistantId, String conversationId) async {
+      String assistantId, String conversationId,{bool? isClearMessage}) async {
     try {
       _isLoading = true;
       notifyListeners();
@@ -362,8 +361,10 @@ class MessageModel extends ChangeNotifier {
         conversationId: conversationId,
         assistantId: assistantId,
       );
-
-      _messages.clear(); // Xóa tin nhn cũ trước khi thêm lịch sử mới
+      if(isClearMessage == true || isClearMessage == null){
+        _messages.clear();
+      }
+      // Xóa tin nhắn cũ trước khi thêm lịch sử mới
       _currentConversationId =
           conversationId; // Cập nhật ID cuộc hội thoại hiện tại
 

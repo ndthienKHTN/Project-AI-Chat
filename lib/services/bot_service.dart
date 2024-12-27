@@ -1,10 +1,12 @@
 import 'package:dio/dio.dart';
 import 'package:project_ai_chat/models/bot_request.dart';
 import 'package:project_ai_chat/models/prompt_model.dart';
+import 'package:project_ai_chat/models/response/my_aibot_message_response.dart';
 import 'package:project_ai_chat/utils/dio/dio_client.dart';
 import 'package:project_ai_chat/models/prompt_list.dart';
 import 'package:project_ai_chat/utils/dio/dio_knowledge_base.dart';
 
+import '../models/bot.dart';
 import '../models/bot_list.dart';
 
 class BotService {
@@ -72,7 +74,8 @@ class BotService {
       print('✅ CREATE NEW BOT RESPONSE: ${response.data}');
 
       if (response.statusCode == 201 || response.statusCode == 200) {
-        return true;
+        String assistantId = Bot.fromJson(response.data).id;
+        return createThread(assistantId);
       } else {
         return false;
       }
@@ -117,4 +120,163 @@ class BotService {
       );
     }
   }
+
+  Future<bool> createThread(String assistantId) async {
+    try {
+      // Chuẩn bị dữ liệu request
+      final threadData = {
+        "assistantId": assistantId,
+        "firstMessage": ""
+      };
+
+      // Log request data
+      print('🚀 REQUEST DATA: $threadData');
+
+      // Gửi request POST để tạo thread mới
+      final response = await dioKB.post(
+        '/ai-assistant/thread',
+        data: threadData,
+      );
+
+      // Log response
+      print('✅ CREATE THREAD RESPONSE: ${response.data}');
+
+      // Kiểm tra status code của response
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        return true;
+      } else {
+        return false;
+      }
+    } on DioException catch (e) {
+      // Log chi tiết lỗi
+      print('❌ DioException:');
+      print('Status: ${e.response?.statusCode}');
+      print('Data: ${e.response?.data}');
+      print('Message: ${e.message}');
+
+      // Ném ra ngoại lệ với thông điệp phù hợp
+      throw Exception(
+        e.response?.data?['message'] ?? e.message ?? 'Lỗi kết nối tới server',
+      );
+    }
+  }
+
+  Future<String> getThread(String assistantId) async {
+    try {
+      // Log request data
+      //print('🚀 REQUEST DATA: $threadData');
+
+      // Gửi request POST để tạo thread mới
+      final response = await dioKB.get(
+        '/ai-assistant/${assistantId}/threads',
+      );
+
+      // Log response
+      print('✅ GET THREAD RESPONSE: ${response.data}');
+
+      // Kiểm tra status code của response
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        final threads = response.data['data'] as List;
+
+        // Kiểm tra danh sách threads
+        if (threads.isNotEmpty) {
+          // Lấy thread đầu tiên
+          final thread = threads[0] as Map<String, dynamic>;
+
+          // Lấy giá trị openAiThreadId
+          final openAiThreadId = thread['openAiThreadId'] as String;
+          //return openAiThreadId;
+          return openAiThreadId;
+        }
+        return "";
+      } else {
+        return "";
+      }
+    } on DioException catch (e) {
+      // Log chi tiết lỗi
+      print('❌ DioException:');
+      print('Status: ${e.response?.statusCode}');
+      print('Data: ${e.response?.data}');
+      print('Message: ${e.message}');
+
+      // Ném ra ngoại lệ với thông điệp phù hợp
+      throw Exception(
+        e.response?.data?['message'] ?? e.message ?? 'Lỗi kết nối tới server',
+      );
+    }
+  }
+
+  Future<String> askAssistant(String assistantId, String openAiThreadId, String message) async {
+    try {
+      // Chuẩn bị dữ liệu request
+      final threadData = {
+        "message": message,
+        "openAiThreadId": openAiThreadId,
+        "additionalInstruction": ""
+      };
+
+      // Log request data
+      print('🚀 REQUEST DATA: $threadData');
+
+      // Gửi request POST để tạo thread mới
+      final response = await dioKB.post(
+        '/ai-assistant/${assistantId}/ask',
+        data: threadData,
+      );
+
+      // Log response
+      print('✅ ASK ASSISTANT RESPONSE: ${response.data}');
+
+      // Kiểm tra status code của response
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        return response.data;
+      } else {
+        return "";
+      }
+    } on DioException catch (e) {
+      // Log chi tiết lỗi
+      print('❌ DioException:');
+      print('Status: ${e.response?.statusCode}');
+      print('Data: ${e.response?.data}');
+      print('Message: ${e.message}');
+
+      // Ném ra ngoại lệ với thông điệp phù hợp
+      throw Exception(
+        e.response?.data?['message'] ?? e.message ?? 'Lỗi kết nối tới server',
+      );
+    }
+  }
+
+  Future<List<MyAiBotMessage>?> retrieveMessageOfThread(String openAiThreadId) async {
+    try {
+      final response = await dioKB.get(
+        '/ai-assistant/thread/${openAiThreadId}/messages',
+      );
+
+      // Log response
+      print('✅ GET THREAD RESPONSE: ${response.data}');
+
+      // Kiểm tra status code của response
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        //return response.data.map((json) => MyAiBotMessage.fromJson(json)).toList();
+        return (response.data as List)
+            .map((json) => MyAiBotMessage.fromJson(json))
+            .toList();
+      } else {
+        return null;
+      }
+    } on DioException catch (e) {
+      // Log chi tiết lỗi
+      print('❌ DioException:');
+      print('Status: ${e.response?.statusCode}');
+      print('Data: ${e.response?.data}');
+      print('Message: ${e.message}');
+
+      // Ném ra ngoại lệ với thông điệp phù hợp
+      throw Exception(
+        e.response?.data?['message'] ?? e.message ?? 'Lỗi kết nối tới server',
+      );
+    }
+  }
+
 }

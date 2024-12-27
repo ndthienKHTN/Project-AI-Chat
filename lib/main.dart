@@ -17,6 +17,8 @@ import 'package:project_ai_chat/viewmodels/aichat_list_view_model.dart';
 import 'package:project_ai_chat/viewmodels/auth_view_model.dart';
 import 'package:project_ai_chat/viewmodels/homechat_view_model.dart';
 import 'package:project_ai_chat/viewmodels/prompt_list_view_model.dart';
+import 'package:project_ai_chat/views/Login/login_screen.dart';
+import 'package:project_ai_chat/views/SplashScreen/splash_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:project_ai_chat/services/prompt_service.dart';

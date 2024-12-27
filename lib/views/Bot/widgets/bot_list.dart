@@ -131,6 +131,7 @@ class _BotListWidgetState extends State<BotListWidget> {
                 onTap: () {
                   _openEditBotDialog(
                       context, bots.data[index], bots.data[index].id);
+
                 },
                 child: BotCard(
                   bot: bots.data[index],
