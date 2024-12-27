@@ -1,10 +1,10 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
-import 'package:project_ai_chat/View/EmailChat/email.dart';
-import 'package:project_ai_chat/View/HomeChat/home.dart';
-import 'package:project_ai_chat/View/Login/login_screen.dart';
-import 'package:project_ai_chat/View/SplashScreen/splash_screen.dart';
+import 'package:project_ai_chat/views/EmailChat/email.dart';
+import 'package:project_ai_chat/views/HomeChat/home.dart';
+import 'package:project_ai_chat/views/Login/login_screen.dart';
+import 'package:project_ai_chat/views/SplashScreen/splash_screen.dart';
 import 'package:project_ai_chat/firebase_options.dart';
 import 'package:project_ai_chat/services/bot_service.dart';
 import 'package:project_ai_chat/services/chat_service.dart';
