@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
-import 'package:project_ai_chat/View/BottomSheet/Widgets/PromptDetailsBottomSheet/prompt_details_bottom_sheet.dart';
+import 'package:project_ai_chat/views/BottomSheet/Widgets/PromptDetailsBottomSheet/prompt_details_bottom_sheet.dart';
 import 'package:project_ai_chat/models/response/my_aibot_message_response.dart';
 import 'package:project_ai_chat/utils/exceptions/chat_exception.dart';
 import 'package:project_ai_chat/viewmodels/bot_view_model.dart';
