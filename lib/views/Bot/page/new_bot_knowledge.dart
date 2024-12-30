@@ -87,6 +87,7 @@ class NewBotKnowledge extends StatelessWidget {
                                   color: Colors.blue,
                                   onPressed: () {
                                     _addKnowledge(context, knowledge.id);
+
                                   },
                                 )
                               ],

@@ -10,7 +10,6 @@ import 'package:project_ai_chat/views/Bot/widgets/filter_button.dart';
 import 'package:project_ai_chat/views/HomeChat/home.dart';
 import 'package:project_ai_chat/models/bot.dart';
 import 'package:provider/provider.dart';
-
 import '../../../models/bot_request.dart';
 import '../../../viewmodels/bot_view_model.dart';
 

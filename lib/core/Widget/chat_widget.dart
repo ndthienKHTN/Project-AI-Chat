@@ -11,6 +11,7 @@ import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../viewmodels/homechat_view_model.dart';
+import '../../views/BottomSheet/Widgets/PromptDetailsBottomSheet/prompt_details_bottom_sheet.dart';
 
 class ChatWidget extends StatefulWidget {
   final bool isPreview;

@@ -1,9 +1,11 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:project_ai_chat/views/EmailChat/email.dart';
 import 'package:project_ai_chat/views/HomeChat/home.dart';
 import 'package:project_ai_chat/views/Login/login_screen.dart';
 import 'package:project_ai_chat/views/SplashScreen/splash_screen.dart';
+import 'package:project_ai_chat/firebase_options.dart';
 import 'package:project_ai_chat/services/bot_service.dart';
 import 'package:project_ai_chat/services/chat_service.dart';
 import 'package:project_ai_chat/services/email_chat_service.dart';
@@ -15,6 +17,8 @@ import 'package:project_ai_chat/viewmodels/aichat_list_view_model.dart';
 import 'package:project_ai_chat/viewmodels/auth_view_model.dart';
 import 'package:project_ai_chat/viewmodels/homechat_view_model.dart';
 import 'package:project_ai_chat/viewmodels/prompt_list_view_model.dart';
+import 'package:project_ai_chat/views/Login/login_screen.dart';
+import 'package:project_ai_chat/views/SplashScreen/splash_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:project_ai_chat/services/prompt_service.dart';
@@ -25,6 +29,9 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   MobileAds.instance.initialize();
   final prefs = await SharedPreferences.getInstance();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
 
   runApp(
     MultiProvider(

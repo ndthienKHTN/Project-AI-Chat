@@ -4,7 +4,6 @@ import 'package:project_ai_chat/views/Bot/page/preview_bot.dart';
 import 'package:project_ai_chat/models/bot_request.dart';
 import 'package:project_ai_chat/viewmodels/bot_view_model.dart';
 import 'package:project_ai_chat/viewmodels/knowledge_base_view_model.dart';
-
 import 'package:project_ai_chat/views/Bot/page/new_bot_knowledge.dart';
 import 'package:project_ai_chat/models/knowledge.dart';
 import 'package:provider/provider.dart';
@@ -347,7 +346,31 @@ class _NewBotState extends State<EditBot> {
                     ],
                   ),
                 ),
-
+                const SizedBox(
+                  height: 10,
+                ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: _saveBot,
+                        style: ElevatedButton.styleFrom(
+                          padding: EdgeInsets.symmetric(vertical: 16),
+                          backgroundColor: Colors.blue,
+                          shape: const RoundedRectangleBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(10)),
+                          ),
+                        ),
+                        child: const Text(
+                          "Chỉnh sửa",
+                          style: TextStyle(
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ],
             ),
           ),
