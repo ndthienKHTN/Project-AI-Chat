@@ -35,29 +35,6 @@ class BotCard extends StatelessWidget {
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  Row(
-                    children: [
-                      const Icon(
-                        Icons.person_2_outlined,
-                        size: 16,
-                      ),
-                      const SizedBox(width: 6),
-                      Text(
-                        "By ${bot.createdBy}",
-                        style: const TextStyle(color: Colors.grey),
-                      ),
-                      const Spacer(),
-                      // bot.isPublish
-                      //     ? const Icon(
-                      //         Icons.public,
-                      //         size: 16,
-                      //       )
-                      //     : const Icon(
-                      //         Icons.lock_open,
-                      //         size: 16,
-                      //       ),
-                    ],
-                  ),
                 ],
               ),
             ),

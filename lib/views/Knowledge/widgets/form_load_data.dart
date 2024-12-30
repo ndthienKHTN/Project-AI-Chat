@@ -31,6 +31,7 @@ class _FormLoadDataState extends State<FormLoadData> {
     }
     await Provider.of<KnowledgeBaseProvider>(context, listen: false)
         .uploadLocalFile(_selectedFile!, widget.knowledgeId);
+
     AnalyticsService().logEvent(
       "upload_file",
       {

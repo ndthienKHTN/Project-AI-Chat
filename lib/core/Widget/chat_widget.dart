@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:project_ai_chat/views/BottomSheet/Widgets/PromptDetailsBottomSheet/prompt_details_bottom_sheet.dart';
 import 'package:project_ai_chat/models/response/my_aibot_message_response.dart';
 import 'package:project_ai_chat/utils/exceptions/chat_exception.dart';
 import 'package:project_ai_chat/viewmodels/bot_view_model.dart';
@@ -13,8 +14,9 @@ import '../../viewmodels/homechat_view_model.dart';
 import '../../views/BottomSheet/Widgets/PromptDetailsBottomSheet/prompt_details_bottom_sheet.dart';
 
 class ChatWidget extends StatefulWidget {
+  final bool isPreview;
 
-  const ChatWidget({ Key? key }) : super(key: key);
+  const ChatWidget({Key? key, this.isPreview = false}) : super(key: key);
 
   @override
   State<ChatWidget> createState() => _ChatWidgetState();
@@ -31,6 +33,9 @@ class _ChatWidgetState extends State<ChatWidget> {
   @override
   void initState() {
     super.initState();
+
+    //Provider.of<BotViewModel>(context, listen: false).isPreview = widget.isPreview;
+
     //Lắng nghe ô nhập dữ liệu
     _controller.addListener(() {
       setState(() {
@@ -42,6 +47,12 @@ class _ChatWidgetState extends State<ChatWidget> {
     });
 
   }
+
+  // @override
+  // void didChangeDependencies() {
+  //   super.didChangeDependencies();
+  //   Provider.of<BotViewModel>(context, listen: false).isPreview = widget.isPreview;
+  // }
 
   void _onTextChanged(String input) {
     if (input.isNotEmpty) {

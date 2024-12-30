@@ -4,6 +4,7 @@ import 'package:project_ai_chat/viewmodels/knowledge_base_view_model.dart';
 import 'package:project_ai_chat/models/knowledge.dart';
 import 'package:project_ai_chat/views/Knowledge/widgets/load_data_knowledge.dart';
 import 'package:provider/provider.dart';
+
 class NewKnowledge extends StatefulWidget {
   const NewKnowledge({super.key, required this.addNewKnowledge});
   final void Function(String knowledgeName, String description) addNewKnowledge;

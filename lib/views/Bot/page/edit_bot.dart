@@ -1,9 +1,9 @@
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:project_ai_chat/views/Bot/page/preview_bot.dart';
 import 'package:project_ai_chat/models/bot_request.dart';
+import 'package:project_ai_chat/viewmodels/bot_view_model.dart';
 import 'package:project_ai_chat/viewmodels/knowledge_base_view_model.dart';
-
 import 'package:project_ai_chat/views/Bot/page/new_bot_knowledge.dart';
 import 'package:project_ai_chat/models/knowledge.dart';
 import 'package:provider/provider.dart';
@@ -33,20 +33,16 @@ class _NewBotState extends State<EditBot> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
-      builder: (context) => NewBotKnowledge(arrKnowledgeAdded: _arrKnowledge),
+      builder: (context) => NewBotKnowledge(),
     );
 
     if (result != null) {
-      setState(() {
-        _arrKnowledge.add(result);
-      });
+      //Show add success
     }
   }
 
-  void _handleDeleteKnowledge(String name) {
-    setState(() {
-      _arrKnowledge.remove(name);
-    });
+  void _handleDeleteKnowledge(String knowledgeId) {
+    Provider.of<BotViewModel>(context, listen: false).removeKnowledge(knowledgeId);
   }
 
   @override
@@ -73,16 +69,24 @@ class _NewBotState extends State<EditBot> {
     }
   }
 
+  Future<void> _previewBot() async {
+    Provider.of<BotViewModel>(context, listen: false).isPreview = true;
+    await Provider.of<BotViewModel>(context, listen: false).loadConversationHistory();
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const PreviewScreen(),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    // final arrKnowledge =
-    //     Provider.of<KnowledgeBaseProvider>(context, listen: false)
-    //         .knowledgeBases;
 
     return Scaffold(
         appBar: AppBar(
           title: const Text(
-            "Chỉnh sửa Bot",
+            "Edit Bot",
             style: TextStyle(
               fontWeight: FontWeight.bold,
             ),
@@ -109,18 +113,10 @@ class _NewBotState extends State<EditBot> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text(
-                        'Thông tin cơ bản',
+                        'Information',
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      const Center(
-                        child: CircleAvatar(
-                          radius: 30,
-                          backgroundColor: Colors.black12,
-                          child: Icon(Icons.add, size: 30),
                         ),
                       ),
                       const SizedBox(height: 10),
@@ -176,35 +172,113 @@ class _NewBotState extends State<EditBot> {
                         'Example: You are an experienced translator with skills in multiple languages worldwide.',
                         style: TextStyle(color: Colors.grey, fontSize: 12),
                       ),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      // Row(
+                      //   children: [
+                      //     Expanded(
+                      //       child: ElevatedButton(
+                      //         onPressed: _saveBot,
+                      //         style: ElevatedButton.styleFrom(
+                      //           padding: EdgeInsets.symmetric(vertical: 16),
+                      //           backgroundColor: Colors.blue,
+                      //           shape: const RoundedRectangleBorder(
+                      //             borderRadius: BorderRadius.all(Radius.circular(10)),
+                      //           ),
+                      //         ),
+                      //         child: const Text(
+                      //           "Chỉnh sửa",
+                      //           style: TextStyle(
+                      //             color: Colors.white,
+                      //           ),
+                      //         ),
+                      //       ),
+                      //     ),
+                      //   ],
+                      // ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          // Nút Save với ElevatedButton có gradient
+                          Expanded(
+                            child: Container(
+                              height: 40,
+                              decoration: BoxDecoration(
+                                gradient: const LinearGradient(
+                                  colors: [Colors.blue, Colors.lightBlueAccent],
+                                  begin: Alignment.centerLeft,
+                                  end: Alignment.centerRight,
+                                ),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: ElevatedButton(
+                                onPressed: _saveBot,
+                                style: ElevatedButton.styleFrom(
+                                  //padding: const EdgeInsets.symmetric(vertical: 16),
+                                  backgroundColor: Colors.transparent, // Quan trọng để giữ gradient
+                                  shadowColor: Colors.transparent, // Loại bỏ bóng
+                                  shape: const RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.all(Radius.circular(10)),
+                                  ),
+                                ),
+                                child: const Text(
+                                  "Save",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 16), // Khoảng cách giữa hai nút
+                          // Nút Preview với OutlineButton
+                          Expanded(
+                            child: SizedBox(
+                              height: 40,
+                              child: OutlinedButton(
+                                onPressed: _previewBot,
+                                style: OutlinedButton.styleFrom(
+                                  //padding: const EdgeInsets.symmetric(vertical: 16),
+                                  side: const BorderSide(color: Colors.blue, width: 1),
+                                  shape: const RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.all(Radius.circular(10)),
+                                  ),
+                                ),
+                                child: const Text(
+                                  "Preview",
+                                  style: TextStyle(
+                                    color: Colors.blue,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+
                       const SizedBox(height: 16),
-                      const Text("Bộ dữ liệu tri thức"),
+                      const Text("Imported Knowledge"),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          Column(
-                            children: _arrKnowledge
-                                .map(
-                                  (knowledge) => Card(
+                          Consumer<BotViewModel>(
+                            builder: (context, botViewModel, child) {
+                              return Column(
+                                children: botViewModel.knowledgeList.map(
+                                      (knowledge) => Card(
                                     child: Padding(
                                       padding: const EdgeInsets.all(8.0),
                                       child: Row(
                                         children: [
-                                          const Icon(Icons.storage,
-                                              color: Colors.green, size: 30),
-                                          // Image.network(
-                                          //   'https://img.freepik.com/premium-vector/isometric-cloud-database-cloud-computing-file-cloud-storage-modern-technologies-vector-illustration_561158-2678.jpg',
-                                          //   width: 30,
-                                          //   errorBuilder: (context, error, stackTrace) {
-                                          //     return const Icon(Icons
-                                          //         .storage); // Hiển thị icon lỗi nếu không load được hình
-                                          //   },
-                                          // ),
+                                          const Icon(Icons.storage, color: Colors.green, size: 30),
                                           const SizedBox(width: 10),
                                           Expanded(
                                             child: Text(
-                                              knowledge,
-                                              style:
-                                                  const TextStyle(fontSize: 16),
+                                              knowledge.name,
+                                              style: const TextStyle(fontSize: 16),
                                             ),
                                           ),
                                           Row(
@@ -214,7 +288,7 @@ class _NewBotState extends State<EditBot> {
                                                 iconSize: 20,
                                                 color: Colors.green,
                                                 onPressed: () {
-                                                  // Handle copy action
+                                                  // Handle edit action
                                                 },
                                               ),
                                               IconButton(
@@ -222,8 +296,7 @@ class _NewBotState extends State<EditBot> {
                                                 iconSize: 20,
                                                 color: Colors.red,
                                                 onPressed: () {
-                                                  _handleDeleteKnowledge(
-                                                      knowledge);
+                                                  _handleDeleteKnowledge(knowledge.id);
                                                 },
                                               ),
                                             ],
@@ -232,8 +305,9 @@ class _NewBotState extends State<EditBot> {
                                       ),
                                     ),
                                   ),
-                                )
-                                .toList(),
+                                ).toList(),
+                              );
+                            },
                           ),
                           const SizedBox(
                             height: 6,
