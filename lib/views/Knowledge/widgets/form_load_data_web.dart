@@ -2,12 +2,14 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:project_ai_chat/services/analytics_service.dart';
 import 'package:project_ai_chat/viewmodels/knowledge_base_view_model.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class FormLoadDataWeb extends StatefulWidget {
-  const FormLoadDataWeb({super.key, required this.addNewData, required this.knowledgeId});
+  const FormLoadDataWeb(
+      {super.key, required this.addNewData, required this.knowledgeId});
   final void Function(String newData) addNewData;
   final String knowledgeId;
 
@@ -24,8 +26,34 @@ class _FormLoadDataWebState extends State<FormLoadDataWeb> {
   void _saveFile() async {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
-      await Provider.of<KnowledgeBaseProvider>(context, listen: false)
-          .uploadWebUrl(widget.knowledgeId,_enteredName, _enteredWebUrl);
+      bool isSuccess =
+          await Provider.of<KnowledgeBaseProvider>(context, listen: false)
+              .uploadWebUrl(widget.knowledgeId, _enteredName, _enteredWebUrl);
+
+      if (isSuccess) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Successfully connected '),
+            backgroundColor: Colors.green,
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Fail connected '),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+
+      AnalyticsService().logEvent(
+      "upload_web",
+      {
+        "name": _enteredName,
+        "url": _enteredWebUrl
+      },
+    );
+
       widget.addNewData(_enteredName);
       Navigator.pop(context);
     }
@@ -140,15 +168,74 @@ class _FormLoadDataWebState extends State<FormLoadDataWeb> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text("Hủy"),
+            Expanded(
+              child: SizedBox(
+                height: 40,
+                child: OutlinedButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  style: OutlinedButton.styleFrom(
+                    //padding: const EdgeInsets.symmetric(vertical: 16),
+                    side: const BorderSide(color: Colors.blue, width: 1),
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(10)),
+                    ),
+                  ),
+                  child: const Text(
+                    "Cancel",
+                    style: TextStyle(
+                      color: Colors.blue,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
             ),
-            ElevatedButton(
-              onPressed: _saveFile,
-              child: const Text("Tạo Ngay"),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Container(
+                height: 40,
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [Colors.blue, Colors.lightBlueAccent],
+                    begin: Alignment.centerLeft,
+                    end: Alignment.centerRight,
+                  ),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Consumer<KnowledgeBaseProvider>(
+                  builder: (context, kbProvider, child) {
+                    return ElevatedButton(
+                      onPressed: kbProvider.isLoading ? null : _saveFile,
+                      style: ElevatedButton.styleFrom(
+                        //padding: const EdgeInsets.symmetric(vertical: 16),
+                        backgroundColor:
+                            Colors.transparent, // Quan trọng để giữ gradient
+                        shadowColor: Colors.transparent, // Loại bỏ bóng
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                        ),
+                      ),
+                      child: kbProvider.isLoading
+                          ? const SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                              ),
+                            )
+                          : const Text(
+                              "Save",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                    );
+                  },
+                ),
+              ),
             ),
           ],
         ),

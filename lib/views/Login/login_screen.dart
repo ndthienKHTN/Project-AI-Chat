@@ -38,6 +38,7 @@ class _LoginScreenState extends State<LoginScreen> {
           ModalRoute.of(context)?.settings.arguments as bool? ?? false;
 
       if (shouldShowMessage) {
+        ScaffoldMessenger.of(context).clearSnackBars();
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text("Session expired, please log in again."),
