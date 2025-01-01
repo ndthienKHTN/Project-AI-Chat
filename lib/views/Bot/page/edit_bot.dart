@@ -42,7 +42,8 @@ class _NewBotState extends State<EditBot> {
   }
 
   void _handleDeleteKnowledge(String knowledgeId) {
-    Provider.of<BotViewModel>(context, listen: false).removeKnowledge(knowledgeId);
+    Provider.of<BotViewModel>(context, listen: false)
+        .removeKnowledge(knowledgeId);
   }
 
   @override
@@ -58,20 +59,19 @@ class _NewBotState extends State<EditBot> {
       _formKey.currentState!.save();
 
       // information edit bot
-      widget.editBot(
-          BotRequest(
-            assistantName: _enteredName,
-            instructions: _enteredPrompt,
-            description: _enteredDescription,
-          )
-      );
+      widget.editBot(BotRequest(
+        assistantName: _enteredName,
+        instructions: _enteredPrompt,
+        description: _enteredDescription,
+      ));
       Navigator.pop(context);
     }
   }
 
   Future<void> _previewBot() async {
     Provider.of<BotViewModel>(context, listen: false).isPreview = true;
-    await Provider.of<BotViewModel>(context, listen: false).loadConversationHistory();
+    await Provider.of<BotViewModel>(context, listen: false)
+        .loadConversationHistory();
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -82,7 +82,6 @@ class _NewBotState extends State<EditBot> {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
         appBar: AppBar(
           title: const Text(
@@ -216,10 +215,13 @@ class _NewBotState extends State<EditBot> {
                                 onPressed: _saveBot,
                                 style: ElevatedButton.styleFrom(
                                   //padding: const EdgeInsets.symmetric(vertical: 16),
-                                  backgroundColor: Colors.transparent, // Quan trọng để giữ gradient
-                                  shadowColor: Colors.transparent, // Loại bỏ bóng
+                                  backgroundColor: Colors
+                                      .transparent, // Quan trọng để giữ gradient
+                                  shadowColor:
+                                      Colors.transparent, // Loại bỏ bóng
                                   shape: const RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.all(Radius.circular(10)),
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(10)),
                                   ),
                                 ),
                                 child: const Text(
@@ -241,9 +243,11 @@ class _NewBotState extends State<EditBot> {
                                 onPressed: _previewBot,
                                 style: OutlinedButton.styleFrom(
                                   //padding: const EdgeInsets.symmetric(vertical: 16),
-                                  side: const BorderSide(color: Colors.blue, width: 1),
+                                  side: const BorderSide(
+                                      color: Colors.blue, width: 1),
                                   shape: const RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.all(Radius.circular(10)),
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(10)),
                                   ),
                                 ),
                                 child: const Text(
@@ -267,45 +271,59 @@ class _NewBotState extends State<EditBot> {
                           Consumer<BotViewModel>(
                             builder: (context, botViewModel, child) {
                               return Column(
-                                children: botViewModel.knowledgeList.map(
+                                children: botViewModel.knowledgeList
+                                    .map(
                                       (knowledge) => Card(
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Row(
-                                        children: [
-                                          const Icon(Icons.storage, color: Colors.green, size: 30),
-                                          const SizedBox(width: 10),
-                                          Expanded(
-                                            child: Text(
-                                              knowledge.name,
-                                              style: const TextStyle(fontSize: 16),
-                                            ),
-                                          ),
-                                          Row(
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Row(
                                             children: [
-                                              IconButton(
-                                                icon: const Icon(Icons.edit),
-                                                iconSize: 20,
-                                                color: Colors.green,
-                                                onPressed: () {
-                                                  // Handle edit action
+                                              Image.network(
+                                                'https://img.freepik.com/premium-photo/green-white-graphic-stack-barrels-with-green-top_1103290-132885.jpg',
+                                                width: 30,
+                                                errorBuilder: (context, error,
+                                                    stackTrace) {
+                                                  return const Icon(Icons
+                                                      .storage); // Hiển thị icon lỗi nếu không load được hình
                                                 },
                                               ),
-                                              IconButton(
-                                                icon: const Icon(Icons.delete),
-                                                iconSize: 20,
-                                                color: Colors.red,
-                                                onPressed: () {
-                                                  _handleDeleteKnowledge(knowledge.id);
-                                                },
+                                              const SizedBox(width: 10),
+                                              Expanded(
+                                                child: Text(
+                                                  knowledge.name,
+                                                  style: const TextStyle(
+                                                      fontSize: 16),
+                                                ),
                                               ),
+                                              Row(
+                                                children: [
+                                                  IconButton(
+                                                    icon:
+                                                        const Icon(Icons.edit),
+                                                    iconSize: 20,
+                                                    color: Colors.green,
+                                                    onPressed: () {
+                                                      // Handle edit action
+                                                    },
+                                                  ),
+                                                  IconButton(
+                                                    icon: const Icon(
+                                                        Icons.delete),
+                                                    iconSize: 20,
+                                                    color: Colors.red,
+                                                    onPressed: () {
+                                                      _handleDeleteKnowledge(
+                                                          knowledge.id);
+                                                    },
+                                                  ),
+                                                ],
+                                              )
                                             ],
-                                          )
-                                        ],
+                                          ),
+                                        ),
                                       ),
-                                    ),
-                                  ),
-                                ).toList(),
+                                    )
+                                    .toList(),
                               );
                             },
                           ),
