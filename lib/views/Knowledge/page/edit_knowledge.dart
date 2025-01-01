@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:project_ai_chat/views/Knowledge/widgets/load_data_knowledge.dart';
@@ -96,8 +95,25 @@ class _NewKnowledgeState extends State<EditKnowledge> {
   }
 
   void _removeUnit(String unitId) async {
-    await Provider.of<KnowledgeBaseProvider>(context, listen: false)
-        .deleteUnit(unitId, widget.knowledge.id);
+    bool isSuccess =
+        await Provider.of<KnowledgeBaseProvider>(context, listen: false)
+            .deleteUnit(unitId, widget.knowledge.id);
+
+    if (isSuccess) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Successfully deleted '),
+          backgroundColor: Colors.green,
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Fail deleted '),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
   void _toggleUnitStatus(String unitId, bool isActive) async {
@@ -110,7 +126,7 @@ class _NewKnowledgeState extends State<EditKnowledge> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          "Chỉnh sửa Bộ dữ liệu",
+          "Edit Knowledge Base",
           style: TextStyle(
             fontWeight: FontWeight.bold,
           ),
@@ -140,7 +156,7 @@ class _NewKnowledgeState extends State<EditKnowledge> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'Chỉnh sửa tên & mô tả',
+                          'Edit name & descriptions',
                           style: TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 14),
                         ),
@@ -152,13 +168,13 @@ class _NewKnowledgeState extends State<EditKnowledge> {
                     TextFormField(
                       initialValue: _enteredName,
                       decoration: const InputDecoration(
-                        labelText: 'Tên',
-                        hintText: 'Nhập tên',
+                        labelText: 'Name',
+                        hintText: 'Input name',
                         suffixIcon: Icon(Icons.edit),
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Vui lòng nhập tên';
+                          return 'Please input name';
                         }
                         return null;
                       },
@@ -168,7 +184,7 @@ class _NewKnowledgeState extends State<EditKnowledge> {
                     ),
                     const SizedBox(height: 10),
                     const Text(
-                      'Ví dụ: Dịch giả chuyên nghiệp | Chuyên gia viết lách | Trợ lý mã',
+                      'Ex: Professional Translator | Writing Specialist | Code Assistant',
                       style: TextStyle(color: Colors.grey, fontSize: 12),
                     ),
                     const SizedBox(height: 15),
@@ -179,12 +195,12 @@ class _NewKnowledgeState extends State<EditKnowledge> {
                       maxLines: 4,
                       decoration: const InputDecoration(
                         // labelText: 'Prompt',
-                        hintText: 'Nhập mô tả bộ tri thức...',
+                        hintText: 'Enter the knowledge base description...',
                         border: OutlineInputBorder(),
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Vui lòng nhập mô tả';
+                          return 'Please input the description';
                         }
                         return null;
                       },
@@ -194,7 +210,7 @@ class _NewKnowledgeState extends State<EditKnowledge> {
                     ),
                     const SizedBox(height: 10),
                     const Text(
-                      'Ví dụ: Bạn là một dịch giả có kinh nghiệm với kỹ năng trong nhiều ngôn ngữ trên thế giới.',
+                      'For example: "You are an experienced translator with skills in multiple languages around the world."',
                       style: TextStyle(color: Colors.grey, fontSize: 12),
                     ),
                     const SizedBox(height: 16),
@@ -213,7 +229,7 @@ class _NewKnowledgeState extends State<EditKnowledge> {
                               ),
                             ),
                             child: const Text(
-                              "Chỉnh sửa",
+                              "Edit",
                               style: TextStyle(
                                 color: Colors.white,
                               ),
@@ -288,9 +304,12 @@ class _NewKnowledgeState extends State<EditKnowledge> {
                                   motion: const StretchMotion(),
                                   children: [
                                     SlidableAction(
-                                      onPressed: (context) {
-                                        _removeUnit(kb.listUnits[index].unitId);
-                                      },
+                                      onPressed: kbProvider.isLoading
+                                          ? null
+                                          : (context) {
+                                              _removeUnit(
+                                                  kb.listUnits[index].unitId);
+                                            },
                                       icon: Icons.delete,
                                       backgroundColor: Colors.red,
                                     ),
