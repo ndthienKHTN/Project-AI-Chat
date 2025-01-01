@@ -131,7 +131,7 @@ class _BotListWidgetState extends State<BotListWidget> {
               child: InkWell(
                 onTap: () async {
                   Provider.of<BotViewModel>(context, listen: false).isChatWithMyBot = true;
-                  Provider.of<BotViewModel>(context, listen: false).currentBot = bots.data[index];
+                  Provider.of<BotViewModel>(context, listen: false).currentChatBot = bots.data[index];
                   await Provider.of<BotViewModel>(context, listen: false).loadConversationHistory();
                   Navigator.pushReplacement(
                     context,

@@ -26,7 +26,6 @@ class _ChatWidgetState extends State<ChatWidget> {
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _controller = TextEditingController();
   bool _hasText = false;
-  bool _showSlash = false;
 
 
 
@@ -54,13 +53,7 @@ class _ChatWidgetState extends State<ChatWidget> {
   //   Provider.of<BotViewModel>(context, listen: false).isPreview = widget.isPreview;
   // }
 
-  void _onTextChanged(String input) {
-    if (input.isNotEmpty) {
-      _showSlash = input.startsWith('/');
-    } else {
-      _showSlash = false; // Đặt lại _showSlash khi không có input
-    }
-  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -79,71 +72,7 @@ class _ChatWidgetState extends State<ChatWidget> {
           ),
         ),
         const SizedBox(height: 10),
-        if (_showSlash)
-          Consumer<PromptListViewModel>(
-            builder: (context, promptList, child) {
-              if (promptList.isLoading) {
-                return const CircularProgressIndicator(); // Hoặc một widget khác để hiển thị khi đang tải
-              } else if (promptList.hasError) {
-                return Text(
-                    'Có lỗi xảy ra: ${promptList.error}'); // Hiển thị lỗi
-              } else {
-                return Padding(
-                  padding: const EdgeInsets.all(5),
-                  child: Container(
-                    width: MediaQuery.of(context)
-                        .size
-                        .width /
-                        3 *
-                        2,
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                        color: const Color.fromARGB(
-                            255,
-                            158,
-                            198,
-                            232), // Color of the border
-                        width:
-                        1.0, // Width of the border
-                      ),
-                      borderRadius:
-                      BorderRadius.circular(
-                          20.0), // Border radius
-                    ),
-                    constraints: BoxConstraints(
-                        maxHeight:
-                        MediaQuery.of(context)
-                            .size
-                            .height /
-                            3),
-                    child: ListView.builder(
-                      itemCount: promptList
-                          .allprompts.items.length,
-                      itemBuilder: (context, index) {
-                        return ListTile(
-                          title: Text(promptList
-                              .allprompts
-                              .items[index]
-                              .title),
-                          onTap: () {
-                            _controller.text =
-                            ""; // Chọn prompt
-                            _showSlash = false;
-                            PromptDetailsBottomSheet
-                                .show(
-                                context,
-                                promptList
-                                    .allprompts
-                                    .items[index]);
-                          },
-                        );
-                      },
-                    ),
-                  ),
-                );
-              }
-            },
-          ),
+
         Row(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.end,
@@ -175,7 +104,6 @@ class _ChatWidgetState extends State<ChatWidget> {
                   children: [
                     TextField(
                       controller: _controller,
-                      onChanged: _onTextChanged,
                       maxLines: null,
                       decoration: InputDecoration(
                         contentPadding:
@@ -183,7 +111,7 @@ class _ChatWidgetState extends State<ChatWidget> {
                           horizontal: 12,
                           vertical: 8,
                         ),
-                        hintText: 'Nhập tin nhắn...',
+                        hintText: 'Enter your message...',
                         hintStyle: TextStyle(
                           color: Colors.grey[500],
                           fontSize: 14,

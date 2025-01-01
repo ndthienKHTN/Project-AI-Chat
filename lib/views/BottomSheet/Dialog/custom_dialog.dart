@@ -288,109 +288,112 @@ class _CustomDialogContentState extends State<_CustomDialogContent> {
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.end, // Căn trái cho các nút
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          // Nút Cancel với viền gradient
-          Container(
-            padding: EdgeInsets.symmetric(horizontal: 4, vertical: 0),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [Colors.blue, Colors.purple], // Gradient cho viền
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: OutlinedButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              style: OutlinedButton.styleFrom(
-                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                backgroundColor: Colors.white, // Nền trong suốt
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(6),
+          Expanded(
+            child: SizedBox(
+              height: 40,
+              child: OutlinedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                style: OutlinedButton.styleFrom(
+                  //padding: const EdgeInsets.symmetric(vertical: 16),
+                  side: const BorderSide(
+                      color: Colors.blue, width: 1),
+                  shape: const RoundedRectangleBorder(
+                    borderRadius:
+                    BorderRadius.all(Radius.circular(10)),
+                  ),
                 ),
-                side: BorderSide(
-                    color: Colors.transparent), // Để gradient từ container
-              ),
-              child: Text(
-                'Cancel',
-                style:
-                    TextStyle(color: Colors.blue.shade900), // Chữ màu xanh đậm
+                child: const Text(
+                  "Cancel",
+                  style: TextStyle(
+                    color: Colors.blue,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
             ),
           ),
-          SizedBox(width: 10), // Khoảng cách giữa các nút
 
-          // Nút Create với nền gradient
-          Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [Colors.blue, Colors.purple], // Gradient nền
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: ElevatedButton(
-              onPressed: () async {
-                // Kiểm tra tính hợp lệ của các trường
-                if (selectedLanguage.isEmpty ||
-                    selectedCategory.isEmpty ||
-                    titleController.text.trim().isEmpty ||
-                    contentController.text.trim().isEmpty) {
-                  print("Title: ${titleController.text.trim()}");
-                  print("Content: ${contentController.text.trim()}");
-                  showDialog(
-                    context: context,
-                    builder: (context) {
-                      return AlertDialog(
-                        title: Text("Error"),
-                        content: Text("Please fill in all required fields!"),
-                        actions: [
-                          TextButton(
-                            onPressed: () {
-                              Navigator.pop(context);
-                            },
-                            child: Text("OK"),
-                          ),
-                        ],
-                      );
-                    },
-                  );
-                  return;
-                }
+          const SizedBox(width: 16),
 
-                // Tạo đối tượng RequestPrompt từ các giá trị đã nhập
-                PromptRequest newPrompt = PromptRequest(
-                  language: selectedLanguage,
-                  title: titleController.text,
-                  category: selectedCategory.toLowerCase(),
-                  description: descriptionController.text,
-                  content: contentController.text,
-                  isPublic: false,
-                );
-
-                await viewModel.createPrompt(newPrompt);
-
-                widget.onPromptCreated();
-
-                // Đóng dialog
-                Navigator.pop(context);
-              },
-              style: ElevatedButton.styleFrom(
-                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
-                backgroundColor: Colors.transparent,
-                // Để nền từ Container hiển thị
-                shadowColor: Colors.transparent,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
+          Expanded(
+            child: Container(
+              height: 40,
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [Colors.blue, Colors.lightBlueAccent],
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
                 ),
+                borderRadius: BorderRadius.circular(10),
               ),
-              child: Text(
-                'Create',
-                style: TextStyle(color: Colors.white), // Chữ trắng
+              child: ElevatedButton(
+                onPressed: () async {
+                  // Kiểm tra tính hợp lệ của các trường
+                  if (selectedLanguage.isEmpty ||
+                      selectedCategory.isEmpty ||
+                      titleController.text.trim().isEmpty ||
+                      contentController.text.trim().isEmpty) {
+                    print("Title: ${titleController.text.trim()}");
+                    print("Content: ${contentController.text.trim()}");
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        return AlertDialog(
+                          title: Text("Error"),
+                          content: Text("Please fill in all required fields!"),
+                          actions: [
+                            TextButton(
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                              child: Text("OK"),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                    return;
+                  }
+
+                  // Tạo đối tượng RequestPrompt từ các giá trị đã nhập
+                  PromptRequest newPrompt = PromptRequest(
+                    language: selectedLanguage,
+                    title: titleController.text,
+                    category: selectedCategory.toLowerCase(),
+                    description: descriptionController.text,
+                    content: contentController.text,
+                    isPublic: false,
+                  );
+
+                  await viewModel.createPrompt(newPrompt);
+
+                  widget.onPromptCreated();
+
+                  // Đóng dialog
+                  Navigator.pop(context);
+                },
+                style: ElevatedButton.styleFrom(
+                  //padding: const EdgeInsets.symmetric(vertical: 16),
+                  backgroundColor: Colors
+                      .transparent, // Quan trọng để giữ gradient
+                  shadowColor:
+                  Colors.transparent, // Loại bỏ bóng
+                  shape: const RoundedRectangleBorder(
+                    borderRadius:
+                    BorderRadius.all(Radius.circular(10)),
+                  ),
+                ),
+                child: const Text(
+                  "Create",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
             ),
           ),

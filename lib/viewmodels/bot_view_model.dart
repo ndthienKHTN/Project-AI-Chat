@@ -15,7 +15,9 @@ class BotViewModel extends ChangeNotifier {
 
   bool _isChatWithMyBot = false;
   final List<MyAiBotMessage> _myAiBotMessages = [];
+  final List<MyAiBotMessage> _myChatAiBotMessages = [];
   Bot _currentBot = Bot.empty();
+  Bot _currentChatBot = Bot.empty();
   String _currentOpenAiThreadId = "";
   bool _isSending = false;
   List<Knowledge> _knowledgeList = [];
@@ -28,6 +30,8 @@ class BotViewModel extends ChangeNotifier {
   List<MyAiBotMessage> get myAiBotMessages => _myAiBotMessages;
 
   Bot get currentBot => _currentBot;
+
+  Bot get currentChatBot => _currentChatBot;
 
   bool get isSending => _isSending;
 
@@ -44,6 +48,11 @@ class BotViewModel extends ChangeNotifier {
 
   set currentBot(Bot bot) {
     _currentBot = bot;
+    notifyListeners();
+  }
+
+  set currentChatBot(Bot bot) {
+    _currentChatBot = bot;
     notifyListeners();
   }
 
@@ -203,14 +212,19 @@ class BotViewModel extends ChangeNotifier {
         isErrored: false,
       ));
       notifyListeners();
+
+      String processedMessage;
       if (_isPreview){
         _currentOpenAiThreadId = _currentBot.openAiThreadIdPlay;
+        processedMessage = await _service.askAssistant(
+            _currentBot.id, _currentOpenAiThreadId, message);
       }
       else {
-        _currentOpenAiThreadId = await _service.getThread(_currentBot.id);
+        _currentOpenAiThreadId = await _service.getThread(_currentChatBot.id);
+        processedMessage = await _service.askAssistant(
+            _currentChatBot.id, _currentOpenAiThreadId, message);
       }
-      String processedMessage = await _service.askAssistant(
-          _currentBot.id, _currentOpenAiThreadId, message);
+
       // Xử lý response.message để thêm bullet points và format markdown
       //String processedMessage = response.message;
 
@@ -262,13 +276,13 @@ class BotViewModel extends ChangeNotifier {
 
   Future<void> loadConversationHistory() async {
     try {
-      //_isLoading = true;
-      //notifyListeners();
+      _isLoading = true;
+      notifyListeners();
       if (_isPreview){
         _currentOpenAiThreadId = _currentBot.openAiThreadIdPlay;
       }
       else {
-        _currentOpenAiThreadId = await _service.getThread(_currentBot.id);
+        _currentOpenAiThreadId = await _service.getThread(_currentChatBot.id);
       }
       List<MyAiBotMessage>? response = await _service.retrieveMessageOfThread(
           _currentOpenAiThreadId);
@@ -291,8 +305,8 @@ class BotViewModel extends ChangeNotifier {
       print('❌ Error loading conversation history: $e');
       // Xử lý lỗi tương tự như các method khác
     } finally {
-      // _isLoading = false;
-      // notifyListeners();
+      _isLoading = false;
+      notifyListeners();
     }
   }
 

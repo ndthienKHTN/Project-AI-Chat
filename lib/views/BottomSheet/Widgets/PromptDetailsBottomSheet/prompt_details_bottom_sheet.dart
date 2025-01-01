@@ -348,37 +348,59 @@ class _PromptDetailsBottomSheetState extends State<PromptDetailsBottomSheet> {
               SizedBox(height: 16),
 
               // Row 7: Send Button
-              ElevatedButton.icon(
-                onPressed: () async {
-                  String content = widget.prompt.content;
-                  // Thay thế các placeholder bằng input người dùng
-                  final regex = RegExp(r'\[(.+?)\]');
-                  int index = 0;
-                  String updatedContent =
-                      content.replaceAllMapped(regex, (match) {
-                    // Nếu người dùng đã nhập giá trị thay thế, sử dụng giá trị đó
-                    if (index < inputs.length && inputs[index].isNotEmpty) {
-                      return inputs[index++];
-                    }
-                    // Nếu không có giá trị thay thế, giữ nguyên placeholder
-                    return match.group(0)!;
-                  });
-                  updatedContent += "\nRespond in " + selectedLanguage.value;
-                  AIItem ai =
-                      await Provider.of<AIChatList>(context, listen: false)
-                          .selectedAIItem;
-                  await Provider.of<MessageModel>(context, listen: false)
-                      .sendMessage(updatedContent, ai);
-                  Navigator.pop(context);
-                },
-                icon: Icon(Icons.send),
-                label: Text('Send'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue, // Background màu xanh
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
+              Row(
+                children:[ Expanded(
+                  child: Container(
+                    height: 40,
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [Colors.blue, Colors.lightBlueAccent],
+                        begin: Alignment.centerLeft,
+                        end: Alignment.centerRight,
+                      ),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(10),
+                      child: ElevatedButton.icon(
+                        onPressed: () async {
+                          String content = widget.prompt.content;
+                          // Thay thế các placeholder bằng input người dùng
+                          final regex = RegExp(r'\[(.+?)\]');
+                          int index = 0;
+                          String updatedContent =
+                              content.replaceAllMapped(regex, (match) {
+                            // Nếu người dùng đã nhập giá trị thay thế, sử dụng giá trị đó
+                            if (index < inputs.length && inputs[index].isNotEmpty) {
+                              return inputs[index++];
+                            }
+                            // Nếu không có giá trị thay thế, giữ nguyên placeholder
+                            return match.group(0)!;
+                          });
+                          updatedContent += "\nRespond in " + selectedLanguage.value;
+                          AIItem ai =
+                              await Provider.of<AIChatList>(context, listen: false)
+                                  .selectedAIItem;
+                          await Provider.of<MessageModel>(context, listen: false)
+                              .sendMessage(updatedContent, ai);
+                          Navigator.pop(context);
+                        },
+                        icon: Icon(Icons.send, color: Colors.white,),
+                        label: Text('Send', style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),),
+                        style: ElevatedButton.styleFrom(
+                          //padding: const EdgeInsets.symmetric(vertical: 16),
+                          backgroundColor: Colors
+                              .transparent, // Quan trọng để giữ gradient
+                          shadowColor:
+                          Colors.transparent, // Loại bỏ bóng
+                        ),
+                      ),
+                    ),
                   ),
-                ),
+                ),]
               ),
             ],
           ),

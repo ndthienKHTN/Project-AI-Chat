@@ -66,6 +66,13 @@ class _BotScreenState extends State<BotScreen> {
     final viewModel = context.watch<BotViewModel>();
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () async => {
+            await Provider.of<BotViewModel>(context, listen: false).loadConversationHistory(),
+            Navigator.pop(context)
+          },
+        ),
         title: const Text(
           "Bots",
           style: TextStyle(fontWeight: FontWeight.bold),
