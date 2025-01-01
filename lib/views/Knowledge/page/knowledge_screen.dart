@@ -5,6 +5,7 @@ import 'package:project_ai_chat/models/knowledge.dart';
 import 'package:project_ai_chat/views/Knowledge/page/edit_knowledge.dart';
 import 'package:project_ai_chat/views/Knowledge/page/new_knowledge.dart';
 import 'package:project_ai_chat/views/Knowledge/widgets/knowledge_card.dart';
+import 'package:project_ai_chat/services/analytics_service.dart';
 import 'package:project_ai_chat/viewmodels/knowledge_base_view_model.dart';
 import 'package:provider/provider.dart';
 
@@ -35,15 +36,57 @@ class _KnowledgeScreenState extends State<KnowledgeScreen> {
       });
   }
 
-  void _addKnowledge(String knowledgeName, String description) {
-    Provider.of<KnowledgeBaseProvider>(context, listen: false)
-        .addKnowledgeBase(knowledgeName, description);
+  void _addKnowledge(String knowledgeName, String description) async {
+    bool isSuccess =
+        await Provider.of<KnowledgeBaseProvider>(context, listen: false)
+            .addKnowledgeBase(knowledgeName, description);
+
+    if (isSuccess) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Successfully created '),
+          backgroundColor: Colors.green,
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Fail created '),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+
+    AnalyticsService().logEvent(
+      "new_knowledge",
+      {
+        "name": knowledgeName,
+        "description": description,
+      },
+    );
   }
 
   void _editKnowledge(
-      String id, int index, String knowledgeName, String description) {
-    Provider.of<KnowledgeBaseProvider>(context, listen: false)
-        .editKnowledgeBase(id, index, knowledgeName, description);
+      String id, int index, String knowledgeName, String description) async {
+    bool isSuccess =
+        await Provider.of<KnowledgeBaseProvider>(context, listen: false)
+            .editKnowledgeBase(id, index, knowledgeName, description);
+
+    if (isSuccess) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Successfully edited '),
+          backgroundColor: Colors.green,
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Fail edited '),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
   void _openAddBotDialog(BuildContext context) {
@@ -81,9 +124,26 @@ class _KnowledgeScreenState extends State<KnowledgeScreen> {
     );
   }
 
-  void _removeKnowledge(String id, int index) {
-    Provider.of<KnowledgeBaseProvider>(context, listen: false)
-        .deleteKnowledgeBase(id, index);
+  void _removeKnowledge(String id, int index) async {
+    bool isSuccess =
+        await Provider.of<KnowledgeBaseProvider>(context, listen: false)
+            .deleteKnowledgeBase(id, index);
+
+    if (isSuccess) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Successfully deleted '),
+          backgroundColor: Colors.green,
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Fail deleted '),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
 
     // Undo remove knowledge
     // ScaffoldMessenger.of(context).clearSnackBars();
@@ -142,7 +202,7 @@ class _KnowledgeScreenState extends State<KnowledgeScreen> {
                   icon: const Icon(Icons.search),
                   onPressed: _onSearch, // Nhấn icon tìm kiếm để gọi API
                 ),
-                hintText: 'Tìm kiếm',
+                hintText: 'Search',
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8.0),
                 ),
@@ -175,7 +235,8 @@ class _KnowledgeScreenState extends State<KnowledgeScreen> {
                     itemBuilder: (context, index) {
                       if (index == kbProvider.knowledgeBases.length) {
                         // Loader khi đang tải thêm
-                        if (kbProvider.hasNext) {
+                        if (kbProvider.hasNext &&
+                            kbProvider.knowledgeBases.length >= 8) {
                           return const Padding(
                             padding: EdgeInsets.all(16.0),
                             child: Center(child: CircularProgressIndicator()),

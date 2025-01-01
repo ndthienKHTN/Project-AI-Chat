@@ -4,9 +4,9 @@ import 'package:project_ai_chat/models/ai_logo.dart';
 import 'package:project_ai_chat/views/Knowledge/page/knowledge_screen.dart';
 import 'package:project_ai_chat/viewmodels/bot_view_model.dart';
 import 'package:provider/provider.dart';
-import '../../../../viewmodels/homechat_view_model.dart';
-import '../../../UpgradeVersion/upgrade_version.dart';
-import '../../../../viewmodels/aichat_list_view_model.dart';
+import '../../../viewmodels/homechat_view_model.dart';
+import '../../UpgradeVersion/upgrade_version.dart';
+import '../../../viewmodels/aichat_list_view_model.dart';
 
 class Menu extends StatefulWidget {
   const Menu({Key? key}) : super(key: key);
@@ -46,8 +46,6 @@ class _MenuState extends State<Menu> {
     final dateTime = DateTime.fromMillisecondsSinceEpoch(timestamp * 1000);
     return DateFormat('dd/MM/yyyy HH:mm').format(dateTime);
   }
-
-  void _logout() async {}
   @override
   Widget build(BuildContext context) {
     return Drawer(
@@ -169,6 +167,7 @@ class _MenuState extends State<Menu> {
                             .loadConversationHistory(
                                 assistantId, conversation.id);
                         Provider.of<BotViewModel>(context, listen: false).isChatWithMyBot = false;
+
                         Navigator.pop(context); // Đóng drawer
                       },
                     );
