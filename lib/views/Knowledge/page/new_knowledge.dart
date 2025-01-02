@@ -51,7 +51,7 @@ class _NewKnowledgeState extends State<NewKnowledge> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   const Text(
-                    'Tạo Bộ Tri Thức',
+                    'Create Knowledge Base',
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
                   ),
                   IconButton(
@@ -68,13 +68,13 @@ class _NewKnowledgeState extends State<NewKnowledge> {
               TextFormField(
                 // controller: nameController,
                 decoration: const InputDecoration(
-                  labelText: 'Tên',
-                  hintText: 'Nhập tên',
+                  labelText: 'Name',
+                  hintText: 'Input Name',
                   suffixIcon: Icon(Icons.edit),
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Vui lòng nhập tên';
+                    return 'Please input name';
                   }
                   return null;
                 },
@@ -84,7 +84,7 @@ class _NewKnowledgeState extends State<NewKnowledge> {
               ),
               const SizedBox(height: 10),
               const Text(
-                'Ví dụ: Dịch giả chuyên nghiệp | Chuyên gia viết lách | Trợ lý mã',
+                'Ex: Professional Translator | Writing Specialist | Code Assistant',
                 style: TextStyle(color: Colors.grey, fontSize: 12),
               ),
               const SizedBox(height: 15),
@@ -95,12 +95,12 @@ class _NewKnowledgeState extends State<NewKnowledge> {
                 maxLines: 4,
                 decoration: const InputDecoration(
                   // labelText: 'Prompt',
-                  hintText: 'Nhập mô tả bộ tri thức...',
+                  hintText: 'Enter the knowledge base description...',
                   border: OutlineInputBorder(),
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Vui lòng nhập mô tả';
+                    return 'Please input the description';
                   }
                   return null;
                 },
@@ -110,7 +110,7 @@ class _NewKnowledgeState extends State<NewKnowledge> {
               ),
               const SizedBox(height: 10),
               const Text(
-                'Ví dụ: Bạn là một dịch giả có kinh nghiệm với kỹ năng trong nhiều ngôn ngữ trên thế giới.',
+                'For example: "You are an experienced translator with skills in multiple languages around the world."',
                 style: TextStyle(color: Colors.grey, fontSize: 12),
               ),
               // const SizedBox(height: 16),
@@ -137,34 +137,72 @@ class _NewKnowledgeState extends State<NewKnowledge> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            OutlinedButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              style: OutlinedButton.styleFrom(
-                  shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(10)),
+            Expanded(
+              child: SizedBox(
+                height: 40,
+                child: OutlinedButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  style: OutlinedButton.styleFrom(
+                    //padding: const EdgeInsets.symmetric(vertical: 16),
+                    side: const BorderSide(color: Colors.blue, width: 1),
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(10)),
+                    ),
                   ),
-                  side: const BorderSide(width: 1, color: Colors.orange)),
-              child: const Text(
-                "Huỷ",
-                style: TextStyle(
-                  color: Colors.orange,
+                  child: const Text(
+                    "Cancel",
+                    style: TextStyle(
+                      color: Colors.blue,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
               ),
             ),
-            ElevatedButton(
-              onPressed: _saveKnowledgeBase,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue,
-                shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(10)),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Container(
+                height: 40,
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [Colors.blue, Colors.lightBlueAccent],
+                    begin: Alignment.centerLeft,
+                    end: Alignment.centerRight,
+                  ),
+                  borderRadius: BorderRadius.circular(10),
                 ),
-              ),
-              child: const Text(
-                "Tạo ngay",
-                style: TextStyle(
-                  color: Colors.white,
+                child: Consumer<KnowledgeBaseProvider>(
+                  builder: (context, kbProvider, child) {
+                    return ElevatedButton(
+                      onPressed: kbProvider.isLoading ? null : _saveKnowledgeBase,
+                      style: ElevatedButton.styleFrom(
+                        //padding: const EdgeInsets.symmetric(vertical: 16),
+                        backgroundColor:
+                            Colors.transparent, // Quan trọng để giữ gradient
+                        shadowColor: Colors.transparent, // Loại bỏ bóng
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(10)),
+                        ),
+                      ),
+                      child: kbProvider.isLoading
+                          ? const SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                              ),
+                            )
+                          : const Text(
+                              "Save",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                    );
+                  },
                 ),
               ),
             ),
