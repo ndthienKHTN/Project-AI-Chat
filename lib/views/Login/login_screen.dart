@@ -6,7 +6,9 @@ import 'package:project_ai_chat/constants/colors.dart';
 import 'package:project_ai_chat/constants/image_strings.dart';
 import 'package:project_ai_chat/constants/sizes.dart';
 import 'package:project_ai_chat/constants/text_strings.dart';
+import 'package:project_ai_chat/core/Widget/elevated_button.dart';
 import 'package:project_ai_chat/core/Widget/outlined_button.dart';
+import 'package:project_ai_chat/services/analytics_service.dart';
 import 'package:project_ai_chat/viewmodels/auth_view_model.dart';
 import 'package:provider/provider.dart';
 
@@ -36,6 +38,7 @@ class _LoginScreenState extends State<LoginScreen> {
           ModalRoute.of(context)?.settings.arguments as bool? ?? false;
 
       if (shouldShowMessage) {
+        ScaffoldMessenger.of(context).clearSnackBars();
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text("Session expired, please log in again."),
@@ -60,6 +63,12 @@ class _LoginScreenState extends State<LoginScreen> {
           await Provider.of<AuthViewModel>(context, listen: false).login(
         email: _emailController.text,
         password: _passwordController.text,
+      );
+      AnalyticsService().logEvent(
+        "login",
+        {
+          "email": _emailController.text,
+        },
       );
 
       if (success && mounted) {

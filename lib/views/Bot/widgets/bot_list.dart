@@ -7,6 +7,7 @@ import 'package:project_ai_chat/views/HomeChat/home.dart';
 import 'package:project_ai_chat/models/bot_request.dart';
 import 'package:project_ai_chat/viewmodels/bot_view_model.dart';
 import 'package:project_ai_chat/models/bot.dart';
+import 'package:project_ai_chat/viewmodels/homechat_view_model.dart';
 import 'package:provider/provider.dart';
 
 class BotListWidget extends StatefulWidget {
@@ -128,10 +129,10 @@ class _BotListWidgetState extends State<BotListWidget> {
                 ],
               ),
               child: InkWell(
-                onTap: () {
+                onTap: () async {
                   Provider.of<BotViewModel>(context, listen: false).isChatWithMyBot = true;
-                  Provider.of<BotViewModel>(context, listen: false).currentBot = bots.data[index];
-                  Provider.of<BotViewModel>(context, listen: false).loadConversationHistory();
+                  Provider.of<BotViewModel>(context, listen: false).currentChatBot = bots.data[index];
+                  await Provider.of<BotViewModel>(context, listen: false).loadConversationHistory();
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(builder: (context) => const HomeChat()),
@@ -214,14 +215,8 @@ class _BotListWidgetState extends State<BotListWidget> {
   }
 
   void _openEditBotDialog(BuildContext context, Bot bot, String id) {
-    // showDialog(
-    //     context: context,
-    //     builder: (context) => EditBot(
-    //           editBot: (bot) {
-    //             _editBot(bot, index);
-    //           },
-    //           bot: bot,
-    //         ));
+    Provider.of<BotViewModel>(context, listen: false).currentBot = bot;
+    Provider.of<BotViewModel>(context, listen: false).getImportedKnowledge(id);
 
     Navigator.of(context).push(
       MaterialPageRoute(

@@ -47,7 +47,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         // Hiển thị thông báo thành công
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Đăng ký thành công! Vui lòng đăng nhập'),
+            content: Text('Registration successful! Please log in'),
             backgroundColor: Colors.green,
           ),
         );
@@ -61,8 +61,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
         // Hiển thị thông báo lỗi
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content:
-                Text(context.read<AuthViewModel>().error ?? 'Đăng ký thất bại'),
+            content: Text(
+                context.read<AuthViewModel>().error ?? 'Registration failed'),
             backgroundColor: Colors.red,
           ),
         );
@@ -107,7 +107,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Vui lòng nhập username';
+                        return 'Please input username';
                       }
                       return null;
                     },
@@ -158,7 +158,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           : _register,
                       child: context.watch<AuthViewModel>().isLoading
                           ? CircularProgressIndicator()
-                          : Text('Đăng ký'),
+                          : Text('REGISTER'),
                     ),
                   ),
                 ],
