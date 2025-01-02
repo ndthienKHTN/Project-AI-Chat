@@ -50,7 +50,7 @@ class _NewBotState extends State<NewBot> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   const Text(
-                    'Tạo Bot',
+                    'Create New Bot',
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
                   ),
                   IconButton(
@@ -119,34 +119,66 @@ class _NewBotState extends State<NewBot> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            OutlinedButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              style: OutlinedButton.styleFrom(
-                  shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(10)),
+            Expanded(
+              child: SizedBox(
+                height: 40,
+                child: OutlinedButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  style: OutlinedButton.styleFrom(
+                    //padding: const EdgeInsets.symmetric(vertical: 16),
+                    side: const BorderSide(
+                        color: Colors.blue, width: 1),
+                    shape: const RoundedRectangleBorder(
+                      borderRadius:
+                      BorderRadius.all(Radius.circular(10)),
+                    ),
                   ),
-                  side: const BorderSide(width: 1, color: Colors.orange)),
-              child: const Text(
-                "Huỷ",
-                style: TextStyle(
-                  color: Colors.orange,
+                  child: const Text(
+                    "Cancel",
+                    style: TextStyle(
+                      color: Colors.blue,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
               ),
             ),
-            ElevatedButton(
-              onPressed: _saveBot,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue,
-                shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(10)),
+
+            const SizedBox(width: 16),
+
+            Expanded(
+              child: Container(
+                height: 40,
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [Colors.blue, Colors.lightBlueAccent],
+                    begin: Alignment.centerLeft,
+                    end: Alignment.centerRight,
+                  ),
+                  borderRadius: BorderRadius.circular(10),
                 ),
-              ),
-              child: const Text(
-                "Tạo ngay",
-                style: TextStyle(
-                  color: Colors.white,
+                child: ElevatedButton(
+                  onPressed: _saveBot,
+                  style: ElevatedButton.styleFrom(
+                    //padding: const EdgeInsets.symmetric(vertical: 16),
+                    backgroundColor: Colors
+                        .transparent, // Quan trọng để giữ gradient
+                    shadowColor:
+                    Colors.transparent, // Loại bỏ bóng
+                    shape: const RoundedRectangleBorder(
+                      borderRadius:
+                      BorderRadius.all(Radius.circular(10)),
+                    ),
+                  ),
+                  child: const Text(
+                    "Create",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
               ),
             ),

@@ -174,28 +174,6 @@ class _NewBotState extends State<EditBot> {
                       const SizedBox(
                         height: 10,
                       ),
-                      // Row(
-                      //   children: [
-                      //     Expanded(
-                      //       child: ElevatedButton(
-                      //         onPressed: _saveBot,
-                      //         style: ElevatedButton.styleFrom(
-                      //           padding: EdgeInsets.symmetric(vertical: 16),
-                      //           backgroundColor: Colors.blue,
-                      //           shape: const RoundedRectangleBorder(
-                      //             borderRadius: BorderRadius.all(Radius.circular(10)),
-                      //           ),
-                      //         ),
-                      //         child: const Text(
-                      //           "Chỉnh sửa",
-                      //           style: TextStyle(
-                      //             color: Colors.white,
-                      //           ),
-                      //         ),
-                      //       ),
-                      //     ),
-                      //   ],
-                      // ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
@@ -298,15 +276,6 @@ class _NewBotState extends State<EditBot> {
                                               Row(
                                                 children: [
                                                   IconButton(
-                                                    icon:
-                                                        const Icon(Icons.edit),
-                                                    iconSize: 20,
-                                                    color: Colors.green,
-                                                    onPressed: () {
-                                                      // Handle edit action
-                                                    },
-                                                  ),
-                                                  IconButton(
                                                     icon: const Icon(
                                                         Icons.delete),
                                                     iconSize: 20,
@@ -363,31 +332,6 @@ class _NewBotState extends State<EditBot> {
                       ),
                     ],
                   ),
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-                Row(
-                  children: [
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: _saveBot,
-                        style: ElevatedButton.styleFrom(
-                          padding: EdgeInsets.symmetric(vertical: 16),
-                          backgroundColor: Colors.blue,
-                          shape: const RoundedRectangleBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(10)),
-                          ),
-                        ),
-                        child: const Text(
-                          "Chỉnh sửa",
-                          style: TextStyle(
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
                 ),
               ],
             ),
