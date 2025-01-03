@@ -355,7 +355,7 @@ class _EmailComposerState extends State<EmailComposer> {
                             }
                           },
                           icon: Icon(Icons.send),
-                          color: Colors.grey[600], // Icon color
+                          color: Colors.black87, // Icon color
                         ),
                       ],
                     ),

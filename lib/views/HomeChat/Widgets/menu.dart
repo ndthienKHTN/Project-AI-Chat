@@ -4,8 +4,9 @@ import 'package:project_ai_chat/models/ai_logo.dart';
 import 'package:project_ai_chat/views/Knowledge/page/knowledge_screen.dart';
 import 'package:project_ai_chat/viewmodels/bot_view_model.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
+import '../../../constants/text_strings.dart';
 import '../../../viewmodels/homechat_view_model.dart';
-import '../../UpgradeVersion/upgrade_version.dart';
 import '../../../viewmodels/aichat_list_view_model.dart';
 
 class Menu extends StatefulWidget {
@@ -183,16 +184,20 @@ class _MenuState extends State<Menu> {
 
   Widget _buildWidgetItem(IconData icon, String title, int index) {
     return InkWell(
-      onTap: () {
+      onTap: () async {
         setState(() {
           _selectedIndex = index;
         });
-        if (index == 2) {
-          // Assuming "Upgrade Version" is at index 3
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => UpgradeVersion()),
-          );
+        if (index == 2){
+          final Uri url = Uri.parse(linkUpgrade);
+          if (await canLaunchUrl(url)) {
+            await launchUrl(url);
+          } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+            content: Text('Cannot open link!')),
+           );
+        }
         } else if (index == 1) {
           Navigator.push(
             context,
