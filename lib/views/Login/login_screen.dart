@@ -64,12 +64,12 @@ class _LoginScreenState extends State<LoginScreen> {
         email: _emailController.text,
         password: _passwordController.text,
       );
-      AnalyticsService().logEvent(
-        "login",
-        {
-          "email": _emailController.text,
-        },
-      );
+      // AnalyticsService().logEvent(
+      //   "login",
+      //   {
+      //     "email": _emailController.text,
+      //   },
+      // );
 
       if (success && mounted) {
         // Chuyển sang màn hình HomeChat
