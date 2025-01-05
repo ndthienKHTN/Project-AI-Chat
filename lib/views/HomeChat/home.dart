@@ -301,7 +301,7 @@ class _HomeChatState extends State<HomeChat> {
                                     const EdgeInsets.symmetric(horizontal: 10),
                                 child: Center(
                                   child: Text(
-                                    botModel.currentBot.assistantName,
+                                    botModel.currentChatBot.assistantName,
                                     style: const TextStyle(
                                       fontSize: 12,
                                       overflow: TextOverflow.ellipsis,
