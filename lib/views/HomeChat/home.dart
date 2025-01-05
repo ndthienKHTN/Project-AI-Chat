@@ -8,6 +8,7 @@ import 'package:project_ai_chat/viewmodels/auth_view_model.dart';
 import 'package:project_ai_chat/viewmodels/bot_view_model.dart';
 import 'package:project_ai_chat/viewmodels/knowledge_base_view_model.dart';
 import 'package:project_ai_chat/viewmodels/prompt_list_view_model.dart';
+import '../../constants/text_strings.dart';
 import '../../core/Widget/dropdown_button.dart';
 import '../../utils/helpers/ads/ads_helper.dart';
 import '../../viewmodels/aichat_list_view_model.dart';
@@ -51,7 +52,7 @@ class _HomeChatState extends State<HomeChat> {
   late String _selectedAIItem;
 
   //Link upgrade
-  final String _linkUpgrade = 'https://admin.dev.jarvis.cx/pricing/overview';
+
 
   @override
   void initState() {
@@ -313,7 +314,7 @@ class _HomeChatState extends State<HomeChat> {
                       //const Spacer(),
                       TextButton(
                         onPressed: () async {
-                          final Uri url = Uri.parse(_linkUpgrade);
+                          final Uri url = Uri.parse(linkUpgrade);
                           if (await canLaunchUrl(url)) {
                             await launchUrl(url);
                           } else {

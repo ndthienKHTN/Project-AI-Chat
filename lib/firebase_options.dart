@@ -52,7 +52,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyBIJ6iNH1jsF5o8r19TsveFj0cy3lEcvbg',
-    appId: '1:498268971403:android:ebafbfb3e73aeeb4638f8e',
+    appId: '1:498268971403:android:847eff57c7bf5df1638f8e',
     messagingSenderId: '498268971403',
     projectId: 'project-ai-chat-47736',
     storageBucket: 'project-ai-chat-47736.firebasestorage.app',
@@ -85,4 +85,5 @@ class DefaultFirebaseOptions {
     storageBucket: 'project-ai-chat-47736.firebasestorage.app',
     measurementId: 'G-3Q2M48D9M8',
   );
+
 }
