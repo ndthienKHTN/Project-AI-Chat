@@ -1,6 +1,3 @@
-import 'dart:convert';
-import 'dart:ffi';
-
 import 'package:project_ai_chat/models/prompt.dart';
 
 // Model cho PromptList
